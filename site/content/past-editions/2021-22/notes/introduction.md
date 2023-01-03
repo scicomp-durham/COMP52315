@@ -96,7 +96,7 @@ determined by two things
 1. Hardware limitations
 2. The rate at which load and store instructions (which move data) can
    be executed.
-   
+
 For example, returning to our simple example and just considering the
 instructions which move memory, we can see that there are three such
 instructions per loop iteration.
@@ -138,7 +138,7 @@ completes before the next one starts
 {{< manfig src="vonneumann.svg"
    width="50%"
    caption="Diagram of the abstract machine model for the von Neumann architecture" >}}
-   
+
 This was a reasonable match with reality when first introduced in the
 1940s, however the hardware in modern CPUs does not match the abstract
 model nearly as well. For a simple example, most instructions in
@@ -242,7 +242,7 @@ instructions have a latency of more than one cycle, meaning that if we
 issue and wait for the result, we have lots of wasted cycles. Chips
 therefore tend to have a _pipeline_ for instructions, on the
 assumption that codes will typically issue a large number of
-instructions that are the same (just operating on different data). 
+instructions that are the same (just operating on different data).
 
 Here's an example with a pipeline of length four. Each individual
 instruction takes four cycles to execute, but we can have four
@@ -322,7 +322,7 @@ element per instruction
 
 {{< manfig src="scalaradd.svg"
    width="100%" >}}
-   
+
 <--->
 
 #### AVX addition
@@ -338,7 +338,7 @@ instruction.
 ## Putting things into practice
 
 With all that, we're now going to look at what this means for the
-execution speed of simple code. [Exercise 1]({{< ref "exercise01.md"
+execution speed of simple code. [Exercise 1]({{< ref "../exercises/exercise01.md"
 >}}) walks through an example of a simple "reduction". You can think
 of this as a proxy for computing the dot product of two vectors. We'll
 look at the effect of vectorisation on throughput.

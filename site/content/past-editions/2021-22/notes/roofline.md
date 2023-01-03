@@ -30,7 +30,7 @@ The idea is that we decide that the time to solution is too long, and
 must therefore optimise the code. We _profile_ the code to determine
 where it spends all (or most) of its time, and then construct a model
 that explains that time. With a model in hand, we can make a
-prediction about the best optimisation to apply. 
+prediction about the best optimisation to apply.
 
 {{< hint info >}}
 Note that we might not always be able to optimise code such that it
@@ -97,7 +97,7 @@ characterise the hardware
    in FLOPs/s
 1. The _peak streaming memory bandwidth_ \\(B_\text{peak}\\) measured
    in bytes/s
-   
+
 Our challenge is then to ask what the limit on the performance of a
 piece of code is. We characterise performance by how fast work can be
 done, measured in FLOPs/s. The roofline model says that the bottleneck
@@ -138,7 +138,7 @@ For example, consider three exemplar codes, plotted on a roofline
 {{< autofig src="roofline-example-simple.svg"
     width="70%"
     caption="Exemplar roofline plot" >}}
-    
+
 The roofline model suggests that there is not really any room to
 improve the implementation of "Code A", it's a memory
 bandwidth-limited code and achieving that limit.
@@ -233,11 +233,11 @@ There are two issues with this:
 1. I don't actually know if Hamilton has DDR2400 RAM chips installed
 2. This is a "guaranteed not to exceed" limit, in practice, even if we
    do have the right RAM, it is not typically achieved.
-   
+
 The alternative approach, which nearly everyone uses, is to _measure_
 the memory bandwidth using the
 [STREAM](https://www.cs.virginia.edu/stream/) benchmark. This is what
-we will typically do, and [exercise 4]({{< ref "exercise04.md" >}})
+we will typically do, and [exercise 4]({{< ref "../exercises/exercise04.md" >}})
 does exactly that.
 
 #### Floating point throughput
@@ -260,7 +260,7 @@ Haswell microarchitecture).
 {{< manfig src="haswellexec.png"
     width="50%"
     caption="Simplified picture of the Haswell execution engine" >}}
-    
+
 The individual assembly instructions in the compiled code are fetched
 and decoded. They are then scheduled (and possibly reordered) in
 hardware onto execution ports.
@@ -344,7 +344,7 @@ There are two approaches we can take here
    get to [later](TODO LINK).
 2. Read the relevant part of the code and count floating point
    operations and data accesses.
-   
+
 Both approaches have pros and cons, I therefore recommend, if possible
 to take a blended approach, augmenting measurements with models.
 
@@ -484,8 +484,8 @@ tells us what the code we _have_ does, not what it _could do_.
 
 {{< exercise >}}
 
-Go ahead and attempt [exercise 4]({{< ref "exercise04.md" >}}) which
-looks at producing a roofline model for some different implementations
-of dense matrix-vector multiplication.
+Go ahead and attempt [exercise 4]({{< ref "../exercises/exercise04.md" >}})
+which looks at producing a roofline model for some different implementations of
+dense matrix-vector multiplication.
 
 {{< /exercise >}}

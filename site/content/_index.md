@@ -37,9 +37,8 @@ The course will run over four weeks starting on 9th January 2023. Our weekly
 session will be on Mondays and Thursdays, from 16:00 to 18:00, in MCS3098.
 
 During the sessions, we will use the [slides]({{< ref "slides.md" >}}) as guide,
-but we will spend a good deal of our time working on the [exercises]({{< ref
-"exercises.md" >}}). The long form notes run over much of the same ground, but
-with more words.
+but we will spend a good deal of our time working on the exercises. The long
+form notes run over much of the same ground, but with more words.
 
 The exercises are designed to help you get familiar with the tools we'll use
 throughout the course. The notes contain shorter exercises that you should

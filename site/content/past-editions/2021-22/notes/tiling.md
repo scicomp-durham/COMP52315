@@ -43,14 +43,14 @@ Both our our examples come from dense linear algebra.
    $$
    B_{ij} \gets A_{ji} \quad A, B \in \mathbb{R}^{N\times N}
    $$
-   
+
 2. Dense matrix-matrix multiply
 
    $$
    C_{ij} \gets C_{ij} + \sum_{k=1}^{N} A_{ik}B_{kj} \quad A, B, C \in
    \mathbb{R}^{N\times N}
    $$
-   
+
 These are at "opposite" ends of the roofline plot. Matrix
 transposition has arithmetic intensity of zero (it does no floating
 point operations), and is therefore definitely limited by streaming
@@ -84,9 +84,9 @@ performance close to the streaming memory bandwidth, independently of
 $N$. Let's have a look. On my laptop, the STREAM triad memory
 bandwidth is around 18GB/s.
 
-Using the `transpose` code from [exercise 7]({{< ref "exercise07.md"
->}}), I can measure the achieved memory bandwidth for a range of
-matrix sizes.
+Using the `transpose` code from [exercise 7]({{< ref
+"../exercises/exercise07.md" >}}), I can measure the achieved memory bandwidth
+for a range of matrix sizes.
 
 ```
 $ for N in 100 200 300 500 700 1000 1500 2000 2500 3000 4000 5000; do
@@ -153,7 +153,7 @@ the loaded cache line, but the same is not true for `A`.
     src="strideoneaccess.svg"
     width="100%"
     caption="Access to `B` is stride-1, so works well." >}}
-    
+
 <--->
 
 {{< manfig
@@ -203,32 +203,32 @@ This changes the iteration order over the matrices
 
 #### Before loop blocking
 
-{{< manfig 
+{{< manfig
     src="originalrowmajororder.svg"
     width="100%"
     caption="Iteration over `B` is good" >}}
-    
-{{< manfig 
+
+{{< manfig
     src="originalcolmajororder.svg"
     width="100%"
     caption="Iteration over `A` does not get cache reuse" >}}
-    
+
 <--->
 #### After loop blocking
 
-{{< manfig 
+{{< manfig
     src="tiledrowmajororder.svg"
     width="100%"
     caption="Iteration over `B` is still good" >}}
-    
-{{< manfig 
+
+{{< manfig
     src="tiledcolmajororder.svg"
     width="100%"
     caption="Iteration over `A` now gets cache reuse" >}}
 
 {{< /columns >}}
 
-[Exercise 7]({{< ref "exercise07.md" >}}) also provides a blocked
+[Exercise 7]({{< ref "../exercises/exercise07.md" >}}) also provides a blocked
 version. So we can run the same experiment as before, except this time
 with loop tiling
 

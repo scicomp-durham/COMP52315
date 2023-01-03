@@ -2,6 +2,7 @@
 title: "Coursework: fast finite elements"
 weight: 5
 katex: true
+bookHidden: true
 ---
 
 # Fast finite elements
@@ -47,7 +48,7 @@ study. You can obtain the code from [their github
 repository](https://github.com/ceed/libceed/). You will also need a
 recent version of [PETSc](https://gitlab.com/petsc/petsc/), build and
 compile it following their instructions and set the `PETSC_DIR` and
-`PETSC_ARCH` environment variables accordingly. 
+`PETSC_ARCH` environment variables accordingly.
 
 {{< hint info >}}
 
@@ -192,7 +193,7 @@ $ mpiexec -n NUMBER_OF_PROCESSES ./bpsraw ...
 
 If you want to add likwid annotations (for example to get floating
 point throughput), you'll need to edit `bpsraw.c` to include the
-likwid header and add appropriate `LIKWID_MARKER_XXX` calls. 
+likwid header and add appropriate `LIKWID_MARKER_XXX` calls.
 
 The main computational work is the section of code between the two `//
 -- Performance logging` comments in `main`.

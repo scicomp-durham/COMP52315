@@ -8,7 +8,7 @@ katex: true
 
 ## Reduction benchmark
 
-In [exercise 1]({{< ref "exercise01.md" >}}) you looked at the
+In [exercise 1]({{< ref "../exercises/exercise01.md" >}}) you looked at the
 performance of a vectorised and non-vectorised version of a very
 simple loop computing the sum of an array of floating point numbers.
 
@@ -24,7 +24,7 @@ have observed something similar to that shown here.
 We see that the <abbr title="Single Instruction Multiple
 Data">SIMD</abbr> (vectorised) code has four distinct performance
 plateaus as a function of the array size, whereas the scalar code has
-only two. 
+only two.
 
 On this hardware (Broadwell), the chip can issue up to one floating
 point `ADD` (scalar or vector) per cycle. The peak clock speed is
@@ -342,7 +342,7 @@ To mitigate against some of these effects, if we know that the data
 we'll be working on should fit in cache it is sometimes beneficial to
 explicitly copy it into an appropriate sized buffer and then work on
 the buffer. We will see an example of this in [exercise 8]({{< ref
-"exercise08.md" >}}).
+"../exercises/exercise08.md" >}}).
 
 ## Measurement of cache bandwidth
 
@@ -352,15 +352,15 @@ the cache to the CPU).
 
 We can use
 [likwid-bench](https://github.com/RRZE-HPC/likwid/wiki/Likwid-Bench)
-to measure memory bandwidth. In [exercise 2]({{< ref "exercise02.md"
+to measure memory bandwidth. In [exercise 2]({{< ref "../exercises/exercise02.md"
 >}}) you should do this to determine the cache and main memory
 bandwidth on the Hamilton cores. We will use this to construct a
 predictive model of the floating point throughput of the reduction
-from [exercise 1]({{< ref "exercise01.md" >}}).
+from [exercise 1]({{< ref "../exercises/exercise01.md" >}}).
 
 {{< exercise >}}
 
-Now is a good time to attempt [exercise 2]({{< ref "exercise02.md"
+Now is a good time to attempt [exercise 2]({{< ref "../exercises/exercise02.md"
 >}}).
 
 {{< /exercise >}}
@@ -376,7 +376,7 @@ of
 
 #### C code
 ```c
-float reduce(int N, 
+float reduce(int N,
              const double *restrict a)
 {
   float c = 0;
@@ -521,7 +521,7 @@ can execute up to two `FMA` instructions per cycle.
 
 {{< /exercise >}}
 
-We will revisit this in a [later exercise]({{< ref "exercise05.md" >}}).
+We will revisit this in a [later exercise]({{< ref "../exercises/exercise05.md" >}}).
 
 ## Scalable and saturating resources
 
@@ -545,7 +545,7 @@ ASCII, similar to the diagram below
     width="70%"
     caption="Example layout of caches and memory for a 4 core system."
     >}}
-    
+
 Although in this course we will spend most of our time focussing on
 _single core_ performance, in practice, most scientific computing
 algorithms will be parallel.
@@ -588,7 +588,7 @@ another chip (with another memory system).
 {{< /columns >}}
 
 You should explore this on Hamilton in [exercise 3]({{< ref
-"exercise03" >}})
+"../exercises/exercise03" >}})
 
 ## Summary: challenges for writing high performance code
 
@@ -598,7 +598,7 @@ At a high level, the performance of an algorithm is dependent on:
 1. how efficiently those instructions can be executed on a processor;
 1. and what the runtime contribution of the required data transfers
    is.
-   
+
 Given an optimal _algorithm_, converting that to an optimal
 _implementation_ requires addressing all of these points in tandem.
 This is made complicated by the complexity and parallelism of modern

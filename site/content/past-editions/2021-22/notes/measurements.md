@@ -193,7 +193,7 @@ you expect to measure if the total loop length is $N$?
 {{< exercise >}}
 
 Having constructed our model, let's actually [do this]({{< ref
-"exercise05.md" >}}) to convince ourselves we understand what is going
+"../exercises/exercise05.md" >}}) to convince ourselves we understand what is going
 on.
 
 {{< /exercise >}}
@@ -359,9 +359,9 @@ We want to know to focus our efforts on the calls that are made to
 {{< exercise >}}
 
 For specific usage instructions, the [gprof
-manual](https://sourceware.org/binutils/docs/gprof/) is a good guide. 
+manual](https://sourceware.org/binutils/docs/gprof/) is a good guide.
 
-[Exercise 6]({{< ref "exercise06.md" >}}) has a walkthrough using
+[Exercise 6]({{< ref "../exercises/exercise06.md" >}}) has a walkthrough using
 gprof to find the right functions to look at for more detailed
 profiling in a small molecular dynamics application.
 

@@ -1,10 +1,14 @@
 ---
-title: 2020/21
+title: Edition 2020/2021
 weight: 1
 draft: false
 ---
 
-# Annotated slides 2020/21 edition
+# Slides 2020/2021 edition
+
+{{< hint info >}}
+This edition was taught by  [Lawrence Mitchell](mailto:lawrence.mitchell@durham.ac.uk)).
+{{< /hint >}}
 
 Slides as annotated during the live lectures. Recordings of the live
 sessions are available if you're appropriately logged in. If you think
