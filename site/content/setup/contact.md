@@ -2,12 +2,14 @@
 title: "Contact details"
 ---
 
-# Lecturer contact details
+# Contact details
 
-The course is taught by [Lawrence
-Mitchell](https://www.dur.ac.uk/computer.science/staff/profile/?id=17243),
-the best way to get in touch is via email
-[`lawrence.mitchell@durham.ac.uk`](mailto:lawrence.mitchell@durham.ac.uk).
+I am [Massimiliano
+Fasi](https://www.durham.ac.uk/staff/massimiliano-fasi/) and I am
+teaching the course in January 2023. You can contact me by sending an email to
+[`massimiliano.fasi@durham.ac.uk`](mailto:massimiliano.fasi@durham.ac.uk).
 
-The course materials are also hosted on [GitHub]({{< repo >}}), so if
-you find mistakes in them please let me know there.
+This website and all course materials are hosted on [GitHub]({{< repo >}}). If
+you have a suggestion or want to report a mistake, please use the GitHub [issue
+tracker]({{< repo >}}issues/). [Pull requests]({{< repo >}}pulls/) are also
+welcome.
