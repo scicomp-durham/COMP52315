@@ -7,7 +7,7 @@ bookHidden: true
 # Notes
 
 + [Introduction]({{< ref "introduction.md" >}})
-+ [Measurements]({{< ref "measurements.md" >}})
-+ [Memory]({{< ref "memory.md" >}})
-+ [Roofline]({{< ref "roofline.md" >}})
-+ [Tiling]({{< ref "tiling.md" >}})
++ [The memory hierarchy]({{< ref "memory.md" >}})
++ [Performance models: roofline]({{< ref "roofline.md" >}})
++ [Measurement and profiling]({{< ref "measurements.md" >}})
++ [Cache blocking/tiling]({{< ref "tiling.md" >}})
