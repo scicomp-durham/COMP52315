@@ -7,13 +7,13 @@ draft: false
 # Slides 2020/2021 edition
 
 {{< hint info >}}
-This edition was taught by  [Lawrence Mitchell](mailto:lawrence.mitchell@durham.ac.uk)).
+This edition was taught by  [Lawrence Mitchell](mailto:lawrence@wence.uk)).
 {{< /hint >}}
 
 Slides as annotated during the live lectures. Recordings of the live
 sessions are available if you're appropriately logged in. If you think
 you should have access but don't, please [get in
-touch](mailto:lawrence.mitchell@durham.ac.uk).
+touch](mailto:lawrence@wence.uk).
 
 - [Session 1]({{< static-ref "lecture-slides/2020-21/01.pdf" >}}), [video](https://web.microsoftstream.com/video/47a15875-eddc-48b3-ac17-6b68ee46a8d6).
 - [Session 2]({{< static-ref "lecture-slides/2020-21/02.pdf" >}}), [video](https://web.microsoftstream.com/video/ecf53b07-636e-4ffa-abe8-fe697230d56c).

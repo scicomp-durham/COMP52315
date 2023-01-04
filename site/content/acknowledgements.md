@@ -5,7 +5,7 @@ weight: 10
 
 # Acknowledgements
 The course was developed by [Lawrence
-Mitchell](mailto:lawrence.mitchell@durham.ac.uk).
+Mitchell](mailto:lawrence@wence.uk).
 
 Some of the exercises adapt material from the [HPC
 group](https://hpc.fau.de/research/research-interests/) at

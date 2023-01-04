@@ -8,13 +8,13 @@ bookHidden: true
 # Slides 2021/22 edition
 
 {{< hint info >}}
-This edition was taught by  [Lawrence Mitchell](mailto:lawrence.mitchell@durham.ac.uk)).
+This edition was taught by  [Lawrence Mitchell](mailto:lawrence@wence.uk)).
 {{< /hint >}}
 
 Slides for the live lectures. These will be augmented with annotated
 versions, links to recordings, and some short commentary after the
 fact. If you think you should have access to the recordings but don't,
-please [get in touch]((mailto:lawrence.mitchell@durham.ac.uk)).
+please [get in touch]((mailto:lawrence@wence.uk)).
 
 The long form notes add words in between the bullet points.
 
