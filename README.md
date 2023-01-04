@@ -1,9 +1,9 @@
 This repository was updated until March 2022 when I left Durham University. The materials herein are therefore not necessarily still in date.
 
 Source repository for
-[COMP52315](https://www.dur.ac.uk/postgraduate.modules/module_description/?year=2020&module_code=COMP52315).
+[COMP52315](https://www.dur.ac.uk/postgraduate.modules/module_description/?year=2022&module_code=COMP52315).
 
-Go to https://teaching.wence.uk/comp52315/ for the hosted material.
+Go to scicomp-durham.github.io/COMP52315/ for the hosted material.
 
 The pages can be built with [hugo](https://gohugo.io). For generation
 of figures you need the standalone version of
