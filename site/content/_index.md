@@ -64,7 +64,6 @@ Information looks like this.
 - Tools: CPU topology and affinity
 - The Roofline performance model
 - Tools: Performance counters
-- Technique: Vectorisation (SIMD programming)
 - Technique: Data layout transformations
 
 ## Lecturer
