@@ -84,22 +84,27 @@ versions available on Hamilton. These are managed with [environment
 modules](https://modules.readthedocs.io/en/latest/) so that different
 Hamilton users can control which compilers and tools they get.
 
-In this course, we will often use the Intel compiler, for which we need
-to load two modules
+In this course, we will use the GNU Compiler Collection (GCC). You will
+have access to different versions depending on the version of Hamilton
+you are using. The exercises will typically list what are modules you
+need, if any.
+
+## Hamilton 7
+We can get access to the compiler by running
 
 ```sh
-$ module load intel/xe_2018.2
 $ module load gcc/9.3.0
 ```
 
-This makes the Intel compiler tools available and loads a recent
-version of gcc. After executing these commands you can check the
-versions you have
-```sh
-$ icc --version
-icc (ICC) 18.0.2 20180210
-Copyright (C) 1985-2018 Intel Corporation.  All rights reserved.
+You can check that the command was successful with
 
+```sh
+$ module list
+```
+
+or with
+
+```sh
 $ gcc --version
 gcc (GCC) 9.3.0
 Copyright (C) 2019 Free Software Foundation, Inc.
@@ -107,31 +112,47 @@ This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ```
 
-The exercises will typically list the modules you need.
+## Hamilton 8
+You can get access to the compiler by running
+
+```sh
+$ module load gcc/12.2
+```
+
+After that, you should get
+
+```sh
+$ gcc --version
+gcc (GCC) 12.2.0
+Copyright (C) 2019 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+
 
 ## Running code
 
-When we log in to the Hamilton system, we access the "login" node. You
+When you log in to the Hamilton system, you are on a "login" node. You
 can use this to compile code and run some profile analysis programs, but
-you **MUST NOT** use it for running your simulations. As with most
+you **must not** use it for running your simulations. As with most
 supercomputers, Hamilton consists of two parts.
 
-1. Login nodes (this is where we've been so far);
-2. Compute nodes (this is where you want to run your code).
+1. login nodes (this is where we've been so far); and
+2. compute nodes (this is where you want to run your code).
 
 {{< manfig src="hamilton-nodes.svg"
     width="70%"
     caption="Schematic of Hamilton login and compute nodes" >}}
 
-To run code on the compute nodes we need to submit a job to the
+To run code on the compute nodes you need to submit a job to the
 scheduler. This program takes care of allocating our work to the compute
 nodes to maximise throughput for all users of the system. Hamilton uses
 the
 [Slurm](https://slurm.schedmd.com/documentation.html) scheduler.
 
-To use the scheduler we have to create a job script, which is a recipe
+To use the scheduler, you need to create a job script, which is a recipe
 for Hamilton to run our code. A job script is a shell script containing
-some magic comments that describe the environment we want to use to run
+some magic comments that describe the environment you want to use to run
 our code. The individual exercises contain some examples, as does the
 [Hamilton
 documentation](https://www.dur.ac.uk/arc/hamilton/usage/jobs/).
