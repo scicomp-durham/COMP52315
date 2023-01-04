@@ -69,6 +69,6 @@ Information looks like this.
 ## Lecturer
 
 The material on this website, and the website itself, were developed by
-[Lawrence Mitchell](mailto:lawrence.mitchell@durham.ac.uk), who delivered the
+[Lawrence Mitchell](mailto:lawrence@wence.uk), who delivered the
 course in a.y. 2020/2021 and 2021/2022. The current maintainer is [Massimiliano
 Fasi](mailto:massimiliano.fasi@durham.ac.uk).
