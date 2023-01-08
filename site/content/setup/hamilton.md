@@ -39,7 +39,7 @@ and in to the newer Hamilton 8 with
 ```sh
 $ ssh <username>@hamilton8.dur.ac.uk
 ```
-Where `<username>` is a placeholder for your CIS username (four
+where `<username>` is a placeholder for your CIS username (four
 characters followed by two digits).
 
 {{% hint warning %}}

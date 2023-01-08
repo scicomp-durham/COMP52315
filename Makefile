@@ -8,7 +8,7 @@ pypng = $(patsubst %.py,%.png,$(pyfigures))
 pysvg = $(patsubst %.py,%.svg,$(pyfigures))
 pypdf = $(patsubst %.py,%.pdf,$(pyfigures))
 
-.PHONY: html pypng 
+.PHONY: html pypng
 
 html: allcode pysvg
 	(cd site; hugo --minify --cleanDestinationDir)
@@ -32,11 +32,13 @@ drawiosvg: site/static/images $(drawiosvg)
 
 allpdf: $(drawiopdf) $(pypdf)
 
+allpng: $(drawiopng) $(pypng)
+
 figures/%.png: figures/%.drawio
 	drawio -s 2 -t -f png -x --crop -o $@ $<
 
 figures/%.svg: figures/%.drawio
-	drawio -s 2 -t -f svg -x --crop -o $@ $<
+	drawio -s 2 -f svg -x --crop -o $@ $<
 
 figures/%.pdf: figures/%.drawio
 	drawio -f pdf -x --crop -o $@ $<
