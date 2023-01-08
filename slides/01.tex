@@ -1,65 +1,82 @@
 % -*- TeX-engine: luatex -*-
-\documentclass[presentation,aspectratio=43,10pt]{beamer}
-\usepackage{template}
-\input{setup-lawrence}
-\renewcommand{\sessionnumber}{1}
-\renewcommand{\sessiontitle}{Introduction \& Overview}
-\date{}
+\documentclass[dvipsnames,presentation,aspectratio=169,14pt]{beamer}
+\usepackage{hastingstheme}
+\usepackage{qrcode}
+\input{lecturer.tex}
+
+% \usepackage{template}
+% \input{setup-lawrence}
+% \renewcommand{\sessionnumber}{1}
+% \renewcommand{\sessiontitle}{Introduction \& Overview}
 
 \begin{document}
-\begin{frame}
-  \maketitle
-\end{frame}
+
+\title{\scshape\firasemibold\color{White}%
+  {\fontsize{20}{0}\selectfont Session 1\\
+    \fontsize{40}{40}\selectfont Overview\par}}
+\titleslide
 
 \section{Introduction}
 
 \begin{frame}
-  \frametitle{What is the course about?}
+  \frametitle{One-slide course summary}
 
-  Saw (in Core I: High Performance Computing) different parallel
-  programming paradigms.
-
-  Parallelism helps to improve performance (runtime) of a code.
-
-  \begin{challenge}{Question}
-    Given some code, which I would like to make faster, how do I know
-    \emph{what} to do?
+  \begin{challenge}{Fundamental question}
+    I would like this code to run faster: how do I know \structure{what} to do?
   \end{challenge}
   \pause
   \begin{answer}{Performance models \& measurements}
-    We can treat the computer as an experimental system
+    We can treat the computer as an experimental system:
+    \begin{enumerate}
+    \item Measure performance
 
-    $\Rightarrow$ perform measurements of the performance
+    \item Construct \emph{models} that explain performance
 
-    $\Rightarrow$ construct \emph{models} that explain performance
-
-    $\Rightarrow$ apply appropriate optimisations
+    \item Apply appropriate optimisations
+    \end{enumerate}
   \end{answer}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Course overview (not in order, approximate)}
-  \begin{itemize}
-  \item Computer architecture overview
-  \item Fundamentals of performance engineering
-  \item Tools: CPU topology and \emph{affinity}
-  \item Roofline performance model
-  \item Tools: Performance counters
-  \item Vectorisation (SIMD programming)
-  \item Data layout transformations
-  \end{itemize}
+  \frametitle{Course overview}
+  \begin{columns}
+    \begin{column}{0.6\linewidth}
+      \begin{itemize}[itemsep=5pt]
+      \item Computer architecture overview
+      \item Basics of performance engineering
+      \item Tools: CPU topology and \emph{affinity}
+      \item Roofline performance model
+      \item Tools: Performance counters
+      \item \textcolor{gray}{Vectorisation (SIMD programming)}
+      \item Data layout transformations
+      \end{itemize}
+    \end{column}
+    \hfill
+    \begin{column}{0.3\linewidth}
+      \centering
+      {\color{palette2}%
+        \qrcode[height=1.6in]{https://scicomp-durham.github.io/COMP52315/}
+      }
+      \newline
+    \end{column}
+  \end{columns}
+  \centering
+  \vskip 20pt
+
+  \url{https://scicomp-durham.github.io/COMP52315/}
 \end{frame}
 
 \begin{frame}
-  \frametitle{What you need}
-  \begin{itemize}
-  \item The toolchain we'll use is available on Linux machines (but
-    not Windows/Mac)
-  \item I recommend using Hamilton (you should already have accounts
-    from Core I)
-  \item[$\Rightarrow$] Short howto from Core I website. Exercises will
-    also recap some of this material.
+  \frametitle{What you will need}
+  \begin{itemize}[itemsep=5pt]
+  \item Hamilton account (which you should already have)
+  \item familiarity with basic shell commands
+  \item \texttt{likwid} tools, already available on Hamilton
   \end{itemize}
+  \vskip 15pt
+  \begin{challenge}{Code?}
+    This course is about \structure{running} code, not writing it.
+  \end{challenge}
 \end{frame}
 
 \section{Resources in stored program computers}
@@ -67,42 +84,50 @@
 \begin{frame}
   \frametitle{Hardware for programmers}
   \begin{center}
-    \includegraphics[height=0.8\textheight]{figures/CPU}
+    \includegraphics[height=0.8\textheight]{figures/CPU.png}
   \end{center}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Resource bottlenecks: instructions}
-  \begin{block}{Instruction execution}
-    How fast the CPU retires instructions.
-
-    Primary resource of the processor. Primary hardware design goal is to
-    \emph{increase} instruction throughput (instructions/second).
-  \end{block}
+  \frametitle{Resource bottlenecks: instruction execution}
+  \begin{itemize}[itemsep=11pt]
+  \item Primary resource of the processor.
+  \item Measure is instruction throughput (instructions/second).
+  \item First HW design goal is to \emph{increase} instruction throughput.
+  \end{itemize}
+  \centering
+  \vskip 11pt
+  \structure{Performance} = How fast the CPU \emph{retires} instructions.
+  \vskip 11pt
+  \pause
   \begin{challenge}{Mismatch}
-    Instructions are ``work'' as seen by processor designers.
-
-    Not all instructions are considered ``work'' by software
-    developers (you!).
+    Programmers and hardware designers see instructions differently.
   \end{challenge}
 \end{frame}
+
 \begin{frame}[fragile]
-  \frametitle{Resource bottlenecks: instructions}
-  \begin{exampleblock}{Adding two arrays}
+  \frametitle{Example: adding two arrays}\small
 \begin{minted}{c}
                for (int i = 0; i < N; i++)
-                 a[i] = a[i] + b[i];
+                   a[i] = a[i] + b[i];
 \end{minted}
-    \begin{columns}[t]
-      \begin{column}{0.45\textwidth}
-        User view
+  \vskip 11pt
+  \pause
+  \hrule
+  \vskip 18pt
+  \centering
+  \begin{columns}[t]
+    \hfill
+    \begin{column}{0.4\textwidth}
+      \structure{User view}\\[4pt]
 
-        Work is $N$ flops (additions)
-      \end{column}
-      \begin{column}{0.45\textwidth}
-        Processor view
+      Work is $N$ flops (additions)
+    \end{column}
+    \hfill
+    \begin{column}{0.4\textwidth}
+      \structure{Processor view}\\[4pt]
 
-        Work is $6N$ instructions
+      Work is 6$N$ instructions
 \begin{minted}{c}
 .top
 LOAD r1 = a[i]
@@ -110,83 +135,282 @@ LOAD r2 = b[i]
 ADD  r1 = r1 + r2
 STORE a[i] = r1
 INCREMENT i
-GOTO .top IF i < N 
+GOTO .top IF i < N
 \end{minted}
-      \end{column}
-    \end{columns}
-  \end{exampleblock}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Resource bottlenecks: data transfer}
-  \begin{block}{Data Transfer}
-    Data movement (from memory to CPU and back) is a
-    \emph{consequence} of instruction execution and considered a
-    secondary resource. Maximum bandwidth (bytes/second) determined by
-    rate at which load/store instructions can be executed and hardware limits.
-  \end{block}
-  \begin{exampleblock}{Data movement adding two arrays}
-\begin{minted}{c}
-for (int i = 0; i < N; i++)
-  a[i] = a[i] + b[i];
-\end{minted}
-
-    Data transfers (double precision floats):
-\begin{minted}{c}
-LOAD  r1 = a[i] /* 8 bytes */
-LOAD  r2 = b[i] /* 8 bytes */
-STORE a[i] = r1 /* 8 bytes */
-\end{minted}
-
-    24 bytes of data movement per loop iteration.
-  \end{exampleblock}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Core question}
-  To understand the performance of some code we must answer
+  \frametitle{Mismatch}
 
-  \begin{challenge}{Question}
-    \begin{center}
-      {\Large What is the resource bottleneck? }
-    \end{center}
-    \begin{itemize}
-    \item Data transfer?
-    \item Instruction execution?
+  \centering
+  \begin{columns}[t]
+    \begin{column}{0.4\textwidth}
+      \structure{User view}\\[4pt]
+
+      Work is $N$ flops (additions)
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \structure{Processor view}\\[4pt]
+
+      Work is $6N$ instructions
+    \end{column}
+  \end{columns}
+
+  \vskip 20pt
+
+  \begin{challenge}{Mismatch}
+    \begin{itemize}[itemsep = 5pt]
+    \item Processor designers: all instructions are ``work''.
+    \item Code developers: instructions I write are ``work''.
     \end{itemize}
   \end{challenge}
-  \pause
-  \begin{answer}{Answer}
-    We will see how to answer these questions in this course through a
-    combination of measurements and models.
-  \end{answer}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Real hardware vs.~models}
-  Model of hardware as presented by programming languages is von
-  Neumann model.
-
-  Sequential execution of instructions, each instruction completes
-  before next one starts.
-
+  \frametitle{Hardware for programmers}
   \begin{center}
-    \includegraphics[height=0.6\textheight]{figures/vonneumann}
+    \includegraphics[height=0.8\textheight]{figures/CPU.png}
   \end{center}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Problem}
-  \begin{itemize}
-  \item CPUs operate at a certain frequency, we will count time in
-    terms of clock ``cycles''. For example, a 1GHz processor runs at one
-    billion cycles per second.
-  \item Due to the complexity of modern chips, most instructions have
-    a \emph{latency} of \emph{more than one} clock cycle.
+  \frametitle{Resource bottlenecks: data transfer}
+  \begin{itemize}[itemsep=8pt]
+  \item From memory to CPU and back.
+  \item Consequence of instruction execution.
+  \item Secondary resource.
+  \item Measure is bandwidth (bytes/second).
+  \item Bandwidth determined by load/store rate and HW limits.
   \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example: adding two arrays}
+\begin{minted}{c}
+            for (int i = 0; i < N; i++)
+                a[i] = a[i] + b[i];
+\end{minted}
+
+  \vskip 11pt
+  Data transfers (double precision floats):
+  \vskip 15pt
+
+\begin{minted}{c}
+            LOAD  r1 = a[i] /* 8 bytes */
+            LOAD  r2 = b[i] /* 8 bytes */
+            STORE a[i] = r1 /* 8 bytes */
+\end{minted}
+
+  \vskip 15pt
+
+  24 bytes of data movement per loop iteration.
+  % \end{exampleblock}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Understanding the performance of some code}
+
+  \begin{challenge}{Core question}
+    \begin{center}
+      \structure{What is the resource bottleneck?}
+    \end{center}
+    \begin{itemize}[itemsep=5pt]
+    \item Instruction execution?
+    \item Data transfer?
+    \end{itemize}
+  \end{challenge}
+  \pause
+  \begin{answer}{Tools to find an answer}
+    \begin{itemize}[itemsep=5pt]
+    \item Measurements
+    \item Models
+    \end{itemize}
+  \end{answer}
+\end{frame}
+
+\colorlet{cpufg}{Blue}
+\colorlet{cpubg}{Blue!15}
+\colorlet{memfg}{BrickRed}
+\colorlet{membg}{BrickRed!15}
+\colorlet{incol}{Purple}
+\colorlet{outcol}{Cyan}
+\colorlet{recfg}{PineGreen}
+\colorlet{recbg}{PineGreen!15}
+\colorlet{buscol}{Gray}
+
+\newcommand{\drawblocks}[4]{%
+  % Bus
+  \draw[<->,draw=buscol] (2.5,0) -- (2.5,-1);
+
+  % Control
+  \draw[rounded corners,draw=cpufg,fill=cpubg]
+  (0,0) rectangle (5,1.5);
+  \draw[rounded corners,draw=cpufg,text=cpufg,fill=cpubg]
+  (0.25,0.25) rectangle (1.25,1.25) node[midway] {#1};
+  \draw[rounded corners,draw=cpufg,text=cpufg,fill=cpubg]
+  (1.5,0.25) rectangle (4.75,1.25) node[midway] {#2};
+
+  % I/O
+  \draw[<-,draw=incol,text=incol]
+  (5,-1.5) -- (7,-1.5) node[midway, above] {I};
+  \draw[->,draw=outcol,text=outcol]
+  (5,-2.0) -- (7,-2.0) node[midway, below] {O};
+
+  % Memory
+  \draw[rounded corners,draw=memfg,text=memfg,fill=membg]
+  (0,-1) rectangle (5,-2.5);
+  \node[text=memfg] at (0.75,-1.75) {#3};
+  \node[text=memfg,anchor=west] at (2.,-1.5)
+  {\firamedium\footnotesize INSTRUCTIONS};
+  \node[text=memfg,anchor=west] at (2.,-2.0)
+  {\firamedium\footnotesize DATA};
+  % \draw[rounded corners,draw=memfg,text=memfg,fill=membg]
+  % (0.25,-1.5) rectangle (2.25,-2.25) node[midway] {\footnotesize INSTRUCTIONS};
+  % \draw[rounded corners,draw=memfg,text=memfg,fill=membg]
+  % (0,-) rectangle (5,-2.5) node[midway] {\footnotesize DATA};
+
+  % Recording medium
+  \draw[rounded corners,draw=recfg,text=recfg,fill=recbg,dashed]
+  (7,-2.5) rectangle (8.5,1.5) node[midway] {#4};
+}
+
+\begin{frame}
+  \frametitle{The ``Princeton'' architecture}
+
+  \vfill
+
   \begin{columns}
-    \begin{column}{0.35\textwidth}
-      \begin{exampleblock}{Example: addition loop}
+    \begin{column}[c]{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}[ultra thick, scale=1]
+        \drawblocks{CC}{CA}{M}{R}
+      \end{tikzpicture}
+    \end{column}
+    \qquad
+    \begin{column}[c]{0.35\textwidth}
+      \setlength\tabcolsep{5pt}
+      \begin{tabular}{ll}
+        \color{cpufg}CC  & \color{cpufg}central control\\
+        \color{cpufg}CA  & \color{cpufg}central arithmetic\\
+        \color{memfg}M   & \color{memfg}memory\\
+        \color{incol}I   & \color{incol}input\\
+        \color{outcol}O  & \color{outcol}output\\
+        \color{recfg}R   & \color{recfg}recording medium
+      \end{tabular}
+    \end{column}
+  \end{columns}
+
+  \vfill
+
+  \begin{thebibliography}{99}
+  \bibitem{item1} \mybibitem{John~von~Neumann}
+    {http://dx.doi.org/10.1109/85.238389}
+    {First draft of a report on the EDVAC}
+    {Incomplete report}
+    {1--101}{30 June 1945}{100}
+  \end{thebibliography}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The ``Princeton architecture''}
+  % \begin{columns}
+  %   \begin{column}{0.5\textwidth}
+  \begin{itemize}
+  \item Used by programming languages
+  \item Sequential model
+  \item In-order execution
+  \item Simple
+  \item<2> Realistic
+    for 1945
+  \end{itemize}
+  % \end{itemize}
+  % \end{column}
+  % \begin{column}{0.5\textwidth}
+  %   \begin{center}
+  %     \includegraphics[height=0.6\textheight]{figures/vonneumann.png}
+  %   \end{center}
+  % \end{column}
+  % \end{columns}
+  \vfill
+  \pause
+
+  \begin{thebibliography}{99}
+  \bibitem{item1} \mybibitem{John~von~Neumann}
+    {http://dx.doi.org/10.1109/85.238389}
+    {First draft of a report on the EDVAC}
+    {Incomplete report}
+    {1--101}{30 June 1945}{100}
+  \end{thebibliography}
+\end{frame}
+
+\transslide{\large What has changed in the last 77 years?}
+
+
+
+
+
+\begin{frame}
+  \frametitle{Stored-programme architecture today}
+
+  \begin{columns}
+    \begin{column}[c]{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}[ultra thick, scale=1]
+        \drawblocks
+        {\only<1>{CC}\only<2->{CU}}
+        {\only<1>{CA}\only<2->{ALU}}
+        {\only<1>{M}\only<2->{RAM}}
+        {\only<1>{R}\only<2->{}}
+
+        % CPU
+        \node [anchor=south west,text=cpufg] at (0,1.5)
+        {\only<1>{\phantom{CPU}}\only<2->{CPU}};
+        % Bus
+        \node [anchor=west,text=buscol] at (2.5,-0.5) {\only<2->{BUS}};
+      \end{tikzpicture}
+    \end{column}
+    \qquad
+    \begin{column}[c]{0.35\textwidth}
+      \setlength\tabcolsep{5pt}
+      \onslide<1>{%
+        \begin{tabular}{ll}
+          &\\
+          \color{cpufg}CC & \color{cpufg}central control\\
+          \color{cpufg}CA & \color{cpufg}central arithmetic\\
+          \color{memfg}M  & \color{memfg}memory\\
+          \color{incol}I  & \color{incol}input\\
+          \color{outcol}O  & \color{outcol}output\\
+          \color{recfg}R  & \color{recfg}recording medium
+        \end{tabular}}%
+    \end{column}
+  \end{columns}
+
+  \vspace{30pt}
+
+  \onslide<3>{\structure{ONE FEATURE:} both instructions and data reside in memory.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Definitions}
+  \begin{tabular}{ll}
+    \structure{Cycle} & unit of execution of CPU\\[11pt]
+    \structure{Frequency} & \# cycles per second (measured in Hz)\\[11pt]
+    \structure{Latency} & \# cycles to execute instruction\\[11pt]
+    \structure{Throughput} & \# instructions that can run simultaneously
+  \end{tabular}
+\end{frame}
+
+\newcommand{\myanswer}[1]{{\vspace{3pt}\color{MidnightBlue}\textit{#1}}}
+
+\begin{frame}[fragile]
+  \frametitle{Problem}
+  Most instructions have a \emph{latency} of \emph{more than one} clock cycle.
+  \vskip 11pt
+  \begin{columns}
+    \begin{column}{0.4\textwidth}
 \begin{minted}{c}
  LOAD r1 = a[i]
  LOAD r2 = b[i]
@@ -194,108 +418,128 @@ STORE a[i] = r1 /* 8 bytes */
  STORE a[i] = r1
  INCREMENT i
 \end{minted}
-      \end{exampleblock}
     \end{column}
-    \begin{column}{0.55\textwidth}
-      Suppose that the CPU can execute one instruction per cycle. If
-      every instruction has a latency of one cycle, then there are no
-      ``wasted'' cycles.
-      
-      If \texttt{ADD} has latency of three cycles, then there are
-      two wasted cycles (between the \texttt{ADD} and the
-      \texttt{STORE}).
+    \begin{column}{0.6\textwidth}
+      What happens if:\\[7pt]
+      \begin{itemize}[itemsep=7pt]
+      \item all instruction have latency 1?
+
+        \myanswer{No ``wasted'' cycles.}
+
+      \item \texttt{ADD} has latency 3?
+
+        \myanswer{Two ``wasted'' cycles before \texttt{STORE}.}
+      \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
+
 \begin{frame}
-  \frametitle{A picture}
+  \frametitle{In pictures}
   \begin{center}
-    \includegraphics[width=\textwidth]{figures/addlatency}
+    \includegraphics[width=0.9\textwidth]{figures/addlatency.png}
   \end{center}
 \end{frame}
 
 \begin{frame}
   \frametitle{Strategies for faster chips}
-  \begin{enumerate}
+  \begin{enumerate}[itemsep=8pt]
   \item Increase clock speed (more cycles per second)
-  \item Parallelism (of various kinds)
-  \item Specialisation (for example optimised hardware for computing divisions)
+  \item Parallelism
+    \begin{itemize}[itemsep=5pt]
+    \item data-level parallelism
+    \item instruction-level parallelism
+    \end{itemize}
+  \item Specialisation (optimised hardware units)
   \end{enumerate}
 \end{frame}
 
 \begin{frame}
   \frametitle{Increasing clock speed}
   \begin{center}
-    \includegraphics[height=0.45\textheight]{figures/clockincrease}
+    \includegraphics[height=0.8\textheight]{figures/clockincrease.png}
   \end{center}
+\end{frame}
 
-  \begin{answer}{Easy for the programmer}
-    Architecture is unchanged, everything just happens faster!
-  \end{answer}
-  \begin{challenge}{Limitations}
-    Limited by physical limitations on cooling.
-
-    Clock speeds have been approximately constant for 10 years.
-  \end{challenge}
+\begin{frame}
+  \frametitle{Increasing clock speed}
+    \begin{answer}{Easy for the programmer}
+      Architecture is unchanged, everything just happens faster!
+    \end{answer}
+    \begin{challenge}{Limitations}
+      \begin{itemize}[itemsep=5pt]
+      \item Limited by physical impossibility to cool chip.
+      \item Clock speeds have been approximately constant for 10 years.
+      \end{itemize}
+    \end{challenge}
 \end{frame}
 
 \begin{frame}
   \frametitle{Increasing parallelism}
   \begin{center}
-    \includegraphics[height=0.5\textheight]{figures/parallelismincrease}
+    \includegraphics[height=0.8\textheight]{figures/parallelismincrease.png}
   \end{center}
+\end{frame}
 
+\begin{frame}
+  \frametitle{Increasing parallelism}
   \begin{challenge}{Problems}
-    Need enough parallel work
+    \begin{itemize}[itemsep=7pt]
+    \item Need enough parallel work
 
-    No dependencies between work
+    \item No dependencies between work
 
-    Mostly pushes problem onto programmer
+    \item Mostly pushes problem onto programmer
+    \end{itemize}
   \end{challenge}
 \end{frame}
 
 \begin{frame}
   \frametitle{Instruction-level parallelism: pipelining}
-  \begin{block}{Pipelining}
-    Rather than performing instruction fetch, decode, execute, and
-    writeback in one go, separate them into a pipeline.
-  \end{block}
-  \begin{center}
-    \includegraphics[height=0.7\textheight]{figures/pipeline}
-  \end{center}
+  \vskip -20pt
+  \begin{columns}
+    \begin{column}{0.33\textwidth}\small
+      Split each instruction into
+      \begin{itemize}
+      \item fetch
+      \item decode
+      \item execute
+      \item write
+      \end{itemize}
+and use a pipeline.
+    \end{column}
+    \begin{column}{0.6\textwidth}
+      \begin{center}
+        \includegraphics[height=0.85\textheight]{figures/pipeline.png}
+      \end{center}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}
   \frametitle{Instruction-level parallelism: superscalar}
-  \begin{block}{Superscalar execution}
-    Most modern chips can issue more than one instruction per cycle.
-
-    Instructions with no dependencies can be issued simultaneously.
-  \end{block}
   \begin{center}
-    \includegraphics[width=0.9\textwidth]{figures/addsuperscalar}
+    \includegraphics[width=0.9\textwidth]{figures/addsuperscalar.png}
   \end{center}
+  Instructions with no dependencies can be issued \structure{simultaneously}.
 \end{frame}
 
 \begin{frame}
   \frametitle{Instruction-level parallelism: out-of-order}
-  \begin{block}{Out-of-order execution}
-    Execute instructions in an ordering based on availability of \emph{input
-      data} and \emph{execution units} rather than the order in the program.
-    
-    Keeps more of the execution units busy.
-  \end{block}
-
+  Instruction ordering is based on availability of
+  \begin{itemize}[itemsep=6pt]
+  \item input data
+  \item execution units
+  \end{itemize}
+  rather than order in the program.
+  \hfill
   \begin{center}
-    \includegraphics[width=0.9\textwidth]{figures/addoutoforder}
+    \includegraphics[width=\textwidth]{figures/addoutoforder.png}
   \end{center}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Data parallelism: SIMD vectorisation}
-  \begin{block}{SIMD}
-    We mostly consider ``single-core'' performance in this course. \emph{Vectorisation} is critical for single-core performance.
-  \end{block}
 
   \begin{exampleblock}{Summing arrays again}
 \begin{minted}{c}
@@ -305,11 +549,21 @@ for (size_t i = 0; i < N; i++)
   c[i] = a[i] + b[i];
 \end{minted}
 
-    We've seen that instruction throughput can be a bottleneck here.
+    \vskip 5pt
 
-    One way chip designers have ``fixed'' this is to make individual
-    instructions operate on more data at once $\Rightarrow$ vectorisation.
+    Instruction throughput can be a bottleneck here.
+
+    \vskip 3pt
+
+    \structure{Vectorisation:} make instructions operate on more data at once.
+
+    \vskip 3pt
   \end{exampleblock}
+
+  \vskip 8pt
+
+  Vectorisation is critical for \structure{single-core} performance.
+
 \end{frame}
 
 \begin{frame}[fragile]
@@ -326,16 +580,16 @@ for (i = 0; i < N; i++)
       \vspace{\baselineskip}
       Register widths:
       \vspace{\baselineskip}
-      \includegraphics[width=\textwidth]{figures/registerwidth}
+      \includegraphics[width=\textwidth]{figures/registerwidth.png}
     \end{column}
     \begin{column}{0.6\textwidth}
       \only<1>{Scalar addition, 1 output element per instruction.
         \begin{center}
-          \includegraphics[width=0.9\textwidth]{figures/scalaradd}
+          \includegraphics[width=0.9\textwidth]{figures/scalaradd.png}
         \end{center}}
       \only<2>{AVX addition, 4 output elements per instruction.
         \begin{center}
-          \includegraphics[width=0.9\textwidth]{figures/vectoradd}
+          \includegraphics[width=0.9\textwidth]{figures/vectoradd.png}
         \end{center}}
     \end{column}
   \end{columns}
@@ -344,33 +598,32 @@ for (i = 0; i < N; i++)
 \section{Example and exercise}
 
 \begin{frame}[fragile]
-  \frametitle{A ``simple'' example: sum reduction}
-  \begin{columns}
-    \begin{column}{0.4\textwidth}
-\begin{minted}{c}
-float c = 0;
-for (i = 0; i < N; i++)
-  c += a[i];
-\end{minted}
-    \end{column}
-    \begin{column}{0.6\textwidth}
-      Single precision sum of all values in a vector, on an
-      AVX-capable core (vector width 8).
+  \frametitle{Example: sum reduction}
 
-      How fast can this code run if all data are in L1 cache?
-    \end{column}
-  \end{columns}
-  \begin{itemize}
+  How fast can this code run if all data are in L1 cache?
+
+  \vskip 11pt
+
+\begin{minted}{c}
+            float c = 0;
+            for (i = 0; i < N; i++)
+                c += a[i];
+\end{minted}
+
+  \vskip 11pt
+
+  \structure{Notes}
+  \begin{itemize}[itemsep=5pt]
+  \item AVX-capable core (vector width: 8 \texttt{float}s)
   \item Loop-carried dependency on summation variable
-  \item Execution stalls at every add until the previous one completes.
+  \item Execution stalls at every add until the previous one completes
   \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Applicable peak}
+  \frametitle{Applicable peak (scalar execution)}
   \begin{columns}
-    \begin{column}{0.4\textwidth}
-      Scalar code
+    \begin{column}{0.4\textwidth}\small
 
 \begin{minted}{c}
 float c = 0;
@@ -378,8 +631,8 @@ for (i = 0; i < N; i++)
   c += a[i];
 \end{minted}
 
-      Assembly pseudo-code
-      
+      \structure{Assembly pseudo-code}
+
 \begin{minted}[mathescape=true,escapeinside=||]{c}
 LOAD r1.0 |$\gets$| 0
 i |$\gets$| 0
@@ -393,26 +646,31 @@ result |$\gets$| r1.0
 
     \end{column}
     \begin{column}{0.5\textwidth}
-      ADD has latency of 1 cycle (per Intel), but we're only using one
-      of the eight SIMD lanes for each instruction.
+      Only one SIMD lane.
 
       \begin{center}
-        \includegraphics[height=0.5\textheight]{figures/scalarregisteruse}
+        \includegraphics[height=0.5\textheight]{figures/scalarregisteruse.png}
       \end{center}
 
-      Runs at 1/8 of possible ADD peak.
+      Runs at $\frac{1}8$ of possible ADD peak.
     \end{column}
   \end{columns}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Applicable peak}
+  \frametitle{Applicable peak (SIMD execution)}
   \begin{columns}
-    \begin{column}{0.6\textwidth}
-      SIMD vectorisation
+    \begin{column}{0.6\textwidth}\small
+      \structure{Scalar code}
 
-      Assembly pseudo-code
-      
+\begin{minted}{c}
+float c = 0;
+for (i = 0; i < N; i++)
+  c += a[i];
+\end{minted}
+
+      \structure{Assembly pseudo-code}
+
 \begin{minted}[fontsize=\scriptsize, mathescape=true,escapeinside=||]{c}
 LOAD [r1.0, ..., r1.7] |$\gets$| [0, ..., 0]
 i |$\gets$| 0
@@ -429,7 +687,7 @@ result |$\gets$| r1.0 + r1.1 + ... + r1.7
       Using all eight SIMD lanes
 
       \begin{center}
-        \includegraphics[height=0.5\textheight]{figures/vectorregisteruse}
+        \includegraphics[height=0.5\textheight]{figures/vectorregisteruse.png}
       \end{center}
 
       Runs at ADD peak.
@@ -439,31 +697,28 @@ result |$\gets$| r1.0 + r1.1 + ... + r1.7
 
 \begin{frame}
   \frametitle{Exercise: benchmarking sum reduction}
-
-  \begin{itemize}
-  \item Split into small groups, each group should have at least one
-    person with a Hamilton account.
-  \item Goal is to benchmark sum reduction to see if we observe this
-    ``theoretical'' effect.
-  \item $\Rightarrow$ over to you. Please ask questions!
-  \end{itemize}
+  \begin{enumerate}[itemsep=8pt]
+    \item Split into small groups
+    \item Make sure one person per group has access to Hamilton
+    \item Benchmark sum reduction to confirm this ``theoretical'' effect.
+    \item Ask questions!
+  \end{enumerate}
   \begin{center}
-    Exercises, and notes, live at
-
-    \url{https://teaching.wence.uk/comp52315/}
   \end{center}
 \end{frame}
 
 \begin{frame}
   \frametitle{Conclusions}
-  \begin{itemize}
+  \begin{itemize}[itemsep=11pt]
   \item Modern computer hardware is quite complex
-  \item For simple things we can work out what the performance limits
-    will be
-  \item Typically must benchmark to confirm hypotheses
-  \item Next, we'll look at the memory hierarchy and start
-    constructing models of performance.
+  \item For simple things we can try to figure our performance limits
+  \item Typically we must benchmark to confirm hypotheses
+  \item We must find bottlenecks before starting to optimise
   \end{itemize}
+
+  \vskip 20pt
+
+  \structure{Next:} memory hierarchy and first models of performance.
 \end{frame}
 
 \end{document}

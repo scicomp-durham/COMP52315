@@ -1,0 +1,291 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{hastingstheme}[2021/01/21 v0.1 Hastings Slides]
+
+% Typesetting
+\usepackage{microtype}
+\usepackage{subdepth}
+\usepackage{minted}
+
+% Font
+\usepackage[sfdefault,tabular]{FiraSans}
+\usepackage{FiraMono}
+\usepackage{sansmath}
+\usepackage{fontawesome5}
+
+% \usepackage[no-math]{fontspec}
+% \setsansfont{Fira Sans}
+% \setmonofont{Fira Mono}
+\usepackage[slantedGreek]{newtxsf}
+
+
+% Mathematics
+\usepackage{amsmath, amsfonts, amssymb, amsthm}
+
+% lists
+\usepackage{enumitem}
+\setlist[itemize]{label=\structure{$\blacktriangleright$}}
+\setlist[enumerate]{label=\structure{\textbf{\arabic*.}}}
+
+%%%%%%%%%
+% THEME %
+%%%%%%%%%
+\useoutertheme{infolines}
+\setbeamertemplate{headline}{}
+
+\AtBeginSection{}
+
+\definecolor{palette1}{RGB}{56, 129, 201}
+\definecolor{palette2}{RGB}{202, 0, 8} %
+\definecolor{palette3}{RGB}{75, 78, 85}
+\definecolor{palette4}{RGB}{200, 200, 200}
+\definecolor{palette5}{RGB}{255, 221, 210}%{202, 200, 255}
+
+\colorlet{titlepagebgcolor}{gray!40!black}
+\colorlet{bgcolor}{palette1!20!white}
+\colorlet{textcolor}{black!80!palette1}
+
+\setbeamercolor{title}{fg=palette2!50!White}
+\setbeamercolor{author}{fg=palette4!00!white}
+\setbeamercolor{institute}{fg=palette4!20!white}
+
+\setbeamerfont{structure}{series=\bfseries}
+\setbeamercolor{structure}{fg=palette2}
+\AtBeginDocument{\hypersetup{breaklinks=true,
+    urlcolor=palette2,linkcolor=palette3}}
+
+
+\setbeamercolor{normal text}{bg=bgcolor,fg=textcolor}
+\setbeamercolor{background canvas}{parent=normal text}
+\setbeamercolor{background}{parent=background canvas}
+
+% \setbeamercolor{palette primary}{fg=mcryellow,bg=mcrpurple} % changed this
+% \setbeamercolor{palette secondary}{use=structure,fg=structure, bg=mcryellow} % changed this
+% \setbeamercolor{palette tertiary}{use=structure,fg=structure, bg=mcrgrey} % changed this
+\setbeamercolor{frametitle}{fg=palette2!100!white}
+% \setbeamercolor{section in head/foot}{bg=mcrpurple}
+% \setbeamercolor{author in head/foot}{bg=mcrpurple, fg=mcryellow}
+% \setbeamercolor{date in head/foot}{bg=mcryellow, fg=mcrpurple}
+% \setbeamercolor{title in head/foot}{bg=mcrgrey!50!white, fg=mcrpurple}
+
+\setbeamercolor{block title}{fg=palette4!30!Black, bg=palette4!100!white}
+\setbeamercolor{block body}{fg=textcolor,bg=palette4!75!white}
+
+\setbeamercolor{alerted text}{fg=palette2!10!white, bg=red!50!black}
+\setbeamercolor{block body alerted}{bg=red!30!white}
+\setbeamercolor{block title alerted}{bg=red!50!palette2, fg=palette2}
+\setbeamercolor{example text}{fg=palette2!60!white, bg=green!30!black}
+\setbeamercolor{block body example}{bg=palette1!40!white}
+\setbeamercolor{block title example}{bg=palette1!90!white,fg=palette2}
+
+\setbeamertemplate{itemize items}[default]
+\setbeamertemplate{enumerate items}[default]
+
+\newenvironment<>{openquestion}[1]{%
+  \setbeamercolor{block body}{bg=mcrgrey!30!white}
+  \setbeamercolor{block title}{fg=mcrpurple!70!black, bg=mcrgrey!70!white}
+  \begin{block}#2{#1}}{\end{block}}
+
+% \setbeamercolor{bibliography entry author}{fg=mcrpurple!70!black}
+% \setbeamercolor{bibliography entry title}{fg=black}
+% \setbeamercolor{bibliography entry location}{fg=mcrpurple!70!white}
+% \setbeamercolor{bibliography entry note}{fg=cyan}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\setbeamerfont{author}{size=\large\firalining\scshape}
+\setbeamerfont{institute}{size=\footnotesize\firalight\scshape}
+\setbeamerfont{title}{size=\large\scshape}
+\setbeamerfont{subtitle}{size=\Large\scshape}
+
+\setbeamerfont{frametitle}{size=\Large\firasemibold}
+
+\newcommand{\collaborators}[1]{\gdef\@collaborators{#1}}%
+\newcommand{\insertcollaborators}{\@collaborators}
+\setbeamertemplate{title page}{%
+  \begin{tikzpicture}[remember picture,overlay,
+    every node/.style={inner sep=0,outer sep=0}]
+    \begin{scope}[shift={(current page.north west)}]
+      % Background
+      \fill[color=titlepagebgcolor!50!palette3,opacity=0.6]
+      (current page.south west)--
+      (current page.south east)--
+      (current page.north east)--
+      (current page.north west);
+      \fill[color=titlepagebgcolor,opacity=0.9,even odd rule]
+      (-70,-70)--(-70,70)--(70,70)--(70,-70)
+      (current page.north east)--
+      (current page.north west)--
+      (current page.south west)--
+      (current page.south east)
+      (18,-1)--(10.5,-1)--(9.5,-3)--(18,-3)--
+      (18,-3.5)--(9.25,-3.5)--(8.25,-5.5)--(18,-5.5)--
+      (18,-11)--(-30,-11)--(-30,-8)--(8.5,-8)--(9.5,-6)--(-30,-6)--(-30,60)--cycle;
+
+      % Title
+      \node[anchor=north west]
+      at (0.5,-1) (title)
+      {\parbox[t]{\textwidth}{\raggedright%
+          \noindent\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle}};
+
+      % Author
+      \node[anchor=north east,xshift=-0.5cm,yshift=-6cm]
+      at (current page.north east) (author)
+      {\usebeamerfont{author}\usebeamercolor[fg]{author}\insertauthor};
+
+      % Institute
+      \node[anchor=south]
+      at (current page.north east) (institute)
+      {\usebeamerfont{institute}\usebeamercolor[fg]{institute}\insertinstitute};
+
+      % Logo
+      \node[anchor=south east,xshift=-0.5cm,yshift=-8cm]
+      at (current page.north east) (logo)
+      {\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic};
+
+      % \draw[fill=red] (0,0) circle (2pt);
+
+      % \draw[fill=red] (15,0) circle (2pt);
+    \end{scope}
+  \end{tikzpicture}
+}
+
+\setbeamertemplate{frametitle}{%
+  % \nointerlineskip%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2.3ex,dp=0.3ex]{frametitle}
+    \hspace*{0.8ex}{\insertframetitle}%
+  \end{beamercolorbox}}
+
+%%%%%%%%%%%%%%%%%%%
+% Useful commands %
+%%%%%%%%%%%%%%%%%%%
+
+% highlight text
+\newcommand{\highlight}[1]{\textbf{\structure{#1}}}
+
+% Change color of text in animations
+% #1 - color 1
+% #1 - last with color 1
+% #2 - color2
+% #4 - text
+\newcommand{\changecolor}[4]{%
+  \only<1-#2>{\textcolor{#1}{#4}}%
+  \only<\advance{#2}->{\textcolor{#3}{#4}}}
+
+
+% Put text in box as large as larger of two texts
+\newlength\mylen
+\newlength\mylena
+\newlength\mylenb
+\newcommand\bL{bL}
+\newcommand\Div{Div}
+\newcommand\getmaxlength[2]{%
+  \settowidth\mylen{#1}%
+  \settowidth\mylena{#1}%
+  \settowidth\mylenb{#2}%
+  \ifdim\mylenb>\mylena\relax
+    \setlength\mylen{\mylenb}
+  \fi%
+}
+\newcommand\Replace[2]{%
+  \getmaxlength{#1}{#2}%
+  \makebox[\mylen][l]{#2}%
+}
+
+\newcommand{\setfootline}{%
+  \setbeamertemplate{footline}{\hfill%
+    \textcolor{palette2}{\normalsize
+      \mysymbols\ %
+      \vphantom{0123456789}\insertframenumber}\hspace{6pt}\vspace{6pt}}}
+
+\newcommand{\setnonavsymb}{%
+  \def\mysymbols{}\setfootline}
+\newcommand{\setsomenavsymb}{%
+  \def\mysymbols{\insertframenavigationsymbol}%
+  \setbeamertemplate{footline}{\hfill%
+    \textcolor{palette2}{\normalsize
+      \insertframenumber\ \mysymbols
+      \vphantom{0123456789}}\hspace{6pt}\vspace{6pt}}}
+\newcommand{\setallnavsymb}{%
+  \def\mysymbols{%
+    \insertslidenavigationsymbol
+    \insertframenavigationsymbol
+    \insertsubsectionnavigationsymbol
+    \insertsectionnavigationsymbol
+    \insertdocnavigationsymbol
+    \insertbackfindforwardnavigationsymbol}\setfootline}
+\newcommand{\setnofootline}{\setbeamertemplate{footline}{}}
+
+\newcommand{\titleslide}{\setbeamertemplate{footline}{}
+  \setbeamertemplate{navigation symbols}{}
+
+  \begingroup
+  \usebackgroundtemplate{%
+    \begin{tikzpicture}[remember picture,overlay]
+      \node [anchor=south,yshift=-40pt] at (current page.south){
+        \includegraphics[width=\paperwidth]{static_figures/durham_cloister.jpg}};
+    \end{tikzpicture}}
+  \frame[noframenumbering]{\titlepage}
+  \endgroup
+
+  \setnonavsymb
+
+  % \setbeamertemplate{footline}{\hfill%
+  % \textcolor{palette2}{\normalsize\insertframenumber}\hspace{6pt}\vspace{6pt}}
+  % \setbeamertemplate{navigation symbols}{%
+  % \small \insertframenumber/\inserttotalframenumber\vspace{6pt}\hspace{6pt}}
+  % \setbeamertemplate{navigation symbols}{%
+  % \small \textcolor{palette3}{\insertframenumber}\vspace{6pt}\hspace{6pt}}
+}
+
+\newcommand{\transslide}[1]{%
+  \begingroup
+  \setnofootline
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamercolor{background canvas}{bg=palette2}
+  \begin{frame}[noframenumbering]
+    \usebeamercolor[fg]{title}
+    \begin{tikzpicture}[remember picture,overlay]
+      \node[palette3!30!white,anchor=south east,xshift=-15pt,yshift=15pt,align=right]
+      at (current page.south east)
+      {#1};
+    \end{tikzpicture}
+  \end{frame}
+  \endgroup}
+
+
+% Bibitem stuff.
+% \setbeamercolor{bibliography entry author}{fg=mcrpurple!70!black}
+% \setbeamercolor{bibliography entry title}{fg=black}
+% \setbeamercolor{bibliography entry location}{fg=mcrpurple!70!white}
+% \setbeamercolor{bibliography entry note}{fg=cyan}
+\setbeamertemplate{bibliography item}{\small\faBook}
+\setbeamertemplate{bibliography entry article}{}
+\setbeamertemplate{bibliography entry title}{}
+\setbeamertemplate{bibliography entry location}{}
+\setbeamertemplate{bibliography entry note}{}
+
+\newenvironment{variableblock}[3]
+{\setbeamercolor{block body}{#2}
+  \setbeamercolor{block title}{#3}
+  \begin{block}{#1}}%
+  {\end{block}}
+
+\newenvironment{challenge}[1]%
+{\begin{variableblock}{#1}{bg=Red!15,fg=Black}{bg=Red,fg=White}}%
+  {\end{variableblock}}
+
+\newenvironment{answer}[1]%
+{\begin{variableblock}{#1}{bg=cyan!15,fg=Black}{bg=cyan,fg=White}}%
+  {\end{variableblock}}
+
+\renewenvironment{exampleblock}[1]%
+{\begin{variableblock}{#1}{bg=yellow!15,fg=Black}{bg=Orange!40!Yellow,fg=White}}%
+  {\end{variableblock}}
+
+\newcommand{\mybibitem}[7]
+{\textcolor{textcolor!#7}{#1.}
+  \href{#2}{\em\color{palette2!#7}#3}%
+  {\color{textcolor!#7}.}
+  {\color{textcolor!#7}#4,}
+  {\color{textcolor!#7}#5,}
+  {\color{textcolor!#7}#6.}}
