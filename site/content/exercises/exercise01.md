@@ -253,19 +253,18 @@ UOPs:                   10485760000
 ```
 
 We are interested in the highlighted MFlops/s line. We can see that this
-benchmark runs at 3406.09MFlops/s. The CPU on Hamilton compute nodes is
-an [AMD EPYC 7702 64-Core
-Processor](https://www.amd.com/en/products/cpu/amd-epyc-7702), which AMD
-claims has a maximum base clock frequency of 2.0GHz. This benchmark
-result is well within the 2 scalar `ADD` per cycle, which is consistent
-with the declared reciprocal throughput.
+benchmark runs at 3406.09MFlops/s. The CPU on Hamilton compute nodes is an [AMD
+EPYC 7702 64-Core Processor](https://www.amd.com/en/products/cpu/amd-epyc-7702),
+which AMD claims has a maximum base clock frequency of 2.0GHz and a maximum
+boost frequency of 3.35GHz. This benchmark result is well within the 2 scalar
+`ADD` per cycle, which is consistent with the declared reciprocal throughput.
 
-{{< exercise >}}
-Replicate the scalar sum reduction benchmark for
-yourself, to check you get similar results. Compare the results to the
-floating point performance obtained when you run the `sum_sp_avx`
-benchmark instead of the `sum_sp` benchmark.
-{{< /exercise >}}
+{{< exercise >}} Replicate the scalar sum reduction benchmark for yourself, and
+check if you get similar results. Then run the benchmark a few times. What do you
+observe? Check with your colleagues: what flop rates do they get?
+
+Compare the results to the floating point performance obtained when you run the
+`sum_sp_avx` benchmark instead of the `sum_sp` benchmark. {{< /exercise >}}
 
 {{< question >}}
 What floating point throughput do you observe for the SIMD
