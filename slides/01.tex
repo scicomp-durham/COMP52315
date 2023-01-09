@@ -79,10 +79,10 @@
   \end{challenge}
 \end{frame}
 
-\section{Resources in stored program computers}
+\section{Resources in stored-program computers}
 
 \begin{frame}
-  \frametitle{Hardware for programmers}
+  \frametitle{Stored-program architecture}
   \begin{center}
     \includegraphics[height=0.8\textheight]{figures/CPU.png}
   \end{center}
@@ -90,19 +90,22 @@
 
 \begin{frame}
   \frametitle{Resource bottlenecks: instruction execution}
-  \begin{itemize}[itemsep=11pt]
+  \begin{itemize}[itemsep=5pt]
   \item Primary resource of the processor.
   \item Measure is instruction throughput (instructions/second).
   \item First HW design goal is to \emph{increase} instruction throughput.
   \end{itemize}
   \centering
-  \vskip 11pt
-  \structure{Performance} = How fast the CPU \emph{retires} instructions.
-  \vskip 11pt
+  \vskip 5pt
+  Performance depends on how fast the CPU \structure{retires} instructions.
+  \vskip 5pt
   \pause
-  \begin{challenge}{Mismatch}
-    Programmers and hardware designers see instructions differently.
-  \end{challenge}
+  \begin{block}{Retired instruction}
+    \begin{itemize}[itemsep=5pt]
+    \item CPUs execute more instructions than needed by program flow.
+    \item ``Retired instruction'' are those whose results are \structure{stored}.
+    \end{itemize}
+  \end{block}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -353,7 +356,7 @@ GOTO .top IF i < N
 
 
 \begin{frame}
-  \frametitle{Stored-programme architecture today}
+  \frametitle{The ``Princeton'' architecture today}
 
   \begin{columns}
     \begin{column}[c]{0.5\textwidth}
@@ -388,9 +391,41 @@ GOTO .top IF i < N
     \end{column}
   \end{columns}
 
-  \vspace{30pt}
+  \vspace{20pt}
 
-  \onslide<3>{\structure{ONE FEATURE:} both instructions and data reside in memory.}
+  \onslide<3>{%
+    \structure{THE ONE FEATURE:} both instructions and data reside in
+    memory.\\[5pt]
+  \hfill But CPUs are \structure{much} more complicated today!}
+\end{frame}
+
+\begin{frame}
+  \frametitle{On-chip memory}
+  \hspace{6pt}
+  \begin{tikzpicture}[ultra thick]
+    % Control
+    \node[anchor=south west,text=cpufg] at (0,1.5) {CPU};
+
+    \draw[rounded corners,draw=cpufg,fill=cpubg] (0,-4) rectangle (13,1.5);
+
+    \draw[rounded corners,draw=cpufg,text=cpufg,fill=cpubg]
+    (0.25,0.25) rectangle (1.25,1.25) node[midway] {CU};
+
+    \draw[rounded corners,draw=cpufg,text=cpufg,fill=cpubg]
+    (1.5,0.25) rectangle (4.75,1.25) node[midway] {ALU};
+
+    \draw[rounded corners,draw=cpufg,fill=cpubg,text=cpufg]
+    (0.25,-3.75) rectangle (4.75,-0)
+    node[midway,above=0.30] (M) {REGISTERS}
+    node [below of=M,text width=6cm,align=center]
+    {\small \mbox{current instructions} current data};
+
+    \draw[rounded corners,draw=cpufg,fill=cpubg,text=cpufg]
+    (5,-3.75) rectangle (12.75,1.25)
+    node[midway,above=0.25] (MC) {CACHE MEMORY}
+    node [below of=MC,text width=6cm,align=center]
+    {\small \mbox{past/future instructions} past/future data};
+  \end{tikzpicture}
 \end{frame}
 
 \begin{frame}
@@ -398,8 +433,8 @@ GOTO .top IF i < N
   \begin{tabular}{ll}
     \structure{Cycle} & unit of execution of CPU\\[11pt]
     \structure{Frequency} & \# cycles per second (measured in Hz)\\[11pt]
-    \structure{Latency} & \# cycles to execute instruction\\[11pt]
-    \structure{Throughput} & \# instructions that can run simultaneously
+    \structure{Latency} & \# cycles to execute given instruction\\[11pt]
+    \structure{Throughput} & \# instructions that can run simultaneously\\[11pt]
   \end{tabular}
 \end{frame}
 
@@ -527,10 +562,12 @@ and use a pipeline.
 \begin{frame}
   \frametitle{Instruction-level parallelism: out-of-order}
   Instruction ordering is based on availability of
+  \vskip 5pt
   \begin{itemize}[itemsep=6pt]
   \item input data
   \item execution units
   \end{itemize}
+  \vskip 5pt
   rather than order in the program.
   \hfill
   \begin{center}
