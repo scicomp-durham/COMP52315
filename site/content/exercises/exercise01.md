@@ -192,24 +192,29 @@ likwid-bench -t copy -w S0:100MB:1-0:S0,1:S1
 documentation](https://github.com/RRZE-HPC/likwid/wiki/Likwid-Bench)
 but for this exercise we just need a little bit of information.
 
-We are going to run the `sum_sp` and `sum_sp_avx` benchmarks. The former
-runs the scalar single-precision sum reduction from the lecture, while
-the latter runs the SIMD sum reduction. We just need to choose the
-correct setting for the `-w` argument.
+We are going to run the `sum_sp` and `sum_sp_avx` benchmarks. The former runs
+the scalar single-precision sum reduction from the lecture, while the latter
+runs the SIMD sum reduction. You can find the assembler code for
+[`sum_sp`](https://github.com/RRZE-HPC/likwid/blob/master/bench/x86-64/sum_sp.ptt)
+and for
+[`sum_sp_avx`](https://github.com/RRZE-HPC/likwid/blob/master/bench/x86-64/sum_sp_avx.ptt)
+on the `likwid` GitHub repository. The syntax used in those files is explained
+in the [Adding
+benchmarks](https://github.com/RRZE-HPC/likwid/wiki/Likwid-Bench#adding-benchmarks)
+section of the `likwid` documentation.
 
-Recall that our goal is to measure the single-thread performance of
-in-cache operations. We therefore need a small vector size, 16kB
-suffices, and want to request just a single thread. We therefore want
-either `-w N:16kB:1`.
-
-This requests a benchmark running on socket 1, for a vector of length
-16kB (4000 single-precision entries), and one thread.
+Next, we need to choose the correct setting for the `-w` (for "workgroup")
+argument. Recall that our goal is to measure the single-thread performance of
+in-cache operations. We therefore need a small vector size, 16kB suffices, and
+want to request just a single thread. We can use `-w N:16kB:1` to run the
+benchmark on any available core (in our case, the one we have been allocated by
+the batch system will be used), for a vector of length 16kB (4000
+single-precision entries), using one thread.
 
 {{< hint info >}}
 Later we will see how I determined that 16kB was an appropriate size,
 and what the `N` stands for (for the impatient: this is the affinity
-domain, and here we select none as we don't know which core we will be
-allocated by the scheduler.
+domain, and here we select none that lets us use any core).
 {{< /hint >}}
 
 Running the command `likwid-bench -t sum_sp -w N:16kB:1` you should
