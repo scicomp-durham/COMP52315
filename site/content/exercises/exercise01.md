@@ -7,8 +7,6 @@ katex: true
 
 # Benchmarking with `likwid-bench`
 
-## Overview
-
 We're going to look at the throughput of a very simple piece of code
 
 ```c
