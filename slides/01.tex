@@ -605,8 +605,10 @@ for (size_t i = 0; i < N; i++)
 
 \begin{frame}[fragile]
   \frametitle{SIMD execution}
-  \begin{columns}
-    \begin{column}{0.4\textwidth}
+  \vskip -10pt
+
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
 \begin{minted}{c}
 double *a, *b, *c;
 ...
@@ -615,18 +617,24 @@ for (i = 0; i < N; i++)
 \end{minted}
 
       \vspace{\baselineskip}
-      Register widths:
-      \vspace{\baselineskip}
+      Register widths:\\[6pt]
+
       \includegraphics[width=\textwidth]{figures/registerwidth.png}
     \end{column}
-    \begin{column}{0.6\textwidth}
-      \only<1>{Scalar addition, 1 output element per instruction.
+    \begin{column}{0.5\textwidth}
+      \only<1>{%
         \begin{center}
-          \includegraphics[width=0.9\textwidth]{figures/scalaradd.png}
-        \end{center}}
-      \only<2>{AVX addition, 4 output elements per instruction.
+          \includegraphics[width=0.7\textwidth]{figures/scalaradd.png}
+
+          \vskip 5pt
+          Scalar addition
+        \end{center}}%
+      \only<2>{%
         \begin{center}
-          \includegraphics[width=0.9\textwidth]{figures/vectoradd.png}
+          \includegraphics[width=0.7\textwidth]{figures/vectoradd.png}
+
+          \vskip 5pt
+          AVX addition
         \end{center}}
     \end{column}
   \end{columns}
