@@ -1,222 +1,270 @@
 % -*- TeX-engine: luatex -*-
-\documentclass[presentation,aspectratio=43,10pt]{beamer}
-\usepackage{template}
-\input{setup-lawrence}
-\renewcommand{\sessionnumber}{2}
-\renewcommand{\sessiontitle}{Memory hierarchy}
-\usepackage{tikz}
+\documentclass[dvipsnames,presentation,aspectratio=169,14pt]{beamer}
+\usepackage{hastingstheme}
+\usepackage{qrcode}
+\input{lecturer.tex}
+
+% \usepackage{template}
+% \input{setup-lawrence}
+% \renewcommand{\sessionnumber}{2}
+% \renewcommand{\sessiontitle}{Memory hierarchy}
+
+
 \usetikzlibrary{matrix,fit,positioning,calc}
 \usepackage{pgfplots}
-\pgfplotsset{compat=1.15}
+% \pgfplotsset{compat=1.15}
 \usepackage{pgfplotstable}
-\date{}
+% \date{}
+
 
 \begin{document}
+
+\title{\firasemibold\color{White}%
+  {\fontsize{20}{0}\selectfont SESSION 2\\
+    \fontsize{40}{40}\selectfont Memory\\hierarchy\par}}
+\titleslide
+
 \begin{frame}
-  \maketitle
-\end{frame}
+  \frametitle{Sum reduction benchmark (Exercise 1)}
 
+  \begin{columns}[c]
+    \begin{column}{0.27\textwidth}
+      \small
+      \vskip -50pt
+      \begin{itemize}[itemsep=5pt,wide=0pt]
+      \item SIMD: 4 plateaus
+      \item scalar: 3 plateaus
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.7\textwidth}
+      \begin{center}
+        \vskip -10pt
+        \begin{tikzpicture}
+          \begin{axis}[
+            height=7cm,
+            width=10cm,
+            xlabel={Bytes},
+            ylabel near ticks,
+            ylabel={MFlops/s},
+            xmode=log,
+            xtick={1e3,16e3,256e3,4e6,64e6},
+            xticklabels={1kB,16kB,256kB,4MB,64MB},
+            log basis x={10},
+            style={font=\small},
+            legend pos={north east},
+            thick,
+            legend style={
+              cells={anchor=west, align=left},
+              fill=bgcolor, font=\footnotesize}
+            ]
+            \pgfplotstableread[row sep=\\]{%
+              Bytes scalar avx\\
+              1 4646.58 25445.45\\
+              2 4493.15 35128.01\\
+              4 4450.96 40301.73\\
+              8 4396.00 37515.23\\
+              16 4360.66 36124.93\\
+              32 4248.95 34167.31\\
+              64 4075.51 25472.69\\
+              128 4105.88 25863.90\\
+              256 4107.04 26025.63\\
+              512 3510.62 13717.75\\
+              1024 2538.08 4760.64\\
+              2048 2425.87 4540.75\\
+              4096 2384.14 4595.67\\
+              8192 764.49 3051.13\\
+              16384 785.51 1041.38\\
+              32768 763.71 1054.96\\
+              65536 770.85 1020.18\\
+              131072 770.84 1016.59\\
+            }\mydata
 
-\begin{frame}
-  \frametitle{Sum reduction benchmark}
-  In exercise 1, you hopefully produced a plot similar to this one.
+            \addplot+ table[x=Bytes,y=scalar, thick] {\mydata};
+            \addlegendentry{\texttt{sp\_sum}}
 
-  Notice how the SIMD code has four distinct performance plateaus,
-  whereas the scalar code only really has two.
+            \addplot+ table[x=Bytes, y=avx, thick] {\mydata};
+            \addlegendentry{\texttt{sp\_sum\_avx}}
 
-  \begin{center}
-    \begin{tikzpicture}[scale=0.8]
-      \begin{axis}[xlabel={Bytes},
-        ylabel near ticks,
-        ylabel={MFlops/s},
-        xmode=log,
-        xtick={1e3,16e3,256e3,4e6,64e6},
-        xticklabels={1kB,16kB,256kB,4MB,64MB},
-        log basis x={10},
-        legend pos={outer north east},
-        legend style={cells={anchor=west, align=left}},]
-        \pgfplotstableread[row sep=\\]{%
-          Bytes MFlops Peak\\
-          1e3 20934.77 23.2e3\\
-          2e3 23240.25 23.2e3\\
-          4e3 22471.22 23.2e3\\
-          8e3 21988.17 23.2e3\\
-          16e3 22216.43 23.2e3\\
-          32e3 21881.05 23.2e3\\
-          64e3 17130.67 23.2e3\\
-          96e3 17975.12 23.2e3\\
-          128e3 17291.29 23.2e3\\
-          160e3 17507.30 23.2e3\\
-          192e3 14476.12 23.2e3\\
-          224e3 12656.81 23.2e3\\
-          256e3 11854.84 23.2e3\\
-          512e3 8585.19 23.2e3\\
-          1e6 8607.97 23.2e3\\
-          2e6 8609.45 23.2e3\\
-          4e6 8615.55 23.2e3\\
-          8e6 8622.28 23.2e3\\
-          16e6 8624.76 23.2e3\\
-          32e6 6814.45 23.2e3\\
-          64e6 3190.88 23.2e3\\
-          128e6 3153.69 23.2e3\\}\avxdata
-        \pgfplotstableread[row sep=\\]{%
-          Bytes MFlops Peak\\
-          1e3 2913.70 2.9e3\\
-          2e3 2893.67 2.9e3\\
-          4e3 2894.32 2.9e3\\
-          8e3 2894.57 2.9e3\\
-          16e3 2894.35 2.9e3\\
-          32e3 2889.47 2.9e3\\
-          64e3 2889.47 2.9e3\\
-          128e3 2891.86 2.9e3\\
-          256e3 2891.90 2.9e3\\
-          512e3 2887.25 2.9e3\\
-          1e6 2889.04 2.9e3\\
-          2e6 2888.07 2.9e3\\
-          4e6 2892.18 2.9e3\\
-          8e6 2892.26 2.9e3\\
-          16e6 2892.14 2.9e3\\
-          32e6 2651.69 2.9e3\\
-          64e6 2449.17 2.9e3\\
-          128e6 2445.51 2.9e3\\}\scalardata
+            % Removed as they are not significative with Boost enabled.
+            % \addplot[draw=black, mark=none,thick] coordinates
+            % {(1,40e3)(131072,40e3)};
+            % \addlegendentry {SIMD peak}
 
-        \addplot+ table[x=Bytes,y=MFlops] {\avxdata};
-        \addlegendentry{SIMD}
-        \addplot+ table[x=Bytes, y=MFlops] {\scalardata};
-        \addlegendentry{Scalar}
-        \addplot+[black, mark=none] table[x=Bytes, y={Peak}] {\avxdata};
-        \addlegendentry {SIMD peak}
-        \addplot+[black, dashed, mark=none] table[x=Bytes, y={Peak}, dashed] {\scalardata};
-        \addlegendentry {Scalar peak}
-      \end{axis}
-    \end{tikzpicture}
-  \end{center}
+            % \addplot[draw=black, dashed, mark=none,thick] coordinates
+            % {(1,3291.988)(131072,3291.988)};
+            % \addlegendentry {Scalar peak}
+          \end{axis}
+        \end{tikzpicture}
+      \end{center}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}
   \frametitle{Performance peak}
-  \begin{itemize}
-  \item Broadwell chips can issue up to one ADD (scalar or vector) per
-    cycle.
-  \item Peak clock speed is 2.9GHz for this hardware.
-  \end{itemize}
+  \begin{block}{Variability}
+    This is due to CPU Boosting.
+  \end{block}
+  \pause
   \begin{challenge}{Question}
-    Why does the vectorised code not achieve theoretical peak for all
-    vector sizes?
+    SIMD code does not achieve theoretical peak for all sizes. Why?
   \end{challenge}
   \pause
-  \begin{answer}{Lack of hardware resource}
-    Recall that as well as worrying about instruction throughput, we
-    have to think about data transfers.
-
-    $\Rightarrow$ need to consider the memory hierarchy.
+  \begin{answer}{Hardware bottlenecks}
+    \pause
+    \begin{itemize}
+    \item Cannot be instruction throughput.
+    \item Memory bandwidth decreases with vector size
+    \end{itemize}
   \end{answer}
 \end{frame}
 
 \begin{frame}
   \frametitle{Memory hierarchy}
+  \vskip -15pt
+
   \begin{columns}
     \begin{column}{0.45\textwidth}
-      Can either build \emph{small} and \emph{fast} memory\\
-      or\\[\baselineskip]
-      \emph{large} and \emph{slow} memory.\\[\baselineskip]
+      Two types of memory:\\[7pt]
+      \begin{itemize}[itemsep=7pt]
+      \item \emph{small} and \emph{fast}
+      \item \emph{large} and \emph{slow}
+      \end{itemize}
+      \vskip 7pt
 
-      Not possible to have large and fast: physics gets in the way.
+      Large and fast is impossible:\\[7pt]
+      \hspace{11pt} $\Rightarrow$ physics gets in the way.
     \end{column}
-    \begin{column}{0.4\textwidth}
+    \begin{column}{0.45\textwidth}
       \begin{center}
-        \includegraphics[width=\textwidth]{figures/cachesketch}
+        \includegraphics[width=1\textwidth]{figures/cachesketch.png}
       \end{center}
     \end{column}
   \end{columns}
   \vspace{\baselineskip}
-  $\Rightarrow$ Purpose of many optimisations is to refactor
-  algorithms to keep data in fast memory.
+  Optimisation: refactor algorithms to keep data in fast
+  memory.
 
-  
-  {\footnotesize See
-    \url{https://colin-scott.github.io/personal_website/research/interactive_latency.html}
-    for more detail on latencies}
+  {\footnotesize
+    Check
+    \href{https://colin-scott.github.io/personal_website/research/interactive_latency.html}{Colin
+    Scott's page}
+    for more detail on latencies.}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Main idea for caches}
-  \begin{itemize}
-  \item Add hierarchy of small, fast memory.
-  \item Keeps a copy of \emph{frequently used} data, speeding up
-    access
-  \item Typically not possible to \emph{a priori} know which data will
-    be needed frequently.
-  \item[$\Rightarrow$] Caches rely on \emph{princple of locality}
-  \end{itemize}
+  \frametitle{Cache memory: overview}
+
+  \begin{exampleblock}{Features}
+    \begin{itemize}[itemsep=6pt]
+    \item Hierarchy of small, fast memory.
+    \item Keep a copy of \emph{frequently used} data for faster access
+    \end{itemize}
+  \end{exampleblock}
+
+  \pause
+
+  \begin{challenge}{Issues}
+    \begin{itemize}[itemsep=6pt]
+    \item Frequently accessed data not known \emph{a priori}
+    \item Only heuristics are possible $\Rightarrow$ \emph{princple of locality}
+    \end{itemize}
+  \end{challenge}
+
 \end{frame}
+
 \begin{frame}
   \frametitle{Principle of locality}
   \begin{itemize}
-  \item Normally impossible to decide before execution exactly which
-    data will be needed ``frequently''.
-  \item In practice, most programs (could) exhibit \emph{locality} of data
+  \item Frequently accessed data often unknown before execution
+  \item In practice, most programs exhibit \emph{locality} of data
     access.
-  \item Optimised algorithms will attempt to \emph{exploit} this
+  \item Optimised algorithms attempt to \emph{exploit} this
     locality.
   \end{itemize}
+
+  \pause
 
   \begin{block}{Temporal locality}
     If I access data at some memory address, it is likely that I will
     do so again ``soon''.
   \end{block}
+
+  \vskip -2pt
+
   \begin{block}{Spatial locality}
     If I access data at some memory address, it is likely that I will
     access neighbouring addresses.
-  \end{block}  
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Temporal locality}
+
+  On \structure{first access} to a new address, the data is:\\[-13pt]
+  \begin{itemize}[itemsep=6pt]
+  \item loaded from main memory to registers
+  \item stored in cache
+  \end{itemize}
+
+  \vskip 20pt
+  \pause
+
+  \structure{Trade-off} solution:\\[-13pt]
+  \begin{itemize}[itemsep=6pt]
+  \item Small performance penalty for first access (storing is not free)
+  \item Subsequent accesses use cached copy and are much faster.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Temporal locality}
-  \begin{itemize}
-  \item The first time we access an address, it is loaded from main
-    memory \emph{and} stored in the cache.
-  \item We pay a (small) penalty for the first load (storing is not free).
-  \item But subsequent accesses to that address use the copy in the
-    cache, and are much faster.
-  \end{itemize}
-  \begin{exampleblock}{Sum reduction}
-\begin{minted}{c}
-float s[16] = 0
-for (i = 0; i < N; i++)
-  s[i%16] += a[i];
-\end{minted}
-    Access to 16 entries of $s$ exhibits temporal locality. Makes
-    sense to keep all of $s$ in cache.
-  \end{exampleblock}
-\end{frame}
-\begin{frame}[fragile]
   \frametitle{Spatial locality}
-  \begin{itemize}
-  \item When accessing an address $a$, we load and store it in the
-    cache.
-  \item We also load and store neighbouring addresses, e.g.~$a+1$,
-    $a+2$, $a+3$ \emph{at the same time}.
-  \item We pay a penalty for the first load (because we're loading
-    more data).
-  \item Hope that next load is for $a+1$, then access will be fast.
+  On \structure{first access} to a new address, the data is:\\[-13pt]
+  \begin{itemize}[itemsep=6pt]
+  \item loaded from main memory to registers
+  \item stored in cache
+  \item neighbouring addressed are also stored in cache
   \end{itemize}
-  \begin{exampleblock}{Sum reduction}
+
+  \vskip 20pt
+  \pause
+
+  \structure{Trade-off} solution:\\[-13pt]
+  \begin{itemize}[itemsep=6pt]
+  \item Large performance penalty for first access
+  \item Subsequent accesses to neighbouring data will be fast
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example: sum reduction}
 \begin{minted}{c}
-float s[16] = 0
-for (i = 0; i < N; i++)
-  s[i%16] += a[i];
+                  float s[16] = 0
+                  for (i = 0; i < N; i++)
+                      s[i%16] += a[i];
 \end{minted}
-    Access to $a$ exhibits spatial locality. Makes sense when loading
-    \texttt{a[i]} to also load \texttt{a[i+1]} (it will be used in the
-    next iteration).
-  \end{exampleblock}
+
+  \vskip 15pt
+
+  \begin{itemize}[itemsep=6pt]
+  \item Temporal locality
+    \begin{itemize}[itemsep=4pt]
+    \item 16 entries of \texttt{s} are accessed repeatedly
+    \item Makes to keep all of \texttt{s} in cache
+    \end{itemize}
+  \item Spatial locality
+    \begin{itemize}[itemsep=4pt]
+    \item Contiguous entries of \texttt{a} are accessed
+    \item When loading \texttt{a[i]} it makes sense to load \texttt{a[i+1]} too.
+    \end{itemize}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Designing a cache}
   \begin{block}{Important questions}
-    \begin{enumerate}
+    \begin{enumerate}[itemsep=6pt]
     \item When we load data into the cache, where do we put it?
     \item If we have an address, how do determine if it is in the
       cache?
@@ -224,100 +272,102 @@ for (i = 0; i < N; i++)
     \end{enumerate}
   \end{block}
 
-  \begin{itemize}
-  \item (1) \& (2) are intimately related.
-  \end{itemize}
-\end{frame}
+  \vskip 11pt
 
-\begin{frame}[fragile]
-  \frametitle{Putting data in a cache}
-  \begin{itemize}
-  \item Each datum uniquely referenced by its \emph{address}, $K$
-    bits.  Usually $K = 32$ or $K = 64$.
-  \item Need to turn this large address into a cache location.
-  \end{itemize}
-
-  \begin{block}{Direct mapped caches}
-    \begin{itemize}
-    \item Cache can store $2^N$ bytes.
-    \item Divided into \emph{blocks} each of $2^M$ bytes.
-    \item Each address references one byte.
-    \item Use $N$ bits of the address, to select which slot
-      in the cache to use.
-    \end{itemize}
-  \end{block}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Direct mapped caches: indexing}
-  \begin{tikzpicture}
-    \node[fit={(-1,1.5) (3.75, 2)}, inner sep=0pt,draw] (tag) {};
-    \node at (tag.center) {$K - N$ bits};
-    \draw[decoration={brace,raise=0.05cm},decorate] (tag.north west)
-    -- (tag.north east) node [pos=0.5, anchor=south] {Cache tag};
-
-    \node[fit={(3.75,1.5) (5.75, 2)}, inner sep=0pt,draw] (index) {};
-    \node at (index.center) {$N-M$ bits};
-    \draw[decoration={brace,raise=0.05cm},decorate] (index.south
-    east) -- (index.south west) node[pos=0.5, anchor=north] {Cache index};
-
-    \node[fit={(5.75,1.5) (7, 2)}, inner sep=0pt,draw] (select) {};
-    \node at (select.center) {$M$ bits};
-    \draw[decoration={brace, raise=0.05cm},decorate] (select.north west)
-    -- (select.north east) node [pos=0.5, anchor=south]
-    {Byte select};
-
-
-    \node[fit={(0,0) (2,0.6)}, inner sep=0pt,draw] (byte0) {};
-    \node at (byte0.center) {Byte 0};
-    \node[fit={(2,0) (4,0.6)}, inner sep=0pt,draw] (byte1) {};
-    \node at (byte1.center) {Byte 1};
-    \node[fit={(4,0) (6,0.6)}, inner sep=0pt,draw] (byte2) {};
-    \node at (byte2.center) {\dots};
-    \node[fit={(6,0) (8,0.6)}, inner sep=0pt,draw] (byteM) {};
-    \node at (byteM.center) {Byte $2^M$};
-
-    \node[left=0.1cm of byte0] {Block 0};
-    \node[fit={(0, 0) (8, -0.6)}, inner sep=0pt,draw] (block1) {};
-    \node[left=0.1cm of block1] {Block 1};
-    \node[fit={(0, -0.6) (8, -1.2)}, inner sep=0pt,draw] (block2) {};
-    \node[left=0.5cm of block2,yshift=0.1cm] {\vdots};
-    \node[fit={(0, -1.2) (8, -1.8)}, inner sep=0pt,draw] (blockN) {};
-    \node[left=0.1cm of blockN] {Block $2^{N-M}$};
-  \end{tikzpicture}
-  \begin{itemize}
-  \item \textbf{Byte select}: Use lowest $M$ bits to select correct byte in block.
-  \item \textbf{Cache index}: Use next $N-M$ bits to select correct block.
-  \item \textbf{Cache tag}: Use remaining $K - N$ bits as a key.
+  \begin{itemize}[itemsep=4pt]
+  \item Each datum uniquely referenced by its $K$-bit \emph{address}
+  \item Need to turn this large memory address into a cache location
+  \item $K$ is typically large ($\mathsf{2^{32}/2^{64}}$ addresses)
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Choice of block size}
+  \frametitle{Direct mapped cache}
   \begin{itemize}
-  \item Data is loaded one \emph{block} at a time (also called \emph{cache lines}).
-  \item Immediately exploits \emph{spatial locality}.
-  \item Larger blocks are not always better.
-  \item Almost all modern CPUs use 64byte block size.
+  \item Cache can store $\mathsf 2^N$ bytes.
+  \item Divided into \emph{blocks} (or \emph{cache lines}) each of $\mathsf 2^M$ bytes.
+  \item Each address references one byte.
+  \item Use $N$ bits of the address to select which slot
+    in the cache to use.
   \end{itemize}
-  \begin{corollary}
-    Cache-friendly algorithms work on cache line sized chunks of data.
-  \end{corollary}
+
+  \vskip 11pt
+
+  \structure{Simple solution:}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Direct mapped caches: indexing}
+  \begin{center}
+    \begin{tikzpicture}
+      \footnotesize \node[fit={(-1,1.5) (3.75, 2)}, inner sep=0pt,draw] (tag)
+      {}; \node at (tag.center) {$K - N$ bits};
+      \draw[decoration={brace,raise=0.05cm},decorate] (tag.north west) --
+      (tag.north east) node [pos=0.5, anchor=south] {Cache tag};
+
+      \node[fit={(3.75,1.5) (5.75, 2)}, inner sep=0pt,draw] (index) {}; \node at
+      (index.center) {$N-M$ bits};
+      \draw[decoration={brace,raise=0.05cm},decorate] (index.south east) --
+      (index.south west) node[pos=0.5, anchor=north] {Cache index};
+
+      \node[fit={(5.75,1.5) (7, 2)}, inner sep=0pt,draw] (select) {}; \node at
+      (select.center) {$M$ bits}; \draw[decoration={brace,
+        raise=0.05cm},decorate] (select.north west) -- (select.north east) node
+      [pos=0.5, anchor=south] {Byte select};
+
+
+      \node[fit={(0,0) (2,0.6)}, inner sep=0pt,draw] (byte0) {}; \node at
+      (byte0.center) {Byte 0}; \node[fit={(2,0) (4,0.6)}, inner sep=0pt,draw]
+      (byte1) {}; \node at (byte1.center) {Byte 1}; \node[fit={(4,0) (6,0.6)},
+      inner sep=0pt,draw] (byte2) {}; \node at (byte2.center) {\dots};
+      \node[fit={(6,0) (8,0.6)}, inner sep=0pt,draw] (byteM) {}; \node at
+      (byteM.center) {Byte $\mathsf 2^M$};
+
+      \node[left=0.1cm of byte0] {Block 0}; \node[fit={(0, 0) (8, -0.6)}, inner
+      sep=0pt,draw] (block1) {}; \node[left=0.1cm of block1] {Block 1};
+      \node[fit={(0, -0.6) (8, -1.2)}, inner sep=0pt,draw] (block2) {};
+      \node[left=0.5cm of block2,yshift=0.1cm] {\vdots}; \node[fit={(0, -1.2)
+        (8, -1.8)}, inner sep=0pt,draw] (blockN) {}; \node[left=0.1cm of blockN]
+      {Block $\mathsf 2^{N-M}$};
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}
+  \item \structure{Byte select}: Use lowest $M$ bits to select correct byte in block.
+  \item \structure{Cache index}: Use next $N-M$ bits to select correct block.
+  \item \structure{Cache tag}: Use remaining $K - N$ bits as a key.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Choice of cache line size}
+  \begin{itemize}[itemsep=8pt]
+  \item Data is loaded one \emph{cache line} at a time
+  \item Immediately exploits \emph{spatial locality}
+  \item Larger cache lines are not always better
+  \item Almost all modern CPUs use 64-byte size
+  \end{itemize}
+
+  \vskip 16pt
+
+  \begin{block}{Rule of thumb}
+    Cache-friendly algorithms work on cache line-sized chunks of data.
+  \end{block}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Direct mapped caches: eviction}
-  \begin{itemize}
-  \item What happens if two addresses have the same low bit pattern?
-  \item We have a \emph{conflict}.
-  \item Resolution: newest loaded address wins.
+  \begin{itemize}[itemsep=4pt]
+  \item \structure{Conflict:} two addresses have the same low bit pattern
+  \item \structure{Resolution:} newest loaded address wins.
   \item This is a \emph{least recently used} (LRU) eviction policy.
   \end{itemize}
+
+  \pause
 
   \begin{block}{What can go wrong?}
     \begin{columns}
       \begin{column}{0.45\textwidth}
-\begin{minted}[fontsize=\scriptsize]{c}
+\begin{minted}[fontsize=\small]{c}
 int a[64], b[64], r = 0;
 for (int i = 0; i < 100; i++)
    for (int j = 0; j < 64; j++)
@@ -327,147 +377,154 @@ for (int i = 0; i < 100; i++)
       \begin{column}{0.45\textwidth}
         \begin{itemize}
         \item 1KB cache
-        \item 32 byte block size
-        \item So $N=10$, $M=5$.\\
-          32 blocks in the cache.
+        \item 32-byte block size
+        \item So $\mathsf{N=10, M=5}$
+        \item 32 blocks in the cache
         \end{itemize}
       \end{column}
     \end{columns}
   \end{block}
 \end{frame}
 
+\newcommand{\myphantom}{\phantom{$a_{\mathsf{11:11}}$}}
+\newcommand{\myvphantom}{\vphantom{$b_{\mathsf{11:11}}$}}
+\newcommand{\myhphantom}{\vphantom{$a_{\mathsf{11:11}}$}}
+
 \begin{frame}[fragile]
   \frametitle{Conflicts reduce \emph{effective} cache size}
-  \begin{center}
-\begin{minted}[fontsize=\tiny]{c}
-for (int j = 0; j < 64; j++)
-   r += a[j] + b[j];
-\end{minted}
-  \end{center}
   \begin{columns}
-    \begin{column}{0.5\pagewidth}
+    \begin{column}{0.33\linewidth}
+\centering
+\begin{minted}[fontsize=\footnotesize]{c}
+for (int j = 0; j < 64; j++)
+    r += a[j] + b[j];
+\end{minted}
+
+\vskip 7pt
+\small
       \begin{onlyenv}<1>
         \begin{tikzpicture} [nodes in empty cells, nodes={minimum
-            width=1.25cm, minimum height=0.5cm, inner sep=0}, row sep=-\pgflinewidth,
+            width=1.4cm, minimum height=0.7cm, inner sep=0}, row sep=-\pgflinewidth,
           column sep=-\pgflinewidth]
           border/.style={draw} \matrix(matrix)[matrix of nodes,
           nodes={draw}] {
-            &&&\\
-            &&&\\
-            &&&\\
-            &&&\\
-            &&&\\
-            &&&\\
-            &&&\\
-            &&&\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
           };
         \end{tikzpicture}
       \end{onlyenv}%
       \begin{onlyenv}<2>
         \begin{tikzpicture} [nodes in empty cells, nodes={minimum
-            width=1.25cm, minimum height=0.5cm, inner sep=0}, row
+            width=1.4cm, minimum height=0.7cm, inner sep=0}, row
           sep=-\pgflinewidth, column sep=-\pgflinewidth]
           border/.style={draw} \matrix(matrix)[matrix of nodes,
           nodes={draw}] {
-            $a_{0:7}$ & $a_{8:15}$ & $a_{16:23}$ & $a_{24:31}$ \\
-                      &            &             &             \\
-                      &            &             &             \\
-                      &            &             &             \\
-                      &            &             &             \\
-                      &            &             &             \\
-                      &            &             &             \\
-            $b_{0:7}$ & $b_{8:15}$ & $b_{16:23}$ & $b_{24:31}$ \\
+            \myvphantom{}$a_{\mathsf{0:7}}$ & \myvphantom{}$a_{\mathsf{8:15}}$ &\myvphantom{}$a_{\mathsf{16:23}}$ & \myvphantom{}$a_{\mathsf{24:31}}$ \\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            $b_{\mathsf{0:7}}$ & $b_{\mathsf{8:15}}$ & $b_{\mathsf{16:23}}$ & $b_{\mathsf{24:31}}$ \\
           };
         \end{tikzpicture}
       \end{onlyenv}%
       \begin{onlyenv}<3>
         \begin{tikzpicture} [nodes in empty cells, nodes={minimum
-            width=1.25cm, minimum height=0.5cm, inner sep=0}, row
+            width=1.4cm, minimum height=0.7cm, inner sep=0}, row
           sep=-\pgflinewidth, column sep=-\pgflinewidth]
           border/.style={draw} \matrix(matrix)[matrix of nodes,
           nodes={draw}] {
-            $b_{32:39}$ & $a_{8:15}$ & $a_{16:23}$ & $a_{24:31}$ \\
-            $a_{32:39}$ &            &             &             \\
-                        &            &             &             \\
-                        &            &             &             \\
-                        &            &             &             \\
-                        &            &             &             \\
-                        &            &             &             \\
-            $b_{0:7}$   & $b_{8:15}$ & $b_{16:23}$ & $b_{24:31}$ \\
+            $b_{\mathsf{32:39}}$ & \myvphantom{}$a_{\mathsf{8:15}}$ & \myvphantom{}$a_{\mathsf{16:23}}$ & \myvphantom{}$a_{\mathsf{24:31}}$ \\
+            $a_{\mathsf{32:39}}$&\myhphantom&\myhphantom&\myhphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            $b_{\mathsf{0:7}}$   & $b_{\mathsf{8:15}}$ & $b_{\mathsf{16:23}}$ & $b_{\mathsf{24:31}}$ \\
           };
         \end{tikzpicture}
       \end{onlyenv}%
       \begin{onlyenv}<4>
         \begin{tikzpicture} [nodes in empty cells, nodes={minimum
-            width=1.25cm, minimum height=0.5cm, inner sep=0}, row
+            width=1.4cm, minimum height=0.7cm, inner sep=0}, row
           sep=-\pgflinewidth, column sep=-\pgflinewidth]
           border/.style={draw} \matrix(matrix)[matrix of nodes,
           nodes={draw}] {
-            $b_{32:39}$ & $b_{40:47}$  & $a_{16:23}$ & $a_{24:31}$ \\
-            $a_{32:39}$ & $a_{40:47}$ &  &  \\
-                        &             &             &             \\
-                        &             &             &             \\
-                        &             &             &             \\
-                        &             &             &             \\
-                        &             &             &             \\
-            $b_{0:7}$   & $b_{8:15}$  & $b_{16:23}$ & $b_{24:31}$ \\
+            $b_{\mathsf{32:39}}$ & $b_{\mathsf{40:47}}$  & \myvphantom{}$a_{\mathsf{16:23}}$ & \myvphantom{}$a_{\mathsf{24:31}}$ \\
+            $a_{\mathsf{32:39}}$ & $a_{\mathsf{40:47}}$ &\myhphantom&\myhphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            \myphantom&\myphantom&\myphantom&\myphantom\\
+            $b_{\mathsf{0:7}}$   & $b_{\mathsf{8:15}}$  & $b_{\mathsf{16:23}}$ & $b_{\mathsf{24:31}}$ \\
           };
         \end{tikzpicture}
       \end{onlyenv}%
       \begin{onlyenv}<5>
         \begin{tikzpicture} [nodes in empty cells, nodes={minimum
-            width=1.25cm, minimum height=0.5cm, inner sep=0}, row
+            width=1.4cm, minimum height=0.7cm, inner sep=0}, row
           sep=-\pgflinewidth, column sep=-\pgflinewidth]
           border/.style={draw} \matrix(matrix)[matrix of nodes,
           nodes={draw}] {
-            $b_{32:39}$ & $b_{40:47}$ & $b_{48:55}$ & $a_{24:31}$ \\
-            $a_{32:39}$ & $a_{40:47}$ & $a_{48:55}$ &             \\
+            $b_{\mathsf{32:39}}$ & $b_{\mathsf{40:47}}$ & $b_{\mathsf{48:55}}$ & \myvphantom{}$a_{\mathsf{24:31}}$ \\
+            $a_{\mathsf{32:39}}$ & $a_{\mathsf{40:47}}$ & $a_{\mathsf{48:55}}$ &
+            \myhphantom{}\\
                         &             &             &             \\
                         &             &             &             \\
                         &             &             &             \\
                         &             &             &             \\
                         &             &             &             \\
-            $b_{0:7}$   & $b_{8:15}$  & $b_{16:23}$ & $b_{24:31}$ \\
+            $b_{\mathsf{0:7}}$   & $b_{\mathsf{8:15}}$  & $b_{\mathsf{16:23}}$ & $b_{\mathsf{24:31}}$ \\
           };
         \end{tikzpicture}
       \end{onlyenv}%
       \begin{onlyenv}<6->
         \begin{tikzpicture} [nodes in empty cells, nodes={minimum
-            width=1.25cm, minimum height=0.5cm, inner sep=0}, row
+            width=1.4cm, minimum height=0.7cm, inner sep=0}, row
           sep=-\pgflinewidth, column sep=-\pgflinewidth]
           border/.style={draw} \matrix(matrix)[matrix of nodes,
           nodes={draw}] {
-            $b_{32:39}$ & $b_{40:47}$ & $b_{48:55}$ & $b_{56:63}$ \\
-            $a_{32:39}$ & $a_{40:47}$ & $a_{48:55}$ & $a_{56:63}$ \\
+            $b_{\mathsf{32:39}}$ & $b_{\mathsf{40:47}}$ & $b_{\mathsf{48:55}}$ & $b_{\mathsf{56:63}}$ \\
+            $a_{\mathsf{32:39}}$ & $a_{\mathsf{40:47}}$ & $a_{\mathsf{48:55}}$ & $a_{\mathsf{56:63}}$ \\
                         &             &             &             \\
                         &             &             &             \\
                         &             &             &             \\
                         &             &             &             \\
                         &             &             &             \\
-            $b_{0:7}$   & $b_{8:15}$  & $b_{16:23}$ & $b_{24:31}$ \\
+            $b_{\mathsf{0:7}}$   & $b_{\mathsf{8:15}}$  & $b_{\mathsf{16:23}}$ & $b_{\mathsf{24:31}}$ \\
           };
         \end{tikzpicture}
       \end{onlyenv}%
     \end{column}
-    \begin{column}{0.45\pagewidth}
-\begin{minted}[fontsize=\tiny]{c}
-&a[00] = b..._00000_00000 => line 0, byte offset 0
-&a[01] = b..._00000_00100 => line 0, byte offset 4
-&a[02] = b..._00000_01000 => line 0, byte offset 8
-&a[03] = b..._00000_01100 => line 0, byte offset 12
-&a[04] = b..._00000_10000 => line 0, byte offset 16
-&a[05] = b..._00000_10100 => line 0, byte offset 20
-&a[06] = b..._00000_11000 => line 0, byte offset 24
-&a[07] = b..._00000_11100 => line 0, byte offset 28
+    \begin{column}{0.45\linewidth}
+\begin{minted}[fontsize=\scriptsize]{c}
+&a[00] = ... 00000 00000 => block  0, byte offset 0
+&a[01] = ... 00000 00100 => block  0, byte offset 4
+&a[02] = ... 00000 01000 => block  0, byte offset 8
+&a[03] = ... 00000 01100 => block  0, byte offset 12
+&a[04] = ... 00000 10000 => block  0, byte offset 16
+&a[05] = ... 00000 10100 => block  0, byte offset 20
+&a[06] = ... 00000 11000 => block  0, byte offset 24
+&a[07] = ... 00000 11100 => block  0, byte offset 28
 ...
-&b[00] = b..._11100_00000 => line 28, byte offset 0
-&b[01] = b..._11100_00100 => line 28, byte offset 4
-&b[02] = b..._11100_01000 => line 28, byte offset 8
-&b[03] = b..._11100_01100 => line 28, byte offset 12
-&b[04] = b..._11100_10000 => line 28, byte offset 16
-&b[05] = b..._11100_10100 => line 28, byte offset 20
-&b[06] = b..._11100_11000 => line 28, byte offset 24
-&b[07] = b..._11100_11100 => line 28, byte offset 28
+&b[00] = ... 11100 00000 => block 28, byte offset 0
+&b[01] = ... 11100 00100 => block 28, byte offset 4
+&b[02] = ... 11100 01000 => block 28, byte offset 8
+&b[03] = ... 11100 01100 => block 28, byte offset 12
+&b[04] = ... 11100 10000 => block 28, byte offset 16
+&b[05] = ... 11100 10100 => block 28, byte offset 20
+&b[06] = ... 11100 11000 => block 28, byte offset 24
+&b[07] = ... 11100 11100 => block 28, byte offset 28
 ...
 \end{minted}
     \end{column}
@@ -495,42 +552,40 @@ for (int i = 0; i < 100; i++)
     \end{columns}
   \end{block}
 
-  \begin{block}{Cache thrashing}
+
     \begin{itemize}
-    \item We need $2 \cdot 64 \cdot 4 = 512\text{ bytes}$ to store $A$
-      and $B$ in cache.  This only requires 16 blocks, so our cache is
-      large enough.
-    \item But if the addresses match in the low bits, we will try and
-      store to same locations.
-    \item In worst case, every load of \texttt{B[j]} evicts
+    \item We need $\mathsf{2 \cdot 64 \cdot 4 = 512}$ bytes to store $A$ and $B$
+      in cache.
+\item This only requires 16 blocks, so our cache is large enough.
+    \item If low bits of addresses match, same cache lines are mapped.
+    \item In the worst case, every load of \texttt{B[j]} evicts
       \texttt{A[j]}, and vice versa.
     \end{itemize}
-  \end{block}
+
 \end{frame}
 
 \begin{frame}[t]
   \frametitle{Cache associativity}
-  \begin{columns}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Direct mapped}
-        \begin{itemize}
-        \item Each block from main memory maps to exactly one cache
-          line.
-        \item LRU eviction policy (new data overwrite old).
-        \end{itemize}
-      \end{block}
-      \end{column}
-      \begin{column}{0.48\textwidth}
-        \begin{block}{Fully associative}
-          \begin{itemize}
-          \item Each byte from main memory can maps to any cache line.
-          \item Most flexible, but also expensive.
-          \end{itemize}
-        \end{block}
-      \end{column}
-  \end{columns}
-  \begin{block}{$k$-way set associative}
-    \begin{itemize}
+  \begin{itemize}[itemsep=8pt]
+  \item Direct mapped
+    \begin{itemize}[wide=0pt,itemsep=6pt]
+    \item Each RAM \emph{block} maps to exactly one cache
+      line.
+    \item LRU eviction policy (new data overwrite old)
+    \end{itemize}
+  \item<2> Fully associative
+    \begin{itemize}[wide=0pt,itemsep=6pt]
+    \item Each RAM \emph{byte} can map to any cache line
+    \item Data is stored in first unused cache line
+    \item If all lines are used, overall LRU one is replaced
+    \item Most flexible, but also mostexpensive
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{$k$-way set associative cache}
+    \begin{itemize}[itemsep=8pt]
     \item $k$ ``copies'' of a direct mapped cache.  Each block from main
       memory maps to one of $k$ cache lines, called \emph{sets}.
     \item Typically use LRU eviction.
@@ -538,125 +593,81 @@ for (int i = 0; i < 100; i++)
     \item Skylake has $N = 8$ for L1, $N = 16$ for L2, $N = 11$
       for L3.
     \end{itemize}
-  \end{block}
 \end{frame}
-
 
 \begin{frame}
-  \frametitle{Exercise: cache bandwidth}
-  \begin{itemize}
-  \item Let's try and do this in the round again.
-
-  \item Goal is to benchmark the memory bandwidth as a function of
-    vector size to see what we observe.
-  \item We will use the results to explain the observations of the sum
-    reduction benchmark.
-  \item[$\Rightarrow$] over to you.
-  \end{itemize}
-  \begin{center}
-    \url{teaching.wence.uk/comp52315/exercises/exercise02/}
-  \end{center}
-\end{frame}
+  \frametitle{Exercise: benchmarking cache bandwidth}
+  \begin{enumerate}[itemsep=8pt]
+    \item Split into small groups
+    \item Make sure one person per group has access to Hamilton
+    \item Benchmark memory bandwidth as a function of vector size
+    \item You can use the bash script from last week.
+    \item Ask questions!
+    \end{enumerate}
+  \end{frame}
 
 \begin{frame}
   \frametitle{Results}
-  You hopefully produced a plot similar to this one.
-
-  I added the floating point throughtput of the sum reduction so we
-  can compare the plateaus.
+  \pgfplotsset{
+    execute at begin axis={
+      \pgfplotsset{
+        width=.8\textwidth,
+        height=.8\textheight,
+      }
+    }
+  }
   \begin{center}
-    \begin{tikzpicture}[scale=0.8]
+    \begin{tikzpicture}
       \begin{axis}[xlabel={Bytes},
         ylabel near ticks,
         axis y line*=left,
         ylabel={MByte/s},
         xmode=log,
-        xtick={1e3,16e3,256e3,4e6,64e6,1e9},
-        xticklabels={1kB,16kB,256kB,4MB,64MB,1GB},
+        xtick={1,1024,1024*1024},
+        xticklabels={1kB,1MB,1GB},
         log basis x={10},
-        legend style={cells={anchor=west, align=left}},]
+        legend style={
+          cells={
+            anchor=west,
+            align=left},
+          fill=bgcolor},]
         \pgfplotstableread[row sep=\\]{%
-          Bytes MBytes\\
-          1e3 191682.87\\
-          2e3 259178.92\\
-          4e3 268609.79\\
-          8e3 262007.62\\
-          16e3 307619.45\\
-          32e3 222883.57\\
-          64e3 46327.33\\
-          128e3 46415.36\\
-          256e3 35150.15\\
-          512e3 24771.07\\
-          1e6 25080.55\\
-          2e6 24812.26\\
-          4e6 25289.10\\
-          8e6 24673.00\\
-          16e6 25747.47\\
-          32e6 18618.29\\
-          64e6 10630.21\\
-          128e6 10639.17\\
-          256e6 10502.63\\
-          512e6 10690.16\\
-          1e9 10819.48\\
-        }\copy
-        \pgfplotstableread[row sep=\\]{%
-          Bytes MBytes\\
-          1e3 153340.47\\
-          2e3 172851.18\\
-          4e3 233932.86\\
-          8e3 282139.80\\
-          16e3 290516.79\\
-          32e3 286756.91\\
-          64e3 80135.26\\
-          96e3 80391.69\\
-          128e3 79891.71\\
-          160e3 79719.73\\
-          192e3 65256.46\\
-          224e3 67087.59\\
-          256e3 58293.14\\
-          512e3 37787.61\\
-          1e6 36722.61\\
-          2e6 36763.74\\
-          4e6 36675.27\\
-          8e6 36793.72\\
-          16e6 36816.49\\
-          32e6 27525.82\\
-          64e6 13075.06\\
-          128e6 12781.75\\
-          256e6 12806.85\\
-          512e6 13083.85\\
-          1e9 12788.69\\
-        }\load
-        \pgfplotstableread[row sep=\\]{%
-          Bytes MBytes\\
-          1e3 141087.63\\
-          2e3 165450.51\\
-          4e3 134665.13\\
-          8e3 154274.23\\
-          16e3 167200.39\\
-          32e3 112887.10\\
-          64e3 30526.56\\
-          128e3 30539.02\\
-          256e3 27057.18\\
-          512e3 20037.34\\
-          1e6 20027.31\\
-          2e6 20012.49\\
-          4e6 20000.02\\
-          8e6 19903.02\\
-          16e6 20008.66\\
-          32e6 12723.63\\
-          64e6 8568.50\\
-          128e6 8497.95\\
-          256e6 8441.10\\
-          512e6 8457.19\\
-          1e9 8486.48\\
-        }\store
-        \addplot+ table[x=Bytes,y=MBytes] {\copy};
-        \addlegendentry{Copy}
-        \addplot+ table[x=Bytes,y=MBytes] {\load};
-        \addlegendentry{Load}
-        \addplot+ table[x=Bytes,y=MBytes] {\store};
-        \addlegendentry{Store}
+          Bytes clcopy clload clstore\\
+          1 139535.62 179003.98 134269.99
+          2 196072.14 203681.02 169971.85\\
+          4 283292.66 273443.12 190373.63\\
+          8 344672.52 325878.19 201236.47\\
+          16 381529.82 358668.46 206621.30\\
+          32 376355.40 321852.29 189942.49\\
+          64 104077.55 103779.30 103850.40\\
+          128 105189.99 105002.13 105069.61\\
+          256 103963.27 105435.72 105473.81\\
+          512 96728.33 97349.98 101997.74\\
+          1024 81027.42 79056.48 95002.92\\
+          2048 79067.36 78479.83 94617.17\\
+          4096 78963.31 78506.96 86539.01\\
+          8192 79746.77 95353.00 84450.10\\
+          16384 44177.92 59154.62 46998.52\\
+          32768 17845.85 16425.60 12484.70\\
+          65536 18091.12 16483.60 12538.13\\
+          131072 17937.64 16484.62 12566.02\\
+          262144 17954.16 16564.25 12524.69\\
+          524288 17899.87 16464.03 12552.42\\
+          1048576 17847.05 16443.76 12518.28\\
+        }\mydata
+        \addplot [Red, very thick, mark=*] table[x=Bytes,y=clcopy] {\mydata};\label{clcopy}
+        \addlegendentry{\texttt{clcopy}}
+        \addplot [Blue, very thick, mark=square] table[x=Bytes,y=clload] {\mydata};\label{clload}
+        \addlegendentry{\texttt{clload}}
+        \addplot [Green, very thick, mark=diamond] table[x=Bytes,y=clstore]
+        {\mydata};\label{clstore}
+        \addlegendentry{\texttt{clstore}}
+
+        \only<2>{%
+          \addlegendimage{/pgfplots/refstyle=sum-sp-avx}
+          \addlegendentry{\texttt{sum\_sp\_avx}}
+        }
+
       \end{axis}
       \pause
       \begin{axis}[xlabel={},
@@ -664,39 +675,44 @@ for (int i = 0; i < 100; i++)
         axis y line*=right,
         ylabel={MFlops/s},
         xmode=log,
-        xtick={1e3,16e3,256e3,4e6,64e6,1e9},
         xticklabels={},
-        log basis x={10},
+        log basis x={2},
         legend pos={outer north east},
         legend style={cells={anchor=west, align=left}},]
         \pgfplotstableread[row sep=\\]{%
-          Bytes MFlops Peak\\
-          1e3 20934.77 23.2e3\\
-          2e3 23240.25 23.2e3\\
-          4e3 22471.22 23.2e3\\
-          8e3 21988.17 23.2e3\\
-          16e3 22216.43 23.2e3\\
-          32e3 21881.05 23.2e3\\
-          64e3 17130.67 23.2e3\\
-          96e3 17975.12 23.2e3\\
-          128e3 17291.29 23.2e3\\
-          160e3 17507.30 23.2e3\\
-          192e3 14476.12 23.2e3\\
-          224e3 12656.81 23.2e3\\
-          256e3 11854.84 23.2e3\\
-          512e3 8585.19 23.2e3\\
-          1e6 8607.97 23.2e3\\
-          2e6 8609.45 23.2e3\\
-          4e6 8615.55 23.2e3\\
-          8e6 8622.28 23.2e3\\
-          16e6 8624.76 23.2e3\\
-          32e6 6814.45 23.2e3\\
-          64e6 3190.88 23.2e3\\
-          128e6 3153.69 23.2e3\\
-          256e6 3150.00 23.2e3\\
-          512e6 3120.00 23.2e3\\
-          1e9 3130.00 23.2e3\\}\avxdata
-        \addplot+[black, mark=x, thick] table[x=Bytes,y=MFlops] {\avxdata};
+          Bytes scalar avx\\
+          1 4721.23 25633.48\\
+          2 4566.17 35462.91\\
+          4 4497.61 40717.13\\
+          8 4465.51 37820.79\\
+          16 4443.53 36595.48\\
+          32 4424.07 33791.29\\
+          64 4222.61 25780.94\\
+          128 4258.17 26158.12\\
+          256 4204.51 26281.52\\
+          512 4384.87 23034.10\\
+          1024 4394.45 18759.08\\
+          2048 4386.30 18655.37\\
+          4096 4396.57 18868.36\\
+          8192 4398.89 18856.77\\
+          16384 4084.19 13711.12\\
+          32768 3387.52 5583.20\\
+          65536 3399.47 5633.13\\
+          131072 3412.19 5582.03\\
+          262144 3399.07 5573.66\\
+          524288 3404.33 5581.31\\
+          1048576 3428.27 5645.72\\
+        }\mydata
+
+        % \addlegendimage{/pgfplots/refstyle=clcopy}
+        % \addlegendentry{\texttt{clcopy}}
+        % \addlegendimage{/pgfplots/refstyle=clload}
+        % \addlegendentry{\texttt{clload}}
+        % \addlegendimage{/pgfplots/refstyle=clstore}
+        % \addlegendentry{\texttt{clstore}}
+
+        \addplot [black, mark=x, thick] table[x=Bytes,y=avx] {\mydata}; \label{sum-sp-avx}
+        % \addlegendentry{test};
       \end{axis}
     \end{tikzpicture}
   \end{center}
@@ -780,7 +796,7 @@ for (int i = 0; i < 100; i++)
   \texttt{likwid-topology} reports an ASCII version of diagrams like
   this.
   \begin{center}
-    \includegraphics[height=0.5\textheight]{figures/cacheschematic}
+    \includegraphics[height=0.5\textheight]{figures/cacheschematic.png}
   \end{center}
 \end{frame}
 
