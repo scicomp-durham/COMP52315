@@ -5,12 +5,11 @@ weight: 2
 
 # Measuring memory bandwidth in the memory hierarchy
 
-The goal is to determine the memory bandwidth as a function of how
-much data we are moving on the Hamilton cores.
+The goal of this exercise is to determine the memory bandwidth as a function of
+the amount of data we are moving on the Hamilton cores.
 
-Again, as for [the first exercise]({{< ref "exercise01" >}}) we will
-do this with `likwid-bench`. This time we will use three
-different benchmarks:
+As done in the [the first exercise]({{< ref "exercise01" >}}) we will use
+`likwid-bench`. This time we will use three different benchmarks:
 
 1. [`clcopy`](https://github.com/RRZE-HPC/likwid/blob/master/bench/x86-64/clcopy.ptt):
    Double-precision cache line copy, which only touches first element of each cache line.
@@ -23,18 +22,10 @@ different benchmarks:
    line.
 
 These benchmarks do the minimal amount of work while moving data in cache lines
-(64 bytes at a time), and therefore exercise the memory bandwidth bottlenecks
-(rather than instruction issue or similar).
+(64 bytes at a time), and therefore they exercise the memory bandwidth
+bottlenecks (rather than instruction issue or similar).
 
-## Setup
-
-### Logging in to Hamilton
-
-As before, you should do this on a compute node on Hamilton. See the
-[quickstart in exercise 1]({{< ref
-"exercise01.md#setup-logging-in-to-hamilton" >}}) if you need a refresher.
-
-### Running the benchmarks
+## Running the benchmarks
 
 As mentioned, this time we want to measure memory bandwidth with the
 `clcopy`, `clload`, and `clstore`
