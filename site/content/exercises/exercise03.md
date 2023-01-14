@@ -35,26 +35,29 @@ Having answered these questions, you should be able to pick appropriate
 vector sizes to test the parallel memory bandwidth of both cache and
 main memory.
 
-## Interlude: more on `likwid-bench`
+## The `likwid-bench` workgroups
 ### Selecting the number of cores to use
 
-You should have determined that a Hamilton node has two sockets, each
-with 64 cores, and that the L1 cache is 32kB and private to each core.
-Let's look at how to benchmark in multiple cores with `likwid-bench`.
+You should have found that a compute node of Hamilton 8 has two sockets, each
+socket has 64 cores, and each core has one thread. You should also have
+determined that the sizes of the L1, L2, and L3 caches are 32kB, 512kB, and
+16MB, respectively, and the first two levels are core-private whereas the last
+level is shared by a group of four cores. Now we want to run some memory
+benchmarks on multiple cores with `likwid-bench`.
 
-In order to select the number of cores to allocate to the benchmark, we
-have to adapt the workgroup string. Previously we just used `-w
-N:size:1` which means
+In order to select the number of cores to allocate to the benchmark, we have to
+adapt the workgroup string (the string following the `-w` flag). Previously, we
+just used `-w N:size:1`; the components of this string are:
 
-`N`
-: The affinity domain on which to _allocate_ the vector. We do not
-  specify any affinity domain with `N`, but we can use `S0` or `S1` for
-  either of the two sockets.
++ `N`
+: The affinity domain on which to _allocate_ the vector. We do not specify any
+  affinity domain with `N`, but we can use `S0` or `S1` to choose one of the two
+  sockets.
 
-`size`
-: As before, the size of the vector.
++ `size`
+: The size of the vector.
 
-`1`
++ `1`
 : The _number_ of cores to use.
 
 To change the number of cores, we replace `1` by our choice (say `2`).
