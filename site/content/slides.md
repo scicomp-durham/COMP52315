@@ -11,14 +11,14 @@ discussed, will follow after the session. If you think you should have
 access to the recordings but you don't, please [get in
 touch]((mailto:massimiliano.fasi@durham.ac.uk)).
 
-- **Session 1:**
+- **Session 1**:
 [Slides]({{< static-ref "lecture-slides/01.pdf" >}}) –
-[Notes]({{< static-ref "notes/introduction.md" >}}) –
-[Exercise 1]({{< static-ref "exercises/exercise01.md" >}}) –
-No recording available.
+[Notes]({{< ref "notes/introduction.md" >}}) –
+[Exercise 1]({{< ref "exercises/exercise01.md" >}}) –
+[Audio](https://durham.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=931d06c3-113f-4e06-b03e-af82009523dc)
 
-  The Encore capture system did not work for this session, thus no
-  recording is available.
+  The Encore capture system had some troubles, thus only the audio
+  recording of the session is available.
 
   We introduced some ideas of computer architecture and talked about the
   motivation for the course. There is a focus on trying to build
@@ -56,8 +56,27 @@ done
 
 
 
-- Session 2:
+- **Session 2**:
 [Slides]({{< static-ref "lecture-slides/02.pdf" >}}) –
-[Notes]({{< static-ref "notes/memory.md" >}}) –
-[Exercise 2]({{< static-ref "exercises/exercise02.md" >}}) –
-[Exercise 3]({{< static-ref "exercises/exercise03.md" >}})
+[Notes]({{< ref "notes/memory.md" >}}) –
+[Exercise 2]({{< ref "exercises/exercise02.md" >}}) –
+[Exercise 3]({{< ref "exercises/exercise03.md" >}}) –
+[Audio](https://durham.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=c477e919-b55c-422b-b799-af870094e658)
+
+  The Encore capture system still has troubles, and there is a chance it
+  will keep having troubles until the end of the submodule. I've decided
+  to put a link to the audio recording, should anyone find them useful.
+
+  We discussed the memory hierarchy and the organisation of direct mapped
+  and associative cache.
+
+  We finished by working through the [second]({{< ref
+  "exercises/exercise02.md" >}}) and [third]({{< ref
+  "exercises/exercise03.md" >}}). We will discuss the results in the
+  next session.
+
+- **Session 3**:
+[Slides]({{< static-ref "lecture-slides/02.pdf" >}}) –
+[Notes]({{< ref "notes/roofline.md" >}}) –
+[Exercise 4]({{< ref "exercises/exercise04.md" >}}) –
+[Paper](https://dl.acm.org/doi/pdf/10.1145/1498765.1498785)
