@@ -4,6 +4,8 @@
 \usepackage{qrcode}
 \input{lecturer.tex}
 
+\usepackage{pgfplots}
+
 % \usepackage{template}
 % \input{setup-lawrence}
 % \renewcommand{\sessionnumber}{1}
@@ -741,13 +743,93 @@ result |$\gets$| r1.0 + r1.1 + ... + r1.7
 \end{frame}
 
 \begin{frame}
-  \frametitle{Exercise: benchmarking sum reduction}
+  \frametitle{Exercise 1: benchmarking sum reduction}
   \begin{enumerate}[itemsep=8pt]
     \item Split into small groups
     \item Make sure one person per group has access to Hamilton
     \item Benchmark sum reduction to confirm this ``theoretical'' effect.
     \item Ask questions!
   \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Exercise 1: results}
+  \begin{columns}[c]
+    \begin{column}{0.27\textwidth}
+      \small
+      \vskip -50pt
+      \begin{itemize}[itemsep=5pt,wide=0pt]
+      \item SIMD: 4 plateaus
+      \item scalar: 3 plateaus
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.7\textwidth}
+      \begin{center}
+        \vskip -10pt
+        \begin{tikzpicture}
+          \begin{axis}[
+            height=7cm,
+            width=10cm,
+            xlabel={Array size},
+            ylabel near ticks,
+            ylabel={MFlops/s},
+            xmode=log,
+            xtick={1,16,256,4096,65536,1048576},
+            xticklabels={1kB,16kB,256kB,4MB,64MB,1GB},
+            log basis x={10},
+            style={font=\small},
+            legend pos={north east},
+            thick,
+            legend style={
+              cells={anchor=west, align=left},
+              fill=bgcolor, font=\footnotesize}
+            ]
+            \pgfplotstableread[row sep=\\]{%
+              kB scalar avx\\
+              1 4735.04 25689.32\\
+              2 4580.04 35475.57\\
+              4 4504.35 40751.21\\
+              8 4468.90 37854.32\\
+              16 4453.18 36623.58\\
+              32 4435.81 34807.33\\
+              64 4304.03 25788.06\\
+              128 4428.43 26194.16\\
+              256 4230.27 26289.56\\
+              512 4413.59 22032.32\\
+              1024 4363.30 18911.31\\
+              2048 4387.13 18827.32\\
+              4096 4329.91 18927.51\\
+              8192 4354.66 19049.54\\
+              16384 4022.46 14018.35\\
+              32768 3421.64 5652.13\\
+              65536 3430.28 5663.15\\
+              131072 3413.95 5671.12\\
+              262144 3423.07 5680.15\\
+              524288 3422.18 5616.93\\
+              1048576 3431.70 5676.13\\
+            }\mydata
+
+            \addplot [PineGreen, very thick, mark=asterisk, mark size=2.5pt]
+            table[x=kB,y=scalar] {\mydata};
+            \addlegendentry{\texttt{sp\_sum}}
+
+            \addplot [Black, very thick, mark=o, mark size=2.5pt]
+            table[x=kB, y=avx] {\mydata};
+            \addlegendentry{\texttt{sp\_sum\_avx}}
+
+            \addplot[Red, draw=black, dashed, mark=none, very thick] coordinates
+            {(1,4735.04)(1048576,4735.04)};
+            \addlegendentry {Scalar peak}
+
+            \addplot[Blue, draw=black, mark=none, very thick] coordinates
+            {(1,40751.21)(1048576,40751.21)};
+            \addlegendentry {SIMD peak}
+
+          \end{axis}
+        \end{tikzpicture}
+      \end{center}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}

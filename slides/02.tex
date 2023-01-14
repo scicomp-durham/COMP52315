@@ -26,7 +26,6 @@
 
 \begin{frame}
   \frametitle{Sum reduction benchmark (Exercise 1)}
-
   \begin{columns}[c]
     \begin{column}{0.27\textwidth}
       \small
@@ -43,12 +42,12 @@
           \begin{axis}[
             height=7cm,
             width=10cm,
-            xlabel={Bytes},
+            xlabel={Array size},
             ylabel near ticks,
             ylabel={MFlops/s},
             xmode=log,
-            xtick={1e3,16e3,256e3,4e6,64e6},
-            xticklabels={1kB,16kB,256kB,4MB,64MB},
+            xtick={1,16,256,4096,65536,1048576},
+            xticklabels={1kB,16kB,256kB,4MB,64MB,1GB},
             log basis x={10},
             style={font=\small},
             legend pos={north east},
@@ -58,41 +57,46 @@
               fill=bgcolor, font=\footnotesize}
             ]
             \pgfplotstableread[row sep=\\]{%
-              Bytes scalar avx\\
-              1 4646.58 25445.45\\
-              2 4493.15 35128.01\\
-              4 4450.96 40301.73\\
-              8 4396.00 37515.23\\
-              16 4360.66 36124.93\\
-              32 4248.95 34167.31\\
-              64 4075.51 25472.69\\
-              128 4105.88 25863.90\\
-              256 4107.04 26025.63\\
-              512 3510.62 13717.75\\
-              1024 2538.08 4760.64\\
-              2048 2425.87 4540.75\\
-              4096 2384.14 4595.67\\
-              8192 764.49 3051.13\\
-              16384 785.51 1041.38\\
-              32768 763.71 1054.96\\
-              65536 770.85 1020.18\\
-              131072 770.84 1016.59\\
+              kB scalar avx\\
+              1 4735.04 25689.32\\
+              2 4580.04 35475.57\\
+              4 4504.35 40751.21\\
+              8 4468.90 37854.32\\
+              16 4453.18 36623.58\\
+              32 4435.81 34807.33\\
+              64 4304.03 25788.06\\
+              128 4428.43 26194.16\\
+              256 4230.27 26289.56\\
+              512 4413.59 22032.32\\
+              1024 4363.30 18911.31\\
+              2048 4387.13 18827.32\\
+              4096 4329.91 18927.51\\
+              8192 4354.66 19049.54\\
+              16384 4022.46 14018.35\\
+              32768 3421.64 5652.13\\
+              65536 3430.28 5663.15\\
+              131072 3413.95 5671.12\\
+              262144 3423.07 5680.15\\
+              524288 3422.18 5616.93\\
+              1048576 3431.70 5676.13\\
             }\mydata
 
-            \addplot+ table[x=Bytes,y=scalar, thick] {\mydata};
+            \addplot [PineGreen, very thick, mark=asterisk, mark size=2.5pt]
+            table[x=kB,y=scalar] {\mydata};
             \addlegendentry{\texttt{sp\_sum}}
 
-            \addplot+ table[x=Bytes, y=avx, thick] {\mydata};
+            \addplot [Black, very thick, mark=o, mark size=2.5pt]
+            table[x=kB, y=avx] {\mydata};
             \addlegendentry{\texttt{sp\_sum\_avx}}
 
-            % Removed as they are not significative with Boost enabled.
-            % \addplot[draw=black, mark=none,thick] coordinates
-            % {(1,40e3)(131072,40e3)};
-            % \addlegendentry {SIMD peak}
+            \addplot[Red, draw=black, dashed, mark=none, very thick] coordinates
+            {(1,4735.04)(1048576,4735.04)};
+            \addlegendentry {Scalar peak}
 
-            % \addplot[draw=black, dashed, mark=none,thick] coordinates
-            % {(1,3291.988)(131072,3291.988)};
-            % \addlegendentry {Scalar peak}
+            \addplot[Blue, draw=black, mark=none, very thick] coordinates
+            {(1,40751.21)(1048576,40751.21)};
+            \addlegendentry {SIMD peak}
+
           \end{axis}
         \end{tikzpicture}
       \end{center}
@@ -148,7 +152,7 @@
   {\footnotesize
     Check
     \href{https://colin-scott.github.io/personal_website/research/interactive_latency.html}{Colin
-    Scott's page}
+      Scott's page}
     for more detail on latencies.}
 \end{frame}
 
@@ -283,17 +287,17 @@
 
 \begin{frame}
   \frametitle{Direct mapped cache}
-  \begin{itemize}
-  \item Cache can store $\mathsf 2^N$ bytes.
-  \item Divided into \emph{blocks} (or \emph{cache lines}) each of $\mathsf 2^M$ bytes.
-  \item Each address references one byte.
-  \item Use $N$ bits of the address to select which slot
-    in the cache to use.
+  \begin{itemize}[itemsep=7pt]
+  \item Cache can store $\mathsf 2^N$ bytes
+  \item Divided into \emph{blocks} (or \emph{cache lines}) each of $\mathsf 2^M$ bytes
+  \item Each address references one byte
+  \item Use $N$ bits of address to select which slot
+    in the cache to use
   \end{itemize}
 
   \vskip 11pt
 
-  \structure{Simple solution:}
+  \structure{Simplest solution:} injection from RAM to cache
 \end{frame}
 
 \begin{frame}[fragile]
@@ -394,14 +398,14 @@ for (int i = 0; i < 100; i++)
   \frametitle{Conflicts reduce \emph{effective} cache size}
   \begin{columns}
     \begin{column}{0.33\linewidth}
-\centering
+      \centering
 \begin{minted}[fontsize=\footnotesize]{c}
 for (int j = 0; j < 64; j++)
     r += a[j] + b[j];
 \end{minted}
 
-\vskip 7pt
-\small
+      \vskip 7pt
+      \small
       \begin{onlyenv}<1>
         \begin{tikzpicture} [nodes in empty cells, nodes={minimum
             width=1.4cm, minimum height=0.7cm, inner sep=0}, row sep=-\pgflinewidth,
@@ -479,11 +483,11 @@ for (int j = 0; j < 64; j++)
             $b_{\mathsf{32:39}}$ & $b_{\mathsf{40:47}}$ & $b_{\mathsf{48:55}}$ & \myvphantom{}$a_{\mathsf{24:31}}$ \\
             $a_{\mathsf{32:39}}$ & $a_{\mathsf{40:47}}$ & $a_{\mathsf{48:55}}$ &
             \myhphantom{}\\
-                        &             &             &             \\
-                        &             &             &             \\
-                        &             &             &             \\
-                        &             &             &             \\
-                        &             &             &             \\
+            &             &             &             \\
+            &             &             &             \\
+            &             &             &             \\
+            &             &             &             \\
+            &             &             &             \\
             $b_{\mathsf{0:7}}$   & $b_{\mathsf{8:15}}$  & $b_{\mathsf{16:23}}$ & $b_{\mathsf{24:31}}$ \\
           };
         \end{tikzpicture}
@@ -496,11 +500,11 @@ for (int j = 0; j < 64; j++)
           nodes={draw}] {
             $b_{\mathsf{32:39}}$ & $b_{\mathsf{40:47}}$ & $b_{\mathsf{48:55}}$ & $b_{\mathsf{56:63}}$ \\
             $a_{\mathsf{32:39}}$ & $a_{\mathsf{40:47}}$ & $a_{\mathsf{48:55}}$ & $a_{\mathsf{56:63}}$ \\
-                        &             &             &             \\
-                        &             &             &             \\
-                        &             &             &             \\
-                        &             &             &             \\
-                        &             &             &             \\
+            &             &             &             \\
+            &             &             &             \\
+            &             &             &             \\
+            &             &             &             \\
+            &             &             &             \\
             $b_{\mathsf{0:7}}$   & $b_{\mathsf{8:15}}$  & $b_{\mathsf{16:23}}$ & $b_{\mathsf{24:31}}$ \\
           };
         \end{tikzpicture}
@@ -553,14 +557,14 @@ for (int i = 0; i < 100; i++)
   \end{block}
 
 
-    \begin{itemize}
-    \item We need $\mathsf{2 \cdot 64 \cdot 4 = 512}$ bytes to store $A$ and $B$
-      in cache.
-\item This only requires 16 blocks, so our cache is large enough.
-    \item If low bits of addresses match, same cache lines are mapped.
-    \item In the worst case, every load of \texttt{B[j]} evicts
-      \texttt{A[j]}, and vice versa.
-    \end{itemize}
+  \begin{itemize}[wide=0pt,itemsep=4pt]
+  \item We need $\mathsf{2 \cdot 64 \cdot 4 = 512}$ bytes to store $A$ and $B$
+    in cache.
+  \item This only requires 16 blocks, so our cache is large enough.
+  \item If low bits of addresses match, same cache lines are mapped.
+  \item In the worst case, every load of \texttt{B[j]} evicts
+    \texttt{A[j]}, and vice versa.
+  \end{itemize}
 
 \end{frame}
 
@@ -585,29 +589,29 @@ for (int i = 0; i < 100; i++)
 
 \begin{frame}
   \frametitle{$k$-way set associative cache}
-    \begin{itemize}[itemsep=8pt]
-    \item $k$ ``copies'' of a direct mapped cache.  Each block from main
-      memory maps to one of $k$ cache lines, called \emph{sets}.
-    \item Typically use LRU eviction.
-    \item Usual choice: $N \in \{2, 4, 8, 16\}$.
-    \item Skylake has $N = 8$ for L1, $N = 16$ for L2, $N = 11$
-      for L3.
-    \end{itemize}
+  \begin{itemize}[itemsep=8pt]
+  \item $k$ ``copies'' of a direct mapped cache.
+  \item Each block from main memory maps to $k$ cache lines, called \emph{sets}.
+  \item Typically use LRU eviction.
+  \item Usual choice: $N \in \{2, 4, 8, 16\}$.
+  \item Skylake has $N = 8$ for L1, $N = 16$ for L2, $N = 11$
+    for L3.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Exercise: cache and memory bandwidth}
+  \frametitle{Exercises 2/3: memory bandwidth/saturation}
   \begin{enumerate}[itemsep=8pt]
-    \item Split into small groups
-    \item Make sure one person per group has access to Hamilton
-    \item Benchmark memory bandwidth as a function of vector size
-    \item You can use the bash script from last week.
-    \item Ask questions!
-    \end{enumerate}
-  \end{frame}
+  \item Split into small groups
+  \item Make sure one person per group has access to Hamilton
+  \item Benchmark memory bandwidth as a function of vector size
+  \item You can use the bash script from last week.
+  \item Ask questions!
+  \end{enumerate}
+\end{frame}
 
 \begin{frame}
-  \frametitle{Results}
+  \frametitle{Exercise 2: results}
   \pgfplotsset{
     execute at begin axis={
       \pgfplotsset{
@@ -621,10 +625,11 @@ for (int i = 0; i < 100; i++)
       \begin{axis}[xlabel={Bytes},
         ylabel near ticks,
         axis y line*=left,
-        ylabel={MByte/s},
+        ylabel={MB/s},
+        xlabel={Array size},
         xmode=log,
-        xtick={1,1024,1024*1024},
-        xticklabels={1kB,1MB,1GB},
+        xtick={1,16,256,4096,65536,1048576},
+        xticklabels={1kB,16kB,256kB,4MB,64MB,1GB},
         log basis x={10},
         legend style={
           cells={
@@ -633,34 +638,38 @@ for (int i = 0; i < 100; i++)
           fill=bgcolor},]
         \pgfplotstableread[row sep=\\]{%
           Bytes clcopy clload clstore\\
-          1 139535.62 179003.98 134269.99
-          2 196072.14 203681.02 169971.85\\
-          4 283292.66 273443.12 190373.63\\
-          8 344672.52 325878.19 201236.47\\
-          16 381529.82 358668.46 206621.30\\
-          32 376355.40 321852.29 189942.49\\
-          64 104077.55 103779.30 103850.40\\
-          128 105189.99 105002.13 105069.61\\
-          256 103963.27 105435.72 105473.81\\
-          512 96728.33 97349.98 101997.74\\
-          1024 81027.42 79056.48 95002.92\\
-          2048 79067.36 78479.83 94617.17\\
-          4096 78963.31 78506.96 86539.01\\
-          8192 79746.77 95353.00 84450.10\\
-          16384 44177.92 59154.62 46998.52\\
-          32768 17845.85 16425.60 12484.70\\
-          65536 18091.12 16483.60 12538.13\\
-          131072 17937.64 16484.62 12566.02\\
-          262144 17954.16 16564.25 12524.69\\
-          524288 17899.87 16464.03 12552.42\\
-          1048576 17847.05 16443.76 12518.28\\
+          1 139083.51 179357.99 134508.89\\
+          2 196557.66 200900.73 170423.91\\
+          4 283864.91 276420.73 190769.38\\
+          8 343844.98 325363.41 201581.34\\
+          16 382052.17 360816.24 207229.80\\
+          32 381795.36 324163.59 193009.02\\
+          64 104430.65 104115.72 104094.22\\
+          128 105418.11 105274.71 105298.06\\
+          256 105805.33 105618.95 105592.56\\
+          512 96180.42 94651.42 101184.04\\
+          1024 81360.92 79856.34 95944.93\\
+          2048 79612.24 78885.03 95593.15\\
+          4096 79301.66 83244.18 86619.98\\
+          8192 80204.31 92788.95 84685.91\\
+          16384 51740.62 60992.59 46804.81\\
+          32768 17590.26 16579.85 12563.31\\
+          65536 18087.89 16594.21 12543.57\\
+          131072 18173.68 16583.02 12661.70\\
+          262144 17887.64 16706.78 12663.04\\
+          524288 17873.13 16706.51 12651.07\\
+          1048576 18037.20 16718.25 12612.07\\
         }\mydata
-        \addplot [Red, very thick, mark=*] table[x=Bytes,y=clcopy] {\mydata};\label{clcopy}
+        \addplot [JungleGreen, very thick, mark=*, mark size=2.5pt]
+        table[x=Bytes,y=clcopy] {\mydata};\label{clcopy}
         \addlegendentry{\texttt{clcopy}}
-        \addplot [Blue, very thick, mark=square] table[x=Bytes,y=clload] {\mydata};\label{clload}
+
+        \addplot [MidnightBlue, very thick, mark=diamond, mark size=2.5pt]
+        table[x=Bytes,y=clload] {\mydata};\label{clload}
         \addlegendentry{\texttt{clload}}
-        \addplot [Green, very thick, mark=diamond] table[x=Bytes,y=clstore]
-        {\mydata};\label{clstore}
+
+        \addplot [Purple, very thick, mark=triangle, mark size=2.5pt]
+        table[x=Bytes,y=clstore] {\mydata};\label{clstore}
         \addlegendentry{\texttt{clstore}}
 
         \only<2>{%
@@ -711,86 +720,119 @@ for (int i = 0; i < 100; i++)
         % \addlegendimage{/pgfplots/refstyle=clstore}
         % \addlegendentry{\texttt{clstore}}
 
-        \addplot [black, mark=x, thick] table[x=Bytes,y=avx] {\mydata}; \label{sum-sp-avx}
+        \addplot [Black, very thick, mark=o, mark size=2.5pt] table[x=Bytes,y=avx] {\mydata}; \label{sum-sp-avx}
         % \addlegendentry{test};
       \end{axis}
     \end{tikzpicture}
   \end{center}
 \end{frame}
 
+
 \begin{frame}
   \frametitle{Interpretation}
+  \small
   \begin{itemize}
+   % 35 Gflop/s is the single-core Flop rate
   \item Vectorised addition requires 1 32Byte load/cycle (for the 8
     floats)
   \item Accumulation parameter held in a register.
-  \item[$\Rightarrow$] requires sustained load bandwidth of $32\times
-    2.9 = 92.8$GByte/s
+  \item[$\Rightarrow$] requires sustained load bandwidth of $4 \cdot 35 = 148$GB/s
+
+    % Sustained bandwidth: look at the clload benchmark in the graph.
+    % B/Flop: divide BW by Flop rate of machine (35GFlop/s) and multiply by 8.
+    % float/Flop: divide B/Flop by number of bytes in float.
+    % peak: divide the (float/Flop / 8) by Flop rate.
   \item From L1 (less than 32kB) we see sustained bandwidth of around
-    300GByte/s $\Rightarrow$ floating-point throughput is limit.
-  \item L2 (less than 256kB) provides around 80GByte/s or around
-    27Bytes/cycle $\Rightarrow$ 6.75 floats/cycle $\Rightarrow$ peak
-    is around 19GFlops/s.
-  \item L3 (less than 30MB) provides around 36GByte/s or around
-    12Bytes/cycle $\Rightarrow$ 2.75 floats/cycle $\Rightarrow$ peak
-    is around 8GFlops/s.
-  \item Main memory provides around 13GByte/s or around 4.5Bytes/cycle
-    $\Rightarrow$ 1.1floats/cycle $\Rightarrow$ peak is around 3.25GFlops/s.
+    370GB/s or 90B/Flop $\Rightarrow$ 22 float/Flop  $\Rightarrow$
+    floating-point throughput is limit.
+
+  \item L2 (less than 512kB) provides around 100GB/s or around
+    25B/Flop $\Rightarrow$ 6.25 floats/Flop $\Rightarrow$ peak
+    is around 27GFlop/s.
+
+  \item L3 (less than 16MB) provides around 78GB/s or around
+    18B/Flop $\Rightarrow$ 4.45 floats/cycle $\Rightarrow$ peak
+    is around 19GFlop/s.
+
+  \item Main memory provides around 17.5GB/s or around 4B/Flop
+    $\Rightarrow$ 1float/cycle $\Rightarrow$ peak is around 4.5GFlop/s.
+
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Adding bandwidth-induced limits}
-  Not bad for a pen-and-paper exercise.
+  \frametitle{AVX throughput with bandwidth-induced limits}
   \begin{center}
-    \begin{tikzpicture}[scale=0.8]
-      \begin{axis}[xlabel={Bytes},
+    \pgfplotsset{
+      execute at begin axis={
+        \pgfplotsset{
+          width=0.8\textwidth,
+          height=.8\textheight,
+        }
+      }
+    }
+    \begin{tikzpicture}
+      \begin{axis}[xlabel={},
         ylabel near ticks,
         ylabel={MFlops/s},
         xmode=log,
-        xtick={1e3,16e3,256e3,4e6,64e6},
-        xticklabels={1kB,16kB,256kB,4MB,64MB},
-        log basis x={10},
-        legend pos={outer north east},
-        legend style={cells={anchor=west, align=left}},]
+        xticklabels={},
+        log basis x={2},
+        legend pos={north east},
+        legend style={cells={anchor=west, align=left},
+          fill=bgcolor},]
         \pgfplotstableread[row sep=\\]{%
-          Bytes MFlops Peak L2Peak L3Peak RAMPeak\\
-          1e3 20934.77 23.2e3 19e3 8e3 3.25e3\\
-          2e3 23240.25 23.2e3 19e3 8e3 3.25e3\\
-          4e3 22471.22 23.2e3 19e3 8e3 3.25e3\\
-          8e3 21988.17 23.2e3 19e3 8e3 3.25e3\\
-          16e3 22216.43 23.2e3 19e3 8e3 3.25e3\\
-          32e3 21881.05 23.2e3 19e3 8e3 3.25e3\\
-          64e3 17130.67 23.2e3 19e3 8e3 3.25e3\\
-          96e3 17975.12 23.2e3 19e3 8e3 3.25e3\\
-          128e3 17291.29 23.2e3 19e3 8e3 3.25e3\\
-          160e3 17507.30 23.2e3 19e3 8e3 3.25e3\\
-          192e3 14476.12 23.2e3 19e3 8e3 3.25e3\\
-          224e3 12656.81 23.2e3 19e3 8e3 3.25e3\\
-          256e3 11854.84 23.2e3 19e3 8e3 3.25e3\\
-          512e3 8585.19 23.2e3 19e3 8e3 3.25e3\\
-          1e6 8607.97 23.2e3 19e3 8e3 3.25e3\\
-          2e6 8609.45 23.2e3 19e3 8e3 3.25e3\\
-          4e6 8615.55 23.2e3 19e3 8e3 3.25e3\\
-          8e6 8622.28 23.2e3 19e3 8e3 3.25e3\\
-          16e6 8624.76 23.2e3 19e3 8e3 3.25e3\\
-          32e6 6814.45 23.2e3 19e3 8e3 3.25e3\\
-          64e6 3190.88 23.2e3 19e3 8e3 3.25e3\\
-          128e6 3153.69 23.2e3 19e3 8e3 3.25e3\\}\avxdata
-        \addplot+ table[x=Bytes,y=MFlops] {\avxdata};
-        \addlegendentry{SIMD}
-        \addplot+[mark=none] table[x=Bytes, y={Peak}] {\avxdata};
+          Bytes scalar avx\\
+          1 4721.23 25633.48\\
+          2 4566.17 35462.91\\
+          4 4497.61 40717.13\\
+          8 4465.51 37820.79\\
+          16 4443.53 36595.48\\
+          32 4424.07 33791.29\\
+          64 4222.61 25780.94\\
+          128 4258.17 26158.12\\
+          256 4204.51 26281.52\\
+          512 4384.87 23034.10\\
+          1024 4394.45 18759.08\\
+          2048 4386.30 18655.37\\
+          4096 4396.57 18868.36\\
+          8192 4398.89 18856.77\\
+          16384 4084.19 13711.12\\
+          32768 3387.52 5583.20\\
+          65536 3399.47 5633.13\\
+          131072 3412.19 5582.03\\
+          262144 3399.07 5573.66\\
+          524288 3404.33 5581.31\\
+          1048576 3428.27 5645.72\\
+        }\mydata
+
+        \addplot [Black, very thick, mark=o, mark size=2.5pt]
+        table[x=Bytes,y=avx] {\mydata}; \label{sum-sp-avx}
+        \addlegendentry {\texttt{sp\_sum\_avx}};
+
+        \addplot[draw=MidnightBlue, mark=none, very thick] coordinates
+        {(1,37 * 1024)(1048576,37 * 1024)};
         \addlegendentry {L1 peak}
-        \addplot+[mark=none] table[x=Bytes, y={L2Peak}] {\avxdata};
+
+        \addplot[draw=Green, densely dashed, mark=none, very thick] coordinates
+        {(1,27 * 1024)(1048576,27 * 1024)};
         \addlegendentry {L2 peak}
-        \addplot+[mark=none] table[x=Bytes, y={L3Peak}] {\avxdata};
+
+        \addplot[draw=Plum, loosely dashed, mark=none, very thick] coordinates
+        {(1,19 * 1024)(1048576,19 * 1024)};
         \addlegendentry {L3 peak}
-        \addplot+[mark=none] table[x=Bytes, y={RAMPeak}] {\avxdata};
+
+        \addplot[draw=BrickRed, densely dotted, mark=none, very thick] coordinates
+        {(1,4.5 * 1024)(1048576,4.5 * 1024)};
         \addlegendentry {RAM peak}
+
+        % \addlegendentry{test};
       \end{axis}
+
     \end{tikzpicture}
   \end{center}
 \end{frame}
+
 \begin{frame}
   \frametitle{Memory/node topology}
   \texttt{likwid-topology} reports an ASCII version of diagrams like
@@ -801,116 +843,23 @@ for (int i = 0; i < 100; i++)
 \end{frame}
 
 \begin{frame}
-  \frametitle{More than one core}
-  \begin{itemize}
-  \item So far, just looked at performance when we use a single core.
-  \item In practice, most scientific computing algorithms will be
-    parallel
-  \item[$\Rightarrow$] How does this affect the performance?
-  \end{itemize}
-
-  \begin{answer}{Scalable vs.~Saturating}
-    CPU cores are a \emph{scalable} resource.
-
-    Adding a second core doubles the number of floating point
-    operations we can perform.
-
-    Memory bandwidth is a \emph{saturating resource}. Outside of L2
-    cache (L3, main memory), CPU cores compete for the same resource.
-  \end{answer}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Scalable vs.~Saturating}
-  \begin{columns}
-    \begin{column}{0.45\textwidth}
-      Shared resources might show saturating performance
-      \begin{tikzpicture}
-        \pgfplotstableread[row sep=\\]{%
-          Cores Perf\\
-          1 3\\
-          2 6\\
-          3 8\\
-          4 9\\
-          5 9.4\\
-          6 9.5\\
-          7 9.55\\
-          8 9.56\\}\saturating
-        \begin{axis}[xlabel=Cores,
-          ylabel=Performance,
-          width=\textwidth,height=0.7\textheight]
-          \addplot+ table[x=Cores, y=Perf] {\saturating};
-        \end{axis}
-      \end{tikzpicture}
-    \end{column}
-    \begin{column}{0.45\textwidth}
-      Parallel resources show scalable performance
-      \begin{tikzpicture}
-        \pgfplotstableread[row sep=\\]{%
-          Cores Perf\\
-          1 1.5\\
-          2 3\\
-          3 4.5\\
-          4 6\\
-          5 7.5\\
-          6 9\\
-          7 10.5\\
-          8 12\\}\scaling
-        \begin{axis}[xlabel=Cores,
-          ylabel=Performance,
-          width=\textwidth,height=0.7\textheight]
-          \addplot+ table[x=Cores, y=Perf] {\scaling};
-        \end{axis}
-      \end{tikzpicture}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Exercise: memory bandwidth saturation}
-  \begin{itemize}
-  \item Goal is to benchmark the memory bandwidth for different vector
-    sizes as a function of number of cores
-  \item Will then look at scaling of sum reduction with cores
-  \item[$\Rightarrow$] over to you.
-  \end{itemize}
-  \begin{center}
-    Exercises at
-
-    \url{teaching.wence.uk/comp52315/exercises/exercise03/}
-  \end{center}
-\end{frame}
-
-\begin{frame}
   \frametitle{Conclusions on hardware architecture}
-  \begin{challenge}{Performance considerations}
-    \begin{itemize}
-    \item How many instructions are required to implement an algorithm
-    \item How efficiently those instructions are executed on a
-      processor
+  \structure{Performance considerations}
+    \begin{itemize}[wide=0pt]
+    \item How many instructions are required
+    \item How efficiently a processor can execute those instructions
     \item The runtime contribution of the data transfers
     \end{itemize}
-  \end{challenge}
-  \begin{answer}{Complex ``topology'' of hardware}
-    \begin{itemize}
+    \pause
+
+  \structure{Complex ``topology'' of hardware}
+    \begin{itemize}[wide=0pt]
     \item Many layers of parallelism in modern hardware
     \item Sockets: around 1-4 CPUs on a typical motherboard
     \item Cores: around 4-32 cores in a typical CPU
-    \item SIMD/Vectorisation: typically 2-16 single precision elements
-      in vector registers on CPUs
+    \item Vectorisation: 2-16 \texttt{float}s per vector registers
     \item Superscalar execution: typically 2-8 instructions per cycle
     \end{itemize}
-  \end{answer}
 \end{frame}
-\begin{frame}
-  \frametitle{Challenges for program development}
-  \begin{itemize}
-  \item We will focus most of our efforts on SIMD and some superscalar
-    execution here.
-  \item An ongoing challenge is that most programming models do not
-    offer a lot of explicit access to parallelism.
-  \item[$\Rightarrow$] will look at mechanisms to convince compilers
-    to ``do the right thing''.
-  \end{itemize}
-\end{frame}
+
 \end{document}
