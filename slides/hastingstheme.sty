@@ -275,7 +275,11 @@
   {\end{block}}
 
 \newenvironment{challenge}[1]%
-{\begin{variableblock}{#1}{bg=Red!15,fg=Black}{bg=Red,fg=White}}%
+{\begin{variableblock}{#1}{bg=Red!15,fg=Black}{bg=Red!80!Black,fg=White}}%
+  {\end{variableblock}}
+
+\newenvironment{solutionblock}[1]%
+{\begin{variableblock}{#1}{bg=Green!15,fg=Black}{bg=Green,fg=White}}%
   {\end{variableblock}}
 
 \newenvironment{answer}[1]%
