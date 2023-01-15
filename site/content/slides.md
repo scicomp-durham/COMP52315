@@ -76,7 +76,7 @@ done
   next session.
 
 - **Session 3**:
-[Slides]({{< static-ref "lecture-slides/02.pdf" >}}) –
+[Slides]({{< static-ref "lecture-slides/03.pdf" >}}) –
 [Notes]({{< ref "notes/roofline.md" >}}) –
 [Exercise 4]({{< ref "exercises/exercise04.md" >}}) –
 [Paper](https://dl.acm.org/doi/pdf/10.1145/1498765.1498785)
