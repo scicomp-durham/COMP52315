@@ -330,7 +330,7 @@ performed per byte of data accessed.
 There are two approaches we can take here
 
 1. Run our code and measure, using performance counters, which we will
-   get to [later](TODO LINK).
+   get to later.
 2. Read the relevant part of the code and count floating point
    operations and data accesses.
 
@@ -342,7 +342,7 @@ to take a blended approach, augmenting measurements with models.
 Let's look at a simple example to see how we would go about counting
 floating point operations and data movement.
 
-Consider the following, very simple, loop:
+Consider the following simple loop:
 
 ```c
 double *a, *b, *c, *d;
@@ -390,8 +390,8 @@ I_c = \frac{3N}{40N} = 0.075 \text{flops/byte}.
 $$
 
 There is one remaining wrinkle. Although it is reasonable to count
-floating point operations in this manner, the determine the actual
-data moved we need a model of the cache behaviour of the hardware.
+floating point operations in this manner, to determine the actual data
+moved we need a model of the cache behaviour of the hardware.
 
 For the loop we just studied, every entry is touched exactly once and
 then discarded (so we just care about streaming the data). Let's look

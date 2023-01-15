@@ -322,8 +322,10 @@ associative caches.
 A $k$-way set associative cache behave like k "copies" of a direct
 mapped cache. Each block of main memory can map to one of $k$ cache
 lines, which are termed _sets_. Usually, hardware designers choose $k
-\in \\{2, 4, 8, 16\\}$. For example, [Intel Skylake chips](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(server)#Memory_Hierarchy) have $k = 8$
-for level 1 caches, $k = 16$ for level 2, and $k = 11$ for level 3.
+\in \\{2, 4, 8, 16\\}$. For example, [Intel Skylake
+chips](https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(server)#Memory_Hierarchy)
+have $k = 8$ for level 1 caches, $k = 16$ for level 2, and $k = 11$ for
+level 3.
 
 A $k$-way cache, can handle up to $k$ different addresses mapping to
 the same cache location without a reduction in the perceived size of
