@@ -13,7 +13,7 @@ MARKERSIZE = 12
 
 # PEAK_BW = 119.4 * (num_processes // 24)      # GB/s
 STREAM_TRIAD = 11.6  # GB/s
-PEAK_FLOPS = 46.4  # GFLOP/s
+PEAK_FLOPS = 46.4  # Gflop/s
 
 
 fig = pyplot.figure(figsize=(9, 5), frameon=False)
@@ -22,8 +22,8 @@ ax.set_title("Hamilton node single-core roofline", fontsize=FONTSIZE)
 ax.set_xscale("log", base=2)
 ax.set_yscale("log", base=2)
 
-ax.set_xlabel("Arithmetic intensity [FLOPs/byte]", fontsize=FONTSIZE)
-ax.set_ylabel("Double precision GFLOPs/s", fontsize=FONTSIZE)
+ax.set_xlabel("Arithmetic intensity [Flops/byte]", fontsize=FONTSIZE)
+ax.set_ylabel("Double precision GFlops/s", fontsize=FONTSIZE)
 
 ax.set_xlim([2 ** -6, 2 ** 8])
 ax.set_ylim([2 ** -3, 2 ** 7])
