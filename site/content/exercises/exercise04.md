@@ -19,7 +19,7 @@ code-ref 4 "dmvm.c" >}})[^1]of matrix–vector multiplication, which
 computes
 
 $$
-\vec{y} = A \vec{x}
+y = A x
 $$
 
 for a \\(n_\text{row} \times n_\text{col}\\) rectangular matrix of
@@ -32,7 +32,7 @@ columns are:
 1. the number of iterations the test was run for;
 1. the number of rows the matrix had;
 1. the number of columns the matrix had; and
-1. the performance in MFlop/s.
+1. the performance in MFlops/s.
 
 [^1]: This code is taken from
       [examples](https://github.com/RRZE-HPC/Code-teaching) developed
@@ -87,10 +87,10 @@ the `triad` benchmark
 of `likwid-bench`.
 {{< /exercise >}}
 
-{{< exercise >}}
-Compute the peak floating point throughput of a compute node. A single
-core on the Hamilton nodes runs at 2.9GHz and can issues two double
-precision FMAs (fused multiply-add instructions) per cycle.
+{{< exercise >}} Compute the peak floating point throughput of a compute
+node. The maximum frequency of a single core of a compute node of
+Hamilton is 3.35GHz, and in ideal conditions each core can issues two
+double-precision FMAs (fused multiply-add instructions) per cycle.
 {{< /exercise >}}
 
 {{< exercise >}}
@@ -120,7 +120,7 @@ We'll stop crippling the compiler. Try these sets of compiler options:
 1. `icx -std=c11 -O1 -o dmvm dmvm.c`
 1. `icx -std=c11 -O2 -o dmvm dmvm.c`
 1. `icx -std=c11 -O3 -o dmvm dmvm.c`
-1. `icx -std=c11 -xCORE_AVX2 -unroll16 -mfma -O3 -o dmvm dmvm.c`
+1. `icx -std=c11 -march=core-avx2 -mavx2 -unroll16 -mfma -O3 -o dmvm dmvm.c`
 
 {{< exercise >}}
 Add the results you get from these runs to your roofline
