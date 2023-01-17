@@ -20,8 +20,8 @@ ax = fig.add_subplot(111)
 ax.set_xscale("log", base=2)
 ax.set_yscale("log", base=2)
 
-ax.set_xlabel("Arithmetic intensity [FLOPs/byte]", fontsize=FONTSIZE)
-ax.set_ylabel("Double precision GFLOPs/s", fontsize=FONTSIZE)
+ax.set_xlabel("Arithmetic intensity [Flops/B]", fontsize=FONTSIZE)
+ax.set_ylabel("Double precision GFlops/s", fontsize=FONTSIZE)
 
 ax.set_xlim([2 ** -4, 2 ** 7])
 ax.set_ylim([2 ** -3, 2 ** 6])

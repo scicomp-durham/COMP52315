@@ -21,8 +21,8 @@ ax.set_title("Hamilton node single-core roofline", fontsize=FONTSIZE)
 ax.set_xscale("log", base=2)
 ax.set_yscale("log", base=2)
 
-ax.set_xlabel("Arithmetic intensity [FLOPs/byte]", fontsize=FONTSIZE)
-ax.set_ylabel("Double precision GFLOPs/s", fontsize=FONTSIZE)
+ax.set_xlabel("Arithmetic intensity [Flops/B]", fontsize=FONTSIZE)
+ax.set_ylabel("Double precision GFlops/s", fontsize=FONTSIZE)
 
 ax.set_xlim([2 ** -4, 2 ** 0])
 ax.set_ylim([2 ** -3, 2 ** 3])
@@ -54,7 +54,7 @@ ax.text(
 ax.text(
     2 ** 7.5,
     PEAK_FLOPS * 1.15,
-    "2 AVX FMA/cycle: %.0f Gflop/s" % PEAK_FLOPS,
+    "2 AVX FMA/cycle: %.0f GFlops/s" % PEAK_FLOPS,
     horizontalalignment="right",
     verticalalignment="bottom",
     bbox=props,
@@ -64,7 +64,7 @@ ax.text(
 ax.text(
     2 ** 7.5,
     PEAK_FLOPS * 1.15 / 2,
-    "1 AVX FMA/cycle %.0f Gflop/s" % (PEAK_FLOPS / 2),
+    "1 AVX FMA/cycle %.0f GFlops/s" % (PEAK_FLOPS / 2),
     horizontalalignment="right",
     verticalalignment="bottom",
     bbox=props,
@@ -74,7 +74,7 @@ ax.text(
 ax.text(
     2 ** 7.5,
     PEAK_FLOPS * 1.15 / 4,
-    "1 AVX MUL or 1 AVX ADD/cycle %.0f Gflop/s" % (PEAK_FLOPS / 4),
+    "1 AVX MUL or 1 AVX ADD/cycle %.0f GFlops/s" % (PEAK_FLOPS / 4),
     horizontalalignment="right",
     verticalalignment="bottom",
     bbox=props,
@@ -84,7 +84,7 @@ ax.text(
 ax.text(
     2 ** 0,
     PEAK_FLOPS * 1.15 / 16,
-    "1 scalar op/cycle %.0f Gflop/s" % (PEAK_FLOPS / 16),
+    "1 scalar op/cycle %.0f GFlops/s" % (PEAK_FLOPS / 16),
     horizontalalignment="right",
     verticalalignment="bottom",
     bbox=props,
