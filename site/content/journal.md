@@ -1,6 +1,7 @@
 ---
 title: "Journal"
 weight: 2
+katex: true
 ---
 
 # Journal
@@ -24,7 +25,7 @@ touch]((mailto:massimiliano.fasi@durham.ac.uk)).
   motivation for the course. There is a focus on trying to build
   predictive models for the speed that code runs at.
 
-  We finished by working through the [first exercise]({{< ref
+  We finished by working through the [Exercise 1]({{< ref
   "exercises/exercise01.md" >}}). To produce the [plots]({{< ref
   "exercises/exercise01.md#vector-size" >}}) in the last part of the
   exercise, you can use the jobscript below. We will discuss the results
@@ -67,11 +68,21 @@ done
   will keep having troubles until the end of the submodule. I've decided
   to put a link to the audio recording, should anyone find them useful.
 
-  We discussed the memory hierarchy and the organisation of direct mapped
-  and associative cache.
+  We started by looking at the results of [Exercise 1]({{< ref
+  "exercises/exercise01.md" >}}). We noticed that the performance drops
+  as the size of the array we use in the benchmark increases, and we
+  identified three plateaus.
 
-  We finished by working through the [second]({{< ref
-  "exercises/exercise02.md" >}}) and [third]({{< ref
+  To justify these results, we discussed the fact that the memory is
+  divided into several levels (L1, L2, L3 caches, and main memory) and
+  that these levels have very different sizes and performance levels.
+
+  We then focused on the cache memory and discussed the organisation of
+  direct mapped and associative cache. We briefly mentioned $k$-way
+  associative caches.
+
+  We finished by working through [Exercise 2]({{< ref
+  "exercises/exercise02.md" >}}) and [Exercise 3]({{< ref
   "exercises/exercise03.md" >}}). We will discuss the results in the
   next session.
 
@@ -79,4 +90,43 @@ done
 [Slides]({{< static-ref "lecture-slides/03.pdf" >}}) –
 [Notes]({{< ref "notes/roofline.md" >}}) –
 [Exercise 4]({{< ref "exercises/exercise04.md" >}}) –
+[Audio](https://durham.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=21ef9a68-e27f-448d-bd47-af8900946d7b) –
 [Paper](https://dl.acm.org/doi/pdf/10.1145/1498765.1498785)
+
+  Still no luck with the Encore capture system, but the audio is
+  available.
+
+  We began the session by analysing the results of [Exercise 2]({{< ref
+  "exercises/exercise02.md" >}}) and [Exercise 3]({{< ref
+  "exercises/exercise03.md" >}}). We focused in particular on [Exercise
+  2]({{< ref "exercises/exercise02.md" >}}), of which we gave a rather
+  detailed interpretation by means of pen-and-paper calculations. You
+  can find these at towards the end of the [slides for Session 2]({{<
+  static-ref "lecture-slides/02.pdf" >}}).
+
+  Next, we introduced the roofline model, discussing the key parameters
+  we need to estimate. Of these, two (peak floating-point performance
+  and main memory bandwidth) depend on the hardware and one (operational
+  intensity) on the code we are measuring. We started to how these
+  parameters can be estimated, either by looking at spec sheets or
+  source code, or by direct measurement. We will give more details on
+  the methods based on measurement in the rest of the course.
+
+  We concluded by collecting the data necessary to obtain a roofline
+  model for the performance of a simple code computing matrix–vector
+  multiplication. This was the subject of [Exercise 4]({{< ref
+  "exercises/exercise04.md" >}}).
+
+  In preparation for the next session, please have a look at the
+  [article](https://dl.acm.org/doi/pdf/10.1145/1498765.1498785) in which
+  roofline models were introduced, and note down any comments or
+  questions you might have. Throughout the paper, which was published 14
+  years ago, the authors (Williams, Waterman, and Patterson) make a
+  number of predictions regarding the evolution of computing. You can
+  try to think whether and to what degree they came to pass.
+
+- **Session 4**:
+[Slides]({{< static-ref "lecture-slides/04.pdf" >}}) –
+[Notes]({{< ref "notes/measurements.md" >}}) –
+[Exercise 5]({{< ref "exercises/exercise05.md" >}}) –
+[Exercise 6]({{< ref "exercises/exercise06.md" >}})
