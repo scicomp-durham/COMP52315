@@ -1,86 +1,115 @@
 % -*- TeX-engine: luatex -*-
-\documentclass[presentation,aspectratio=43,10pt]{beamer}
+\documentclass[dvipsnames,presentation,aspectratio=169,14pt]{beamer}
+\usepackage{hastingstheme}
+\input{lecturer.tex}
+
+
+% \usepackage{template}
+% \input{setup-lawrence}
+% \renewcommand{\sessionnumber}{4}
+% \renewcommand{\sessiontitle}{Performance measurements}
+% \usepackage{tikz}
+
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.15}
-\usepackage{template}
-\input{setup-lawrence}
-\renewcommand{\sessionnumber}{4}
-\renewcommand{\sessiontitle}{Performance measurements}
-\usepackage{tikz}
 \usetikzlibrary{matrix,fit,positioning,calc}
 \usepackage{pgfplotstable}
 \usetikzlibrary{pgfplots.groupplots}
 \date{}
 
 \begin{document}
-\begin{frame}
-  \maketitle
-\end{frame}
+
+\title{\firasemibold\color{White}%
+  {\fontsize{20}{0}\selectfont SESSION 4\\
+    \fontsize{40}{40}\selectfont Performance\\measurements\par}}
+\titleslide
+
+% \begin{frame}
+%   \frametitle{Roofline of dense matrix--vector product}
+%   \begin{center}
+%     \includegraphics[width=0.9\textwidth]{figures/roofline-dmvm}
+%   \end{center}
+% \end{frame}
 
 \begin{frame}
-  \frametitle{Roofline dense matrix-vector product}
-  \begin{center}
-    \includegraphics[width=0.9\textwidth]{figures/roofline-dmvm}
-  \end{center}
-\end{frame}
-\begin{frame}
-  \frametitle{How and what to measure}
-  \begin{itemize}
-  \item Roofline gives us a high-level overview of what to try next.
-  \item How to drill down and get more information about what is
-    causing the bottleneck?
-  \item How to confirm the hypothesis formed through the roofline
-    analysis?
-  \item[$\Rightarrow$] \emph{Measure} things about the code.
+  \frametitle{Overview}
+  \structure{Roofline}
+  \begin{itemize}[itemsep=5pt]
+  \item comparison between hardware configurations
+  \item high-level overview of code performance
+  \item general guidance for optimisation
+  \end{itemize}
+  \pause
+  \vskip 11pt
+
+  \structure{Measurements}
+  \begin{itemize}[itemsep=5pt]
+  \item to get more information about bottleneck
+  \item to confirm the hypothesis formed through roofline analysis
   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Performance measurements}
-  \begin{itemize}
-  \item Modern hardware comes with some special purpose
-    \emph{registers} that you can prod to measure low level
-    performance events.
-  \item Can use this to characterise performance of a piece of code
-  \end{itemize}
-  \begin{block}{Caveats}
-    \begin{itemize}
-    \item Measurements can only tell you about the algorithm you're
-      using
-    \item e.g.~Counts the data you moved, not the data you could have
-      moved.
-    \item Do not tell you about potential better algorithms
-    \item Need to work hand in hand with models.
+  Special purpose \structure{registers}:
+  \begin{itemize}[itemsep=5pt]
+  \item common in modern hardware
+  \item record low-level performance events
+    \begin{itemize}[itemsep=3pt]
+    \item number of Flops of different type (scalar, sse, avx)
+    \item cache miss/hit counts at various levels
+    \item branch prediction success rate
+    \item \ldots
     \end{itemize}
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{What kind of things can we measure?}
-  \begin{itemize}
-  \item An almost overwhelming number of different things like:
-    \begin{itemize}
-    \item Number of floating point instructions of different type
-      (scalar, sse, avx)
-    \item Cache miss/hit counts at various levels
-    \item Branch prediction success rate
-    \item \dots
-    \end{itemize}
-  \item[$\Rightarrow$] Best used to confirm hypothesis from some model
+  \item<2> can be overwhelming
+  \item<2> best used to confirm hypothesis from some model
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Abstract metrics}
-  \begin{itemize}
-  \item Can read low-level hardware counters directly (e.g.~how many
-    floating point instructions were executed?)
-  \item More useful to group into abstract metrices
-  \item[$\Rightarrow$] easier to compare across hardware, easier to
-    interpret.
-  \item For example, measure ``Instructions per cycle'' rather than
-    instructions.
+  \frametitle{Caveats}
+
+  \begin{itemize}[itemsep=8pt]
+  \item Information about
+    \begin{itemize}[itemsep=3pt]
+    \item the algorithm you implemented
+    \item the way you implemented it
+    \item the data moved in the measured run
+    \end{itemize}
+  \item Does not consider
+    \begin{itemize}[itemsep=3pt]
+    \item potentially better algorithms
+    \item potentially superior ways of implementing those
+    \item data you could have moved in a different run
+    \end{itemize}
   \end{itemize}
+
+  \pause
+  \vskip 5pt
+
+  Only meaningful as complements to models.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Granularity}
+  \begin{itemize}[itemsep=8pt]
+  \item Direct read of low-level hardware counters
+    \begin{itemize}[itemsep=4pt]
+    \item most detailed
+    \item hardware dependent
+    \item not portable
+    \end{itemize}
+  \item Abstract metrics
+    \begin{itemize}[itemsep=4pt]
+    \item groups of low-level counters
+    \item easier to compare across hardware
+    \end{itemize}
+  \end{itemize}
+
+  \vskip 11pt
+
+  ``instructions'' $\rightarrow$ ``instructions per cycle''
+
 \end{frame}
 
 \begin{frame}
@@ -92,18 +121,21 @@
   \item Provides access both to counters directly, and many useful
     predefined ``groups''.
   \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Example: STREAM}
   \begin{itemize}
   \item Will use \texttt{likwid-perfctr} to measure memory references
     in different implementations of the same loop.
   \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example: STREAM}
+  \vskip -20pt
   \begin{columns}[t]
-    \begin{column}{0.25\textwidth}
-      \begin{block}{Scalar}
-\begin{minted}[fontsize=\tiny]{asm}
+    \begin{column}{0.4\textwidth}
+      \begin{block}{\footnotesize Scalar}
+        \vspace{-5pt}
+\begin{minted}[fontsize=\footnotesize]{asm}
 for i from 0 to n:
   load a[i:i+1] reg1
   load b[i:i+1] reg2
@@ -112,11 +144,13 @@ for i from 0 to n:
   add reg4 reg3 reg4
   store reg4 c[i:i+1]
 \end{minted}
+        \vspace{-5pt}
       \end{block}
     \end{column}
-    \begin{column}{0.25\textwidth}
-      \begin{block}{SSE}
-\begin{minted}[fontsize=\tiny]{asm}
+    \begin{column}{0.4\textwidth}
+      \begin{block}{\footnotesize SSE}
+        \vspace{-5pt}
+\begin{minted}[fontsize=\footnotesize]{asm}
 for i from 0 to n by 2:
   vload a[i:i+2] vreg1
   vload b[i:i+2] vreg2
@@ -125,11 +159,16 @@ for i from 0 to n by 2:
   vadd reg4 reg3 reg4
   vstore reg4 c[i:i+2]
 \end{minted}
+        \vspace{-5pt}
       \end{block}
     \end{column}
-    \begin{column}{0.25\textwidth}
-      \begin{block}{AVX}
-\begin{minted}[fontsize=\tiny]{asm}
+  \end{columns}
+  \vspace{-5pt}
+\begin{columns}[t]
+  \begin{column}{0.4\textwidth}
+    \begin{block}{\footnotesize AVX}
+      \vspace{-5pt}
+\begin{minted}[fontsize=\footnotesize]{asm}
 for i from 0 to n by 4:
   vload a[i:i+4] vreg1
   vload b[i:i+4] vreg2
@@ -138,11 +177,13 @@ for i from 0 to n by 4:
   vadd reg4 reg3 reg4
   vstore reg4 c[i:i+4]
 \end{minted}
+      \vspace{-5pt}
       \end{block}
     \end{column}
-    \begin{column}{0.25\textwidth}
-      \begin{block}{AVX2}
-\begin{minted}[fontsize=\tiny]{asm}
+    \begin{column}{0.4\textwidth}
+      \begin{block}{\footnotesize AVX2}
+        \vspace{-5pt}
+\begin{minted}[fontsize=\footnotesize]{asm}
 for i from 0 to n by 4:
   vload a[i:i+4] vreg1
   vload b[i:i+4] vreg2
@@ -150,6 +191,7 @@ for i from 0 to n by 4:
   vfma vreg1 vreg2 vreg3
   vstore reg3 c[i:i+4]
 \end{minted}
+        \vspace{-5pt}
       \end{block}
     \end{column}
   \end{columns}
@@ -158,27 +200,32 @@ for i from 0 to n by 4:
 \begin{frame}
   \frametitle{Measurement}
   \begin{challenge}{Model}
-    For each loop choice, if we choose $n = 10^6$, how many load
-    and store instructions do we expect to measure?
+    For $N = \mathsf{10^6}$, how many loads and stores in each case?
   \end{challenge}
   \pause
   \begin{answer}{Answer}
     Each loop iteration has 3 loads and 1 store.
 
-    Vector width $v$ and $n$ iterations we need $\frac{3n}{v}$ loads
-    and $\frac{n}{v}$ stores.
+    With vector width $W$ and $N$ iterations we need:
+    \vskip 4pt
+    \begin{itemize}[itemsep=4pt]
+    \item $\dfrac{\mathsf 3N}{W}$ loads
+    \item $\dfrac{N}{W}$ stores
+    \end{itemize}
 
-    $\Rightarrow$ let's attempt to verify this with measurements.
   \end{answer}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Exercise}
-  \begin{itemize}
-  \item Goal is to convince ourselves that measurement works!
-  \item[$\Rightarrow$] Exercise 5 from the usual place.
-  \end{itemize}
-
+\begin{frame}[fragile]
+  \frametitle{Exercise 5: Models and measurements}
+  \begin{enumerate}[itemsep=8pt]
+  \item Split into small groups
+  \item Make sure one person per group has access to Hamilton
+  \item Download the STREAM TRIAD benchmark
+  \item Compile with \verb#likwid# annotations
+  \item Measure loads and stores
+  \item Ask questions!
+  \end{enumerate}
 \end{frame}
 
 \begin{frame}

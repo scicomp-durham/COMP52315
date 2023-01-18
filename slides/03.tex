@@ -168,13 +168,13 @@
 // Possibly nested loops
 for (i = 0; i < ...; i++)
   // Complicated code doing
-  // N Flops causing
+  // M Flops causing
   // B bytes of data transfer
 \end{minted}
 
       \begin{block}{\small Operational intensity [Flops/B]}
         \begin{equation*}
-          I_c = \frac{N}{B}
+          I_c = \frac{M}{B}
         \end{equation*}
       \end{block}
     \end{column}
@@ -207,7 +207,7 @@ for (i = 0; i < ...; i++)
   \structure{Optimistic model:} everything happens at ``light speed''.
 
   % Introduced in Williams et al.~\emph{Roofline: An Insightful Visual
-  %   Performance Model for Multicore Architectures}, CACM (2009).
+  % Performance Model for Multicore Architectures}, CACM (2009).
   % \url{https://doi.org/10.1145/1498765.1498785}
 \end{frame}
 
@@ -222,19 +222,20 @@ for (i = 0; i < ...; i++)
   \frametitle{Applying roofline}
   Roofline characterises performance using three numbers:
   \vskip 6pt
-    \begin{enumerate}[itemsep=6pt,leftmargin=60pt]
-    \item[\structure{HW1.}] $P_\text{peak}$: peak floating point performance
-    \item[\structure{HW2.}] $b_s$: streaming memory bandwidth
-    \item[\structure{SW1.}] $I_c$: operational intensity of the code
-    \end{enumerate}
+  \begin{enumerate}[itemsep=6pt,leftmargin=60pt]
+  \item[\structure{HW1.}] $P_\text{peak}$: peak floating point performance
+  \item[\structure{HW2.}] $b_s$: streaming memory bandwidth
+  \item[\structure{SW1.}] $I_c$: operational intensity of the code
+  \item[\structure{SW2.}] performance of the code
+  \end{enumerate}
 
-    \vskip 5pt
+  \vskip 5pt
 
-    \begin{answer}{Process}
-      \begin{enumerate}[wide=0pt]
-      \item Measure these numbers
-      \item Draw diagram
-      \item Use diagram to chose optimisations likely to pay off
+  \begin{answer}{Process}
+    \begin{enumerate}[wide=0pt]
+    \item Measure these numbers
+    \item Draw diagram
+    \item Use diagram to chose optimisations likely to pay off
     \end{enumerate}
   \end{answer}
 \end{frame}
@@ -349,7 +350,7 @@ for (i = 0; i < ...; i++)
 \end{frame}
 
 \begin{frame}
-  \frametitle{Computing arithmetic intensity}
+  \frametitle{Computing operational intensity}
   \structure{Two options:}
 
   \vskip 6pt
@@ -362,7 +363,11 @@ for (i = 0; i < ...; i++)
     \begin{itemize}[itemsep=6pt]
     \item count floating point operations
     \item count data accesses
-    \item use formula $I_{C} = N / B$
+    \item use formula $I_{C} = M / B$ where
+      \begin{itemize}
+      \item $M$ is the number of Flops executed
+      \item $B$ is the number of bytes moves
+      \end{itemize}
     \end{itemize}
 
   \end{enumerate}
