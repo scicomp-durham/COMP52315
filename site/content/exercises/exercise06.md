@@ -1,6 +1,7 @@
 ---
-title: "Profiling"
+title: "Finding a hotspot and determining the execution limits"
 weight: 6
+bookHidden: true
 ---
 
 # Finding a hotspot and determining the execution limits

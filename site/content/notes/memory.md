@@ -2,6 +2,7 @@
 title: "Overview of memory hierarchies"
 weight: 2
 katex: true
+bookHidden: true
 ---
 
 # Overview of memory hierarchies

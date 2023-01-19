@@ -1,10 +1,11 @@
 ---
-title: "Roofline analysis"
+title: "Roofline analysis of matrix–vector multiplication"
 weight: 4
 katex: true
+bookHidden: true
 ---
 
-# A roofline analysis of matrix-vector multiplication
+# Roofline analysis of matrix–vector multiplication
 
 The goal of this exercise is to perform a roofline analysis of
 matrix–vector multiplication. We will look at the effect that compiler

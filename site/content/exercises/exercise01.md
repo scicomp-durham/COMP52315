@@ -1,8 +1,8 @@
 ---
-title: "Sum reductions"
+title: "Benchmarking with `likwid-bench`"
 weight: 1
-description: "Benchmarking"
 katex: true
+bookHidden: true
 ---
 
 # Benchmarking with `likwid-bench`

@@ -2,6 +2,7 @@
 title: "Resources in stored program computers"
 weight: 1
 katex: true
+bookHidden: true
 ---
 
 # Resources in stored program computers

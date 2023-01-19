@@ -2,6 +2,7 @@
 title: "Performance models: roofline"
 weight: 3
 katex: true
+bookHidden: true
 ---
 
 # Performance models: roofline

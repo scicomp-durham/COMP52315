@@ -1,9 +1,10 @@
 ---
-title: "Caches"
+title: "Memory bandwidth in the memory hierarchy"
 weight: 2
+bookHidden: true
 ---
 
-# Measuring memory bandwidth in the memory hierarchy
+# Memory bandwidth in the memory hierarchy
 
 The goal of this exercise is to determine the memory bandwidth as a function of
 the amount of data we are moving on the Hamilton cores.

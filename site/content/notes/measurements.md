@@ -2,6 +2,7 @@
 title: "Performance measurements and profiling"
 weight: 4
 katex: true
+bookHidden: true
 ---
 
 # Performance measurements and profiling

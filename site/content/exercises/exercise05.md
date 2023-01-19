@@ -1,6 +1,7 @@
 ---
-title: "Models and measurements"
+title: "Verifying a model with measurements"
 weight: 5
+bookHidden: true
 ---
 
 # Verifying a model with measurements

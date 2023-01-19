@@ -1,10 +1,11 @@
 ---
-title: "Memory bandwidth"
+title: "Multi-core memory bandwidth"
 weight: 3
 katex: true
+bookHidden: true
 ---
 
-# Measuring multi-core memory bandwidth
+# Multi-core memory bandwidth
 
 The goal of this exercise is to measure the memory bandwidth for
 various vector sizes as a function of the number of cores used to
