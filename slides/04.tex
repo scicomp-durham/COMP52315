@@ -21,7 +21,7 @@
 
 \title{\firasemibold\color{White}%
   {\fontsize{20}{0}\selectfont SESSION 4\\
-    \fontsize{40}{40}\selectfont Performance\\measurements\par}}
+    \fontsize{34}{34}\selectfont Performance\\measurements\par}}
 \titleslide
 
 % \begin{frame}
@@ -228,12 +228,15 @@ for i from 0 to n by 4:
   \end{enumerate}
 \end{frame}
 
+\end{document}
+
 \begin{frame}
-  \frametitle{Larger code}
+  \frametitle{Larger code base}
   \begin{challenge}{Problem}
-    What if you don't know which part of the code takes all the time?
+    Which section(s) of the code takes most of the time?
   \end{challenge}
-  \begin{answer}{Answer}
+  \begin{answer}{Profiling}
+
     Use \emph{profiling} to determine hotspots (regions of code where
     all the time is spent).
 
@@ -243,14 +246,7 @@ for i from 0 to n by 4:
 
 \begin{frame}
   \frametitle{Profiling: types}
-  \begin{itemize}
-  \item Goal is to gather information about what a code is doing
-    \begin{itemize}
-    \item \emph{Sampling}
-    \item or \emph{code instrumentation}
-    \end{itemize}
-  \end{itemize}
-  \begin{columns}
+  \begin{columns}[t]
     \begin{column}{0.45\textwidth}
       \begin{exampleblock}{Sampling}
         \begin{itemize}
@@ -262,7 +258,7 @@ for i from 0 to n by 4:
       \end{exampleblock}
     \end{column}
     \begin{column}{0.45\textwidth}
-      \begin{exampleblock}{Instrumentation}
+      \begin{exampleblock}{Instrumentation\vphantom{pl}}
         \begin{itemize}
         \item Requires source code annotations to capture
           ``interesting'' information
@@ -282,7 +278,7 @@ for i from 0 to n by 4:
   \item Records which function we are in.
   \end{itemize}
   \begin{center}
-    \includegraphics[height=0.6\textheight]{figures/samplingprofile}
+    \includegraphics[height=0.6\textheight]{figures/samplingprofile.png}
   \end{center}
 \end{frame}
 \begin{frame}
@@ -292,7 +288,7 @@ for i from 0 to n by 4:
     about
   \end{itemize}
   \begin{center}
-    \includegraphics[height=0.7\textheight]{figures/tracingprofile}
+    \includegraphics[height=0.7\textheight]{figures/tracingprofile.png}
   \end{center}
 \end{frame}
 
@@ -350,7 +346,7 @@ Each sample counts as 0.01 seconds.
     \end{column}
     \begin{column}{0.45\textwidth}
       \begin{center}
-        \includegraphics[width=\textwidth]{figures/inclusiveexclusive}
+        \includegraphics[width=\textwidth]{figures/inclusiveexclusive.png}
       \end{center}
     \end{column}
   \end{columns}
