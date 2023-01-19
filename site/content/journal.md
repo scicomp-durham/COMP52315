@@ -26,36 +26,8 @@ touch]((mailto:massimiliano.fasi@durham.ac.uk)).
   predictive models for the speed that code runs at.
 
   We finished by working through the [Exercise 1]({{< ref
-  "exercises/exercise01.md" >}}). To produce the [plots]({{< ref
-  "exercises/exercise01.md#vector-size" >}}) in the last part of the
-  exercise, you can use the jobscript below. We will discuss the results
+  "exercises/exercise01.md" >}}). We will discuss the results
   in the next session.
-```shell
-#!/bin/bash
-
-# 1 core
-#SBATCH -n 1
-#SBATCH --job-name="collect-bw"
-#SBATCH -o collect-bw.%J.out
-#SBATCH -e collect-bw.%J.err
-#SBATCH -t 00:20:00
-#SBATCH -p shared
-
-source /etc/profile.d/modules.sh
-
-module load likwid/5.2.0
-lscpu
-
-for n in $(seq 0 20)
-do
-    size=$((2 ** n))
-    mflops_scalar=$(likwid-bench -t sum_sp -w N:${size}kB:1 2>/dev/null | grep MFlops/s | cut -f 3)
-    mflops_avx=$(likwid-bench -t sum_sp_avx -w N:${size}kB:1 2>/dev/null | grep MFlops/s | cut -f 3)
-    echo $size $mflops_scalar $mflops_avx
-done
-```
-
-
 
 - **Session 2**:
 [Slides]({{< static-ref "lecture-slides/02.pdf" >}}) –
