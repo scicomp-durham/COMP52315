@@ -1,10 +1,10 @@
 ---
-title: "Measurement and profiling"
+title: "Performance measurements and profiling"
 weight: 4
 katex: true
 ---
 
-# Performance measurements
+# Performance measurements and profiling
 
 So far, we've seen the [roofline]({{< ref "roofline.md" >}}) model,
 and observed that for floating point code, it allows us to get a

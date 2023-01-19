@@ -4,7 +4,7 @@ weight: 3
 katex: true
 ---
 
-# Models of performance
+# Performance models: roofline
 
 If our goal is to improve the performance of some code we should take
 a scientific approach. We must first define what we mean by

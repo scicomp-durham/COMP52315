@@ -1,5 +1,5 @@
 ---
-title: "Introduction"
+title: "Resources in stored program computers"
 weight: 1
 katex: true
 ---

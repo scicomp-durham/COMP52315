@@ -1,10 +1,10 @@
 ---
-title: "The memory hierarchy"
+title: "Overview of memory hierarchies"
 weight: 2
 katex: true
 ---
 
-# An overview of memory hierarchies
+# Overview of memory hierarchies
 
 ## Reduction benchmark
 
