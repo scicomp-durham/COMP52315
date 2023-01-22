@@ -63,7 +63,7 @@ predefined group. Instead, we must use a low-level counter directly. The
 relevant counters are `LS_DISPATCH_LOADS` for loads and
 `LS_DISPATCH_STORES` for stores. We must specify a [_group
 string_](https://github.com/RRZE-HPC/likwid/wiki/likwid-perfctr#using-custom-event-sets),
-of the form `<counter>:<register`, where `<counter>` is the performance
+of the form `<counter>:<register>`, where `<counter>` is the performance
 counter we want to use (for example `LS_DISPATCH_LOADS`) and
 `<register>` is the register in which we want to save it. For memory
 operations we can use the registers `PMC0` and `PMC1` (possibly others,
