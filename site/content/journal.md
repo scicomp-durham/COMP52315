@@ -100,5 +100,21 @@ touch]((mailto:massimiliano.fasi@durham.ac.uk)).
 - **Session 4**:
 [Slides]({{< static-ref "lecture-slides/04.pdf" >}}) –
 [Notes]({{< ref "notes/measurements.md" >}}) –
-[Exercise 5]({{< ref "exercises/exercise05.md" >}}) –
+[Exercise 5]({{< ref "exercises/exercise05.md" >}})
+
+  The Encore capture system was faulty this time, so no recording of the
+  live session is available.
+
+  We spent most of the session discussing the paper by Williams,
+  Waterman, and Patterson. We then moved on to the slides and started
+  discussing performance counters.
+
+  We concluded the session by working through [Exercise 5]({{< ref
+  "exercises/exercise05.md" >}}): we used `likwid-perfctr` to collect
+  performance measurements on an implementation of the STREAM TRIAD
+  benchmark that uses `likwid`'s Marker API.
+
+- **Session 5**:
+[Slides]({{< static-ref "lecture-slides/05.pdf" >}}) –
+[Notes]({{< ref "notes/measurements.md" >}}) –
 [Exercise 6]({{< ref "exercises/exercise06.md" >}})

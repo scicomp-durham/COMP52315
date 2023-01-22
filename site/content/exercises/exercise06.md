@@ -19,6 +19,14 @@ The aim is to run and profile the code to determine where it spends
 all its time, and then dig a little deeper using likwid markers and
 the performance counters API.
 
+{{< hint "info" >}}
+
+If you find the idea of delving into the rather large code base of
+`miniMD` daunting, you can start with [a simpler version of this
+exercise]({{< ref "exercise06_local.md" >}}).
+
+{{< /hint >}}
+
 ## Download and compile
 
 `miniMD` is maintained on
@@ -132,13 +140,16 @@ run `gprof2dot gmon-output.txt -o gmon-output.dot`. Finally, use `dot
 
 ## Instrumenting hotspot functions with likwid
 
-Having determined which functions are the hotspots, we'll try and get
+Having determined which functions are the hotspots, we'll try to get
 some more information about their performance. For this, we will use
 `likwid-perfctr` and its [marker
 API](https://github.com/RRZE-HPC/likwid/wiki/likwid-perfctr#using-the-marker-api).
-We'll therefore need the likwid tools, so `module load likwid/5.0.1`
-(remember that you will need to do this in the batch script, or on the
-compute node too).
+We'll therefore need the likwid tools, which we can load with
+```sh
+module load likwid/5.2.0
+```
+Remember that you will need to do this in the batch script, or on the
+compute node too.
 
 To do this, you will need to find the locations in the source files of
 the functions you identified. A simple thing to do is to use
@@ -172,11 +183,11 @@ includes.
 
 Then for each function you want to instrument in that file add
 ```c
-LIKWID_MARKER_START("SOMEAPPROPRIATENAME");
+LIKWID_MARKER_START("<SOME_APPROPRIATE_NAME>");
 ```
 at the beginning of the function and
 ```c
-LIKWID_MARKER_STOP("SOMEAPPROPRIATENAME");
+LIKWID_MARKER_STOP("<SOME_APPROPRIATE_NAME>");
 ```
 before the function returns.
 
