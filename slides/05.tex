@@ -137,7 +137,7 @@ gprof -A <executable_name> gmon.out # annotated source
   \vskip 5pt
 
   \structure{Output}
-  \begin{itemize}
+  \begin{itemize}[itemsep=5pt]
   \item \emph{flat profile:} time in function, number of function calls
   \item \emph{call graph:} which function call which
   \item \emph{annotated source:} number of time each line is executed
@@ -241,16 +241,19 @@ index % time    self  children    called     name
   \item Determine algorithm
   \item Add instrumentation markers (see exercise)
   \item Profile with more detail/use performance models.
-  \item[$\Rightarrow$] guidance for appropriate optimisation.
   \end{enumerate}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Exercise: finding the hotspot}
-  \begin{itemize}
-  \item So far, we've looked at very simple code. Now, your task will
-    be to find the hotspot and do some exploration in a larger one.
-  \item[$\Rightarrow$] Exercise 6 from the usual place.
-  \end{itemize}
+\begin{frame}[fragile]
+  \frametitle{Exercise 6: Finding the hotspot}
+  \begin{enumerate}[itemsep=8pt]
+  \item Split into small groups
+  \item Download the \texttt{miniMD} application
+  \item Profile with \texttt{gprof}
+  \item Annotate hotspot with \verb#likwid# Marker API
+  \item Measure operational intensity
+  \item Ask questions!
+  \end{enumerate}
 \end{frame}
+
 \end{document}
