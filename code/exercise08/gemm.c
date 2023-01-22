@@ -179,7 +179,7 @@ static void zero_matrix(int m, int n, double *a, int lda)
     for (i = 0; i < m; i++) {
       a[j*lda + i] = 0.0;
     }
-  }    
+  }
 }
 
 static void random_matrix(int m, int n, double *a, int lda)
@@ -230,7 +230,7 @@ static void bench(int n, gemm_fn_t gemm)
 
   flop = 2.0*(double)n*(double)n*(double)n;
   time = DBL_MAX;
-    
+
   if (n*n < 10000) {
     /* For small matrices, run in a loop, to help with timing variability. */
     repeats = 50;
