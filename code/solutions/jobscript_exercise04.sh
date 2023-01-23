@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Run the clload on an increasing number of cores of a reserved node for
-# vectors of size between 1kB and 1GB.
+# Perform a roofline analysis of a matrix-vector multiplication kernel.
 
 #SBATCH -N 1
 #SBATCH --job-name="collect-bw-bm"
