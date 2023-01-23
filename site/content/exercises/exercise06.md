@@ -223,9 +223,23 @@ successfully add all the performance monitoring, but are not yet using
 
 {{< exercise >}}
 
-Run a profile of the memory and floating point performance using
-`likwid-perfctr -C 0 -g MEM_DP -m ./miniMD_intel -i in.lj.miniMD
---half_neigh 1`.
+Run a profile of the memory and floating point performance. In
+principle, you could simply use the `MEM_DP` group, which is defined for
+Zen 2, and simply run
+```sh
+likwid-perfctr -C 0 -g MEM_DP -m ./miniMD_intel -i in.lj.miniMD --half_neigh 1
+```
+However, this group is not available  on Hamilton 8, thus you should
+take the measurements detailed in the
+[`MEM_DP.txt`](https://github.com/RRZE-HPC/likwid/blob/master/groups/zen2/MEM_DP.txt)
+file by hand, and then compute the `Operational intensity` metric as
+defined there. If some of the event sets do not work as you expect when
+you use them directly, you can try to use other performance groups, such as
+[`FLOPS_DP`](https://github.com/RRZE-HPC/likwid/blob/master/groups/zen2/FLOPS_DP.txt)
+for instructions and
+[`MEM`](https://github.com/RRZE-HPC/likwid/blob/master/groups/zen2/MEM.txt)
+for memory.
+.
 
 {{< /exercise >}}
 
