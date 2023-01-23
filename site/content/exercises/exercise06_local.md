@@ -87,9 +87,9 @@ use of vector registers, if possible.
 
 {{< exercise >}}
 
-Now try to profile the compiled with the `-fno-inline` for the
-optimization level `-O3`. Does this help you figure out what is
-happening?
+Now try to profile the compiled with the `-fno-inline` and
+`-fno-reorder-functions` for the optimization level `-O3`. Does this
+help you figure out what is happening?
 
 {{< /exercise >}}
 
