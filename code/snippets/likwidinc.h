@@ -1,15 +1,16 @@
 #ifndef _LIKWID_INC_H
 #define _LIKWID_INC_H
 
-
 #ifdef LIKWID_PERFMON
-#include <likwid.h>
+#include <likwid-marker.h>
 #else
-#define LIKWID_MARKER_START(a) do { (void)a; } while (0)
-#define LIKWID_MARKER_STOP(a) do { (void)a; } while (0)
-#define LIKWID_MARKER_INIT do { } while (0)
-#define LIKWID_MARKER_THREADINIT do { } while (0)
-#define LIKWID_MARKER_CLOSE do { } while (0)
-#define LIKWID_MARKER_REGISTER(a) do { (void)a; } while (0)
+#define LIKWID_MARKER_INIT
+#define LIKWID_MARKER_THREADINIT
+#define LIKWID_MARKER_SWITCH
+#define LIKWID_MARKER_REGISTER(regionTag)
+#define LIKWID_MARKER_START(regionTag)
+#define LIKWID_MARKER_STOP(regionTag)
+#define LIKWID_MARKER_CLOSE
+#define LIKWID_MARKER_GET(regionTag, nevents, events, time, count)
 #endif  /* LIKWID_PERFMON */
 #endif

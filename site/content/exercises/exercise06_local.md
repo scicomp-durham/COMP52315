@@ -3,6 +3,7 @@ title: "Instrumenting code with the `likwid` Marker API"
 weight: 7
 katex: true
 bookHidden: true
+draft: true
 ---
 
 # Instrumenting code with the `likwid` Marker API
@@ -102,6 +103,8 @@ it, and how to perform the measurements. Make sure to check out the
 page](https://github.com/RRZE-HPC/likwid/wiki/likwid-perfctr#using-the-marker-api)
 to understand what the code is doing, and how to make changes.
 
+#### Including the Marker API
+
 First of all, we need to add, before the beginning of the first
 measurement region, the code snippet
 ```c
@@ -119,7 +122,13 @@ measurement region, the code snippet
 #endif
 ```
 which will allow us to compile the code with and without the likwid
-header in place.
+header in place. You can download the short header file [`likwidinc.h`]({{<
+code-ref "snippets/likwidinc.h" >}}) and include it in `simple_code.c` with
+```c
+#include "likwidinc.h"
+```
+
+#### Marking named regions
 
 Next, we need to enclose the portions of code we want to measure in a
 named region. We can do that easily with the two macros
@@ -131,6 +140,8 @@ LIKWID_MARKER_STOP("<region_name>");
 where `<region_name>` is a string that will be used to identify the
 portion of code in the output of `likwid-perfctr`. Try to create two
 regions, one for each function.
+
+#### Initialising and finalising the Marker API
 
 Finally, we need to modify the `main` function by adding
 ```c
@@ -149,9 +160,9 @@ in a branch of an `if` statement or after a `return` instructions.
 {{< /hint >}}
 
 
-You can look at the [code]({{< code-ref 5 "stream.c" >}})) we used in
-[Exercise 5]({{< ref "exercise05.md" >}}) to see an example C code that
-uses the Marker API.
+You can look at the [C source code]({{< code-ref 5 "stream.c" >}}) we
+used in [Exercise 5]({{< ref "exercise05.md" >}}) to see an example C
+code that uses the Marker API.
 
 Next, we need to compile and run the code, which we can do with the same
 commands as in [Exercise 5]({{< ref "exercise05.md" >}}). Assuming that

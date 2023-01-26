@@ -131,10 +131,8 @@ touch]((mailto:massimiliano.fasi@durham.ac.uk)).
   instrumenting it to collect performance measurements with
   `likwid-perfctr`.
   In [Exercise 6]({{< ref "exercises/exercise06.md" >}}) we looked at
-  the `miniMD` application. A [self-contained version]({{< ref
-  "exercises/exercise06_local.md" >}}) of the exercise is also
-  available. The idea of the exercise is the same, but the code is
-  simpler to instrument and interpret.
+  profiling and measuring the performance of some simple C code and
+  of the `miniMD` application.
 
   There were some issues with the exercises. Thank you Yash for finding
   out how to produce a call graph with `gprof` when the executable is
