@@ -20,4 +20,7 @@ weight: 3
 1. [Verifying a model with measurements]({{< ref "exercise05.md" >}}) -
 [Solution]({{< code-ref "solutions/jobscript_exercise05.sh" >}})
 
-1. [Finding a hotspot and determining the execution limits]({{< ref "exercise06.md" >}})
+1. [Finding a hotspot and determining the execution limits]({{< ref "exercise06.md" >}}) -
+Contains solution
+
+1. [The effect of loop tiling on matrix transposition]({{< ref "exercise07.md" >}})

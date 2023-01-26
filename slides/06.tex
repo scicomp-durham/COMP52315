@@ -270,6 +270,8 @@ with
   \end{enumerate}
 \end{frame}
 
+\end{document}
+
 \begin{frame}[fragile]
   \frametitle{Matrix--matrix multiplication}
   Given $n$-by-$n$ matrices $A$ and $B$, we can compute $C = AB$
@@ -289,47 +291,134 @@ with
 
 
 \begin{frame}
-  \frametitle{(Another) simple model for computation}
-  \begin{itemize}
-  \item Simple model of memory, two levels: ``fast'' and ``slow''
-  \item Initially all data in slow memory
-    \begin{itemize}
-    \item[$m$] number of data elements moved between fast and slow memory
-    \item[$t_m$] time per slow memory operation
-    \item[$f$] number of flops
-    \item[$t_f \ll t_m$] time per flop
-    \item[$q =: f/m$] average flops per slow memory access
-    \end{itemize}
-  \item Minimum time to solution (all data in fast memory)
-    \begin{equation*}
-      t_f f
-    \end{equation*}
-  \item Typical time
-    \begin{equation*}
-      f t_f + m t_m = f t_f \left(1 + \frac{t_m}{t_f}\frac{1}{q}\right)
-    \end{equation*}
+  \frametitle{Two-level memory model (``fast'' and ``slow'')}
 
-  \item $t_m / t_f$ property of hardware, $q$ property of \emph{algorithm}
-  \end{itemize}
+  \vskip 3pt
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}[wide=5pt,itemsep=8pt]
+      \item $\textcolor{MidnightBlue}{m}$: \# data elements moved
+      \item $\textcolor{MidnightBlue}{f}$: \# flops
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}[wide=2pt,itemsep=8pt]
+      \item $\textcolor{BrickRed}{t_m}$: time per memory access
+      \item $\textcolor{BrickRed}{t_f} \ll t_m$ time per flop
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \vskip 13pt
+
+  \begin{center}
+    $\textcolor{MidnightBlue}{q =: f/m}$ average flops per slow memory access
+  \end{center}
+
+  \vskip 5pt
+  \hrule
+  \vskip 5pt
+
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \onslide<2->{%
+      \centering Minimum time to solution
+      \begin{equation*}
+        \textcolor{BrickRed}{t_f} \cdot \textcolor{MidnightBlue}{f}%
+        \vphantom{\frac{t_M}{t_{f}}}
+      \end{equation*}}
+    \end{column}
+    \hfill
+    \vrule
+    \hfill
+    \begin{column}{0.45\textwidth}
+      \onslide<3->{%
+      \centering Typical time to solution
+      \begin{equation*}
+        \textcolor{MidnightBlue}{f} \; \textcolor{BrickRed}{t_f} +
+        \textcolor{MidnightBlue}{m}
+        \;  \textcolor{BrickRed}{t_m} =
+        \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
+        \left(
+          \mathsf{1} +
+          \textcolor{BrickRed}{\frac{t_m}{t_f}} \cdot
+          \textcolor{MidnightBlue}{\frac{\mathsf{1}}{q}}
+        \right)
+      \end{equation*}}
+    \end{column}
+  \end{columns}
+
+  \vskip 5pt
+  \hrule
+  \vskip 15pt
+
+  \begin{center}
+    \textcolor{BrickRed}{hardware} \qquad \textcolor{MidnightBlue}{software}
+  \end{center}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Na\"ive matrix-multiply}
   \begin{onlyenv}<1>
-\begin{minted}[fontsize=\scriptsize]{c}
-for (int i = 0; i < n; i++)
-  for (int j = 0; j < n; j++)
-    for (int k = 0; k < n; k++)
-      C[i*n + j] = C[i*n + j] + A[i*n + k] * B[k*n + j];
+\begin{minted}[fontsize=\normalsize]{c}
+ for (int i = 0; i < n; i++)
+   for (int j = 0; j < n; j++)
+     for (int k = 0; k < n; k++)
+       C[i*n + j] = C[i*n + j] + A[i*n + k] * B[k*n + j];
 \end{minted}
+    \vskip 10pt
+
     \begin{itemize}
-    \item Algorithm does $2n^3 = \mathcal{O}(n^3)$ flops and touches
-      $3\cdot 8 n^2$ bytes of memory
-    \item $q$ potentially $\mathcal{O}(n)$, arbitrarily large for large $n$.
+    \item $\mathsf 2n^\mathsf{3} = \mathcal{O}(n^\mathsf{3})$ flops
+      and $\mathsf{3\cdot 8 n^2}$ bytes of memory
+    \item $\textcolor{MidnightBlue}{q}$ potentially $\mathcal{O}(n)$,
+      arbitrarily large for large $n$
     \end{itemize}
+
+    \begin{center}
+      \begin{tikzpicture}[nodes in empty cells,
+        inner sep=0cm,
+        nodes={minimum width=0.55cm, minimum height=0.55cm, text
+          height=0.35cm, text depth=0.15cm},
+        row sep=-\pgflinewidth, column sep=-\pgflinewidth]
+        \matrix(Cout)[draw, matrix of nodes]
+        {
+          & & & \\
+          & & & \\
+          &|[fill=red!50]| $C_{ij}$ & & \\
+          & & & \\
+        };
+        \node[right=0cm of Cout] (eq) {$=$};
+        \matrix(Cin)[right=0cm of eq, draw, matrix of nodes]
+        {
+          & & & \\
+          & & & \\
+          &|[fill=red!50]| $C_{ij}$ & & \\
+          & & & \\
+        };
+        \node[right=0cm of Cin] (plus) {$+$};
+        \matrix(Ain)[right=0cm of plus, draw, matrix of nodes,
+        row 3/.style={nodes={fill=red!50}}]
+        {
+          & & & \\
+          & & & \\
+          & $A_{i}$ & & \\
+          & & & \\
+        };
+        \node[right=0cm of Ain] (times) {$\times$};
+        \matrix(Bin)[right=0cm of times, draw, matrix of nodes,
+        column 2/.style={nodes={fill=red!50}}]
+        {
+          &  & & \\
+          &  & & \\
+          & $B_{j}$ & & \\
+          & & & \\
+        };
+      \end{tikzpicture}
+    \end{center}
   \end{onlyenv}
   \begin{onlyenv}<2>
-\begin{minted}[fontsize=\scriptsize, mathescape=true]{c}
+\begin{minted}[fontsize=\normalsize, mathescape=true]{c}
 for (int i = 0; i < n; i++)
   // Read row $i$ of $A$ into fast memory
   for (int j = 0; j < n; j++)
@@ -337,81 +426,38 @@ for (int i = 0; i < n; i++)
     // Read column $j$ of $B$ into fast memory
     for (int k = 0; k < n; k++)
       C[i*n + j] = C[i*n + j] + A[i*n + k] * B[k*n + j];
-    // Write $C_{ij}$ back to slow memory
+      // Write $C_{ij}$ back to slow memory
 \end{minted}
   \end{onlyenv}
-  \begin{onlyenv}<3>
-    \begin{block}{Number of slow memory references}
-      \vspace{-\baselineskip}
-      \begin{align*}
-        m &= n^3 \quad \text{each column of $B$ is read $n$ times}\\
-          &+ n^2 \quad \text{each row of $A$ is read $n$ once}\\
-          &+ 2n^2 \quad \text{each entry of $C$ is read once and
-            written once}\\
-          &= (n^3 + 3n^2)
-      \end{align*}
-      Hence
-      \begin{equation*}
-        \lim_{n\to \infty} q = \frac{f}{m} = \frac{2n^3}{(n^3 + 3n^2)} = 2
-      \end{equation*}
-    \end{block}
-  \end{onlyenv}
-  \begin{center}
-    \begin{tikzpicture}[nodes in empty cells,
-      inner sep=0cm,
-      nodes={minimum width=0.55cm, minimum height=0.55cm, text
-        height=0.35cm, text depth=0.15cm},
-      row sep=-\pgflinewidth, column sep=-\pgflinewidth]
-      \matrix(Cout)[draw, matrix of nodes]
-      {
-        & & & \\
-        & & & \\
-        &|[fill=red!50]| $C_{ij}$ & & \\
-        & & & \\
-      };
-      \node[right=0cm of Cout] (eq) {$=$};
-      \matrix(Cin)[right=0cm of eq, draw, matrix of nodes]
-      {
-        & & & \\
-        & & & \\
-        &|[fill=red!50]| $C_{ij}$ & & \\
-        & & & \\
-      };
-      \node[right=0cm of Cin] (plus) {$+$};
-      \matrix(Ain)[right=0cm of plus, draw, matrix of nodes,
-      row 3/.style={nodes={fill=red!50}}]
-      {
-        & & & \\
-        & & & \\
-        & $A_{i}$ & & \\
-        & & & \\
-      };
-      \node[right=0cm of Ain] (times) {$\times$};
-      \matrix(Bin)[right=0cm of times, draw, matrix of nodes,
-      column 2/.style={nodes={fill=red!50}}]
-      {
-        &  & & \\
-        &  & & \\
-        & $B_{j}$ & & \\
-        & & & \\
-      };
-    \end{tikzpicture}
-  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Number of slow memory references}
+  \begin{align*}
+    m &= \mathsf{n^3} &\text{each column of $B$ is read $n$ times}\\
+      &+ \mathsf{n^2} &\text{each row of $A$ is read $n$ once}\\
+      &+ \mathsf{2n^2} & \text{each entry of $C$ is read once and
+                         written once}\\
+      &= (n^3 + 3n^2)
+  \end{align*}
+  Hence
+  \begin{equation*}
+    \mathsf{\lim_{n\to \infty} q = \frac{f}{m} = \frac{2n^3}{(n^3 + 3n^2)} = 2}
+  \end{equation*}
 \end{frame}
 
 \begin{frame}
   \frametitle{From model to prediction}
   \begin{itemize}
-  \item So for a triply-nested loop structure, the \emph{best} time to
-    solution our model predicts is:
+  \item For three-nested loops, the predicted \emph{typical} time to solution is:
     \begin{equation*}
-      T = t_f f \left(1 + \frac{t_m}{2 t_f}\right)
+      \mathsf{T = t_f \cdot f \left(1 + \frac{t_m}{2 t_f}\right)}
     \end{equation*}
   \item Recall that on modern hardware, memory \emph{latency} is
-    around 200 cycles per cache line. So let's approximate $t_m
-    \approx 200 / 8 = 25$, and say $t_f = 1$.
+    around 200 cycles per cache line. So let's approximate
+    $\mathsf{t_m \approx 200 / 8 = 25}$, and say $\mathsf{t_f = 1}$.
     \begin{equation*}
-      T = t_f f (1 + 25/2) = 13.5 t_f f
+      \mathsf{T = t_f f (1 + 25/2) = 13.5 t_f f}
     \end{equation*}
   \item Maximally 7\% peak.
   \item This is \emph{only} an estimate.
@@ -422,8 +468,8 @@ for (int i = 0; i < n; i++)
   \frametitle{Measurement}
   \begin{itemize}
   \item Single core Intel i5-8259U.
-  \item 2 4-wide FMAs per cycle $\Rightarrow$ 16 DP FLOPs/cycle.
-  \item[$\Rightarrow$] Peak is $3.6 \cdot 16 = 57.6$ GFLOPs/s, model
+  \item 2 4-wide FMAs per cycle $\Rightarrow$ 16 DP Flops/cycle.
+  \item[$\Rightarrow$] Peak is $3.6 \cdot 16 = 57.6$ Gflops/s, model
     predicts $4.03$GFLOPs/s.
   \end{itemize}
   \begin{center}
