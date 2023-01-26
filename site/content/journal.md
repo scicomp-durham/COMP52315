@@ -117,4 +117,31 @@ touch]((mailto:massimiliano.fasi@durham.ac.uk)).
 - **Session 5**:
 [Slides]({{< static-ref "lecture-slides/05.pdf" >}}) –
 [Notes]({{< ref "notes/measurements.md" >}}) –
-[Exercise 6]({{< ref "exercises/exercise06.md" >}})
+[Exercise 6]({{< ref "exercises/exercise06.md" >}}) –
+[Recording](https://durham.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=8b58f649-6a44-4b56-a979-af9000968342)
+
+  The session was dedicated to profiling. We discussed the differences
+  between sampling and instrumentation. We then focused in detail at the
+  GNU Profiler, which uses a hybrid of the two approaches. We discussed
+  the capabilities of the tool, and looked in particular at the three
+  types of output the tool can produce: flat profile, call graph, and
+  annotated source code.
+
+  We concluded the session by profiling some code with `gprof` and
+  instrumenting it to collect performance measurements with
+  `likwid-perfctr`.
+  In [Exercise 6]({{< ref "exercises/exercise06.md" >}}) we looked at
+  the `miniMD` application. A [self-contained version]({{< ref
+  "exercises/exercise06_local.md" >}}) of the exercise is also
+  available. The idea of the exercise is the same, but the code is
+  simpler to instrument and interpret.
+
+  There were some issues with the exercises. Thank you Yash for finding
+  out how to produce a call graph with `gprof` when the executable is
+  compiled with `-O3`. I have updated the exercise to reflect that.
+
+- **Session 6**:
+[Slides]({{< static-ref "lecture-slides/06.pdf" >}}) –
+[Notes]({{< ref "notes/tiling.md" >}}) –
+[Exercise 7]({{< ref "exercises/exercise07.md" >}}) –
+[Recording](https://durham.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=8b58f649-6a44-4b56-a979-af9000968342)
