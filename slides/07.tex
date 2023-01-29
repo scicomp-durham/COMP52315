@@ -1,434 +1,692 @@
 % -*- TeX-engine: luatex -*-
-\documentclass[presentation,aspectratio=43,10pt]{beamer}
-\usepackage{pgfplots}
-\pgfplotsset{compat=1.15}
-\usepackage{template}
-\input{setup-lawrence}
-\renewcommand{\sessionnumber}{6}
-\renewcommand{\sessiontitle}{Vectorisation and data layout}
-\usepackage{tikz}
-\usetikzlibrary{matrix,fit,positioning,calc}
+\documentclass[dvipsnames,presentation,aspectratio=169,14pt]{beamer}
+\usepackage{hastingstheme}
+\input{lecturer.tex}
+
+
+% \usepackage{template}
+% \input{setup-lawrence}
+% \renewcommand{\sessionnumber}{5}
+% \renewcommand{\sessiontitle}{Cache blocking/tiling}
+% \usepackage{tikz}
+
+% \usetikzlibrary{fit,positioning,Cal}
+\usetikzlibrary{matrix,positioning}
 \usepackage{pgfplotstable}
+% \usetikzlibrary{pgfplots.groupplots}
 \usepackage{booktabs}
-\usetikzlibrary{pgfplots.groupplots}
+
 \date{}
 
 \begin{document}
+
+\title{\firasemibold\color{White}%
+  {\fontsize{20}{0}\selectfont SESSION 7\\
+    \fontsize{34}{34}\selectfont Matrix--matrix\\multiplication\par}}
+\titleslide
+
+
+\begin{frame}[fragile]
+  \frametitle{Matrix--matrix multiplication}
+  Given $n$-by-$n$ matrices $A$ and $B$, we can compute $C = AB$
+  \begin{equation*}
+    C_{ij} \gets C_{ij } + \sum_k A_{ik} B_{kj}
+  \end{equation*}
+  with
+\begin{minted}[fontsize=\normalsize]{c}
+          for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+              for (int k = 0; k < n; k++)
+                C[i*n + j] += A[i*n + k] * B[k*n + j];
+\end{minted}
+
+  % Same story here (or at least it was in the 90s!).
+\end{frame}
+
+\newcommand{\thebigslide}[2]{%
 \begin{frame}
-  \maketitle
-\end{frame}
+  \frametitle{Two-level memory model (``fast'' and ``slow'')}
 
-\begin{frame}[fragile]
-  \frametitle{A beginning}
-  We've seen that for high floating point performance we need
-  vectorisation
+  \vskip 3pt
 
-  \begin{challenge}{What does this mean for code?}
-    Vectorisation is typically a transformation performed on \emph{loops}
-    \begin{enumerate}
-    \item Which loops can be vectorised?
-    \item How do we convince the compiler to vectorise them?
-    \item What might we expect? $\Rightarrow$ roofline and other models
-    \end{enumerate}
-  \end{challenge}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Simple guidelines}
-  \begin{challenge}{Necessary}
-    \begin{enumerate}
-    \item Inner loop
-    \item Countable (number of iterations is known at loop entry)
-    \item Single entry/exit
-    \item No conditionals (but\dots)
-    \item No function calls (but\dots)
-    \end{enumerate}
-  \end{challenge}
-  \begin{exampleblock}{Best performance when}
-    \begin{enumerate}
-    \item Simple inner loops (ideally stride-1 access)
-    \item Minimize indirect addressing
-    \item Align data structures to SIMD width
-    \end{enumerate}
-  \end{exampleblock}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Details}
-  \begin{answer}{Inner loop}
-\begin{minted}{c}
-   for (i = 0; i < N; i++)
-     for (j = 0; j < P; j++) // Vectorisation candidate
-       ...
-\end{minted}
-  \end{answer}
-  \begin{answer}{Not countable}
-\begin{minted}{c}
-   for (i = 0; i < N; i++)
-     for (j = 0; j < P; j++) // Not vectorisable
-       if (a[j] < 2.0)       // data-dependent exit
-         break;
-\end{minted}
-  \end{answer}
-\end{frame}
-\begin{frame}[fragile]
-  \frametitle{Details}
-  \begin{answer}{Conditionals}
-\begin{minted}{c}
-   for (i = 0; i < N; i++) // Vectorisable with masking
-     if (data[i] > 0)
-       sum += data[i];
-\end{minted}
-  \end{answer}
-  \begin{answer}{Function calls}
-\begin{minted}{c}
-   for (i = 0; i < N; i++) // Not vectorisable
-     sum += some_function(data[i]);
-\end{minted}
-    Can get this to vectorise if \texttt{some\_function} can be
-    \emph{inlined}.
-  \end{answer}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{SIMD units, a reminder}
   \begin{columns}
-    \begin{column}{0.4\textwidth}
-\begin{minted}{c}
-double *a, *b, *c;
-...
-for (i = 0; i < N; i++)
-  c[i] = a[i] + b[i];
-\end{minted}
-
-      \vspace{\baselineskip}
-      Register widths:
-      \vspace{\baselineskip}
-      \includegraphics[width=\textwidth]{figures/registerwidth}
-
-      \begin{challenge}{Challenge}
-        Best code requires SIMD loads, stores, and arithmetic.
-      \end{challenge}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}[wide=5pt,itemsep=8pt]
+      \item $\textcolor{MidnightBlue}{m}$: \# data elements moved
+      \item $\textcolor{MidnightBlue}{f}$: \# flops
+      \end{itemize}
     \end{column}
-    \begin{column}{0.6\textwidth}
-      \only<1>{Scalar addition, 1 output element per instruction.
-        \begin{center}
-          \includegraphics[width=0.9\textwidth]{figures/scalaradd}
-        \end{center}}
-      \only<2>{AVX addition, 4 output elements per instruction.
-        \begin{center}
-          \includegraphics[width=0.9\textwidth]{figures/vectoradd}
-        \end{center}}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}[wide=2pt,itemsep=8pt]
+      \item $\textcolor{BrickRed}{t_m}$: time per memory access
+      \item $\textcolor{BrickRed}{t_f} \ll t_m$ time per flop
+      \end{itemize}
     \end{column}
   \end{columns}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Data types in SIMD registers}
-  Will focus on AVX (Advanced Vector eXtensions). 32-byte (256 bit)
-  registers.
+  \vskip 13pt
 
   \begin{center}
-    \includegraphics[width=\textwidth]{figures/vectorregisterdatatypes}
+    $\textcolor{MidnightBlue}{q =: f/m}$ average flops per slow memory access
   \end{center}
 
-  Machine learning is really excited about half precision because
-  ``look how many numbers you can handle''.
-\end{frame}
+  \vskip 5pt
+  \hrule
+  \vskip 5pt
 
-\begin{frame}[fragile]
-  \frametitle{What does the compiler do?}
-  \begin{exampleblock}{Unrolling}
-    \vspace{0.5\baselineskip}
-    \begin{columns}[t]
-      \begin{column}{0.37\textwidth}
-        Before
-\begin{minted}{c}
-for (i = 0; i < n; i++)
-  c[i] = a[i] + b[i];
-\end{minted}
-      \end{column}
-      \begin{column}{0.53\textwidth}
-        After
-\begin{minted}{c}
-// Vectorisable loop
-for (i = 0; i < n; i += 4) {
-  c[i] = a[i] + b[i];
-  c[i+1] = a[i+1] + b[i+1];
-  c[i+2] = a[i+2] + b[i+2];
-  c[i+3] = a[i+3] + b[i+3];
-}
-// Remainder loop
-for (i = (n/4)*4; i < n; i++)
-  c[i] = a[i] + b[i];
-\end{minted}
-      \end{column}
-    \end{columns}
-    \begin{center}
-      {\large Don't do this by hand.}
-    \end{center}
-  \end{exampleblock}
-\end{frame}
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \onslide<#1->{%
+      \centering Minimum time to solution
+      \begin{equation*}
+        \textcolor{BrickRed}{t_f} \cdot \textcolor{MidnightBlue}{f}%
+        \vphantom{\frac{t_M}{t_{f}}}
+      \end{equation*}}
+    \end{column}
+    \hfill
+    \vrule
+    \hfill
+    \begin{column}{0.45\textwidth}
+      \onslide<#2->{%
+      \centering Typical time to solution
+      \begin{equation*}
+        \textcolor{MidnightBlue}{f} \; \textcolor{BrickRed}{t_f} +
+        \textcolor{MidnightBlue}{m}
+        \;  \textcolor{BrickRed}{t_m} =
+        \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
+        \left(
+          \mathsf{1} +
+          \textcolor{BrickRed}{\frac{t_m}{t_f}} \cdot
+          \textcolor{MidnightBlue}{\frac{\mathsf{1}}{q}}
+        \right)
+      \end{equation*}}
+    \end{column}
+  \end{columns}
 
-\begin{frame}[fragile]
-  \frametitle{Roadblocks}
-  \begin{challenge}{Carried dependencies}
-    \begin{columns}
-      \begin{column}{0.45\textwidth}
-\begin{minted}{c}
-for (i = 1; i < n; i++)
-  c[i] = c[i] + c[i-1];
-\end{minted}
-        This has a \emph{loop carried dependency}.
-      \end{column}
-      \begin{column}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{figures/loopcarrieddependency}
-      \end{column}
-    \end{columns}
-  \end{challenge}
-\end{frame}
+  \vskip 5pt
+  \hrule
+  \vskip 15pt
 
-\begin{frame}[fragile]
-  \frametitle{Roadblocks}
-  \begin{challenge}{Pointer aliasing (C/C++ only)}
-\begin{minted}{c}
-  void foo(double *a, double *b, double *c, int n) {
-    for (int i = 0; i < n; i++)
-      a[i] = b[i] + c[i];
-  }
-\end{minted}
-  \end{challenge}
-  \begin{exampleblock}{This is allowed}
-\begin{minted}{c}
-  void bar(double *data, int n) {
-    double *a = data + 2;
-    double *b = data + 1;
-    double *c = data;
-    // carried dependence in loop
-    foo(a, b, c, n - 3);
-  }
-\end{minted}
-  \end{exampleblock}
-\end{frame}
-\begin{frame}[fragile]
-  \frametitle{Roadblocks}
-  \begin{exampleblock}{This is allowed}
-\begin{minted}{c}
-  void bar(double *data, int n) {
-    double *a = data + 2;
-    double *b = data + 1;
-    double *c = data;
-    foo(a, b, c, n - 3);
-  }
-\end{minted}
-  \end{exampleblock}
   \begin{center}
-    \includegraphics[height=0.3\textheight]{figures/pointeraliasing}
+    \textcolor{BrickRed}{hardware} \qquad \textcolor{MidnightBlue}{software}
   \end{center}
-\end{frame}
+\end{frame}}
+
+\thebigslide{2}{3}
 
 \begin{frame}[fragile]
-  \frametitle{Pointer aliasing solution}
-  \begin{challenge}{Pointer aliasing (C/C++ only)}
-\begin{minted}{c}
-  void foo(double *a, double *b, double *c, int n) {
-    for (int i = 0; i < n; i++)
-      a[i] = b[i] + c[i];
-  }
+  \frametitle{Na\"ive matrix-multiply}
+  \begin{onlyenv}<1>
+\begin{minted}[fontsize=\normalsize]{c}
+ for (int i = 0; i < n; i++)
+   for (int j = 0; j < n; j++)
+     for (int k = 0; k < n; k++)
+       C[i*n + j] = C[i*n + j] + A[i*n + k] * B[k*n + j];
 \end{minted}
-  \end{challenge}
-  \begin{itemize}
-  \item Smart compiler will ``multiversion'' this code. Check for
-    aliasing and dispatch to appropriate version (expensive in hot
-    loops).
-  \item You can guarantee that pointers won't alias (C99 or better,
-    not C++) with \texttt{restrict} keyword (\texttt{\_\_restrict\_\_}
-    in many C++ compilers)
-\begin{minted}{c}
-  void foo(double * restrict a, double * restrict b,
-           double * restrict c, int n)
-\end{minted}
-  \end{itemize}
-\end{frame}
+    \vskip 10pt
 
-\begin{frame}[fragile]
-  \frametitle{Options for generating SIMD code}
-  \begin{answer}{In decreasing order of preference}
-    \begin{enumerate}
-    \item Compiler does it for you (but\dots)
-    \item You tell the compiler what to do (directives)
-    \item You choose a different (better) programming model. OpenCL,
-      ispc
-    \item You use \emph{intrinsics} (C/C++ only)
-    \item You write assembly code
-    \end{enumerate}
-  \end{answer}
-
-\begin{minted}[fontsize=\small]{c}
-#include <x86intrin.h>
-void foo(...) {
-  for (j = 0; j < N; j += 8) {
-    t0 = _mm_loadu_ps(data + j);
-    t1 = _mm_loadu_ps(data + j + 4);
-    s0 = _mm_loadu_ps(s0, t0);
-    s1 = _mm_loadu_ps(s1, t1);
-}
-\end{minted}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Compiler options: Intel}
-  \begin{itemize}
-  \item At \texttt{-O2} or above, intel compiler will start
-    vectorising
-  \item Specific vector instruction sets can be selected with
-    \texttt{-xFOO}
-    \begin{enumerate}
-    \item \texttt{-xSSE2} Everything post 2000ish
-
-    \item \texttt{-xAVX} SandyBridge/IvyBridge (quite old)
-
-    \item \texttt{-xCORE-AVX2} Haswell/Broadwell (somewhat old)
-    \item \texttt{-xCORE-AVX512} Skylake/Icelake (pretty recent)
-    \end{enumerate}
-  \item Also prefer to set \texttt{-march=RELEVANTCPU},
-    e.g.~\texttt{-march=broadwell}
-  \item If you want AVX512 to really work, also need
-    \texttt{-qopt-zmm-usage=high}
-  \item Tell the compiler there are no pointer aliasing issues with
-    \texttt{-fno-alias}. Don't lie here!
-  \item See \texttt{icc -help} for more
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Compiler options: GCC}
-  \begin{itemize}
-  \item At \texttt{-O2} GCC vectorises if you also say
-    \texttt{-ftree-vectorize} (or just use \texttt{-O3}).
-  \item Specific instruction sets with
     \begin{itemize}
-    \item \texttt{-msse2}
-    \item \texttt{-mavx}
-
-    \item \texttt{-mavx2} + \texttt{-mfma} (to enable FMAs)
-    \item \texttt{-mavx512f}
-    \item See \texttt{gcc --help-target} for more
+    \item $\mathsf 2n^\mathsf{3} = \mathcal{O}(n^\mathsf{3})$ flops
+      and $\mathsf{3\cdot 8 n^2}$ bytes of memory
+    \item $\textcolor{MidnightBlue}{q}$ potentially $\mathcal{O}(n)$,
+      arbitrarily large for large $n$
     \end{itemize}
-  \item Also prefer to set \texttt{-march=RELEVANTCPU},
-    e.g.~\texttt{-march=broadwell}
-  \item Provide a preferred vector width (in bits) with
-    \texttt{-mprefer-vector-width=\{128,256,512\}}
-  \item Tell the compiler there are no pointer aliasing issues with
-    \texttt{-fargument-noalias}. Don't lie here!
-  \end{itemize}
-\end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{How to know what is happening}
-  \begin{itemize}
-  \item Compilers can provide feedback on what they are doing
-  \item Intel compiler is by \emph{far} the best here
-  \item Enable output with \texttt{-qopt-report=n} ($n \in \{1, 2, 3,
-    4, 5\}$) with larger values producing more detail
-  \end{itemize}
-\begin{exampleblock}{Example}
-  \begin{columns}
-    \begin{column}{0.3\textwidth}
-\begin{minted}[fontsize=\scriptsize]{c}
- for (int i=1; i<n;i++)
-   a[i] = a[i]+a[i-1];
+    \begin{center}
+      \begin{tikzpicture}[nodes in empty cells,
+        inner sep=0cm,
+        nodes={minimum width=0.55cm, minimum height=0.55cm, text
+          height=0.35cm, text depth=0.15cm},
+        row sep=-\pgflinewidth, column sep=-\pgflinewidth]
+        \matrix(Cout)[draw, matrix of nodes]
+        {
+          & & & \\
+          & & & \\
+          &|[fill=red!50]| $C_{ij}$ & & \\
+          & & & \\
+        };
+        \node[right=0cm of Cout] (eq) {$=$};
+        \matrix(Cin)[right=0cm of eq, draw, matrix of nodes]
+        {
+          & & & \\
+          & & & \\
+          &|[fill=red!50]| $C_{ij}$ & & \\
+          & & & \\
+        };
+        \node[right=0cm of Cin] (plus) {$+$};
+        \matrix(Ain)[right=0cm of plus, draw, matrix of nodes,
+        row 3/.style={nodes={fill=red!50}}]
+        {
+          & & & \\
+          & & & \\
+          & $A_{i}$ & & \\
+          & & & \\
+        };
+        \node[right=0cm of Ain] (times) {$\times$};
+        \matrix(Bin)[right=0cm of times, draw, matrix of nodes,
+        column 2/.style={nodes={fill=red!50}}]
+        {
+          &  & & \\
+          &  & & \\
+          & $B_{j}$ & & \\
+          & & & \\
+        };
+      \end{tikzpicture}
+    \end{center}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+\begin{minted}[fontsize=\normalsize, mathescape=true]{c}
+for (int i = 0; i < n; i++)
+  // Read row $i$ of $A$ into fast memory
+  for (int j = 0; j < n; j++)
+    // Read $C_{ij}$ into fast memory
+    // Read column $j$ of $B$ into fast memory
+    for (int k = 0; k < n; k++)
+      C[i*n + j] = C[i*n + j] + A[i*n + k] * B[k*n + j];
+      // Write $C_{ij}$ back to slow memory
 \end{minted}
-    \end{column}
-    \begin{column}{0.6\textwidth}
-\begin{minted}[fontsize=\scriptsize]{sh}
-Begin optimization report for: foo(double *, int)
- Report from: Vector optimizations [vec]
-LOOP BEGIN at <source>(6,3)
- remark #15344: loop was not vectorized:
-   vector dependence prevents vectorization
-
- remark #15346: vector dependence: assumed
-   FLOW dependence between a[i] (7:5)
-        and a[i-1] (7:5)
-LOOP END
-\end{minted}
-    \end{column}
-  \end{columns}
-\end{exampleblock}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{What if things aren't vectorised}
-  \begin{itemize}
-  \item Suppose you know that a particular loop is vectorisable, and
-    should be, but the compiler just won't do it.
-  \item[$\Rightarrow$] use OpenMP SIMD pragmas
-  \item Turn on with \texttt{-qopenmp-simd} (Intel);
-    \texttt{-fopenmp-simd} (GCC)
-  \item Basic usage \texttt{\#pragma omp simd}
-  \item Tells the compiler ``it's fine, please vectorise''
-    $\Rightarrow$ don't lie!
-    \begin{challenge}{Example}
-      \begin{columns}
-        \begin{column}{0.45\textwidth}
-          Prerequisites
-          \begin{itemize}
-          \item Countable loop
-          \item Inner loop
-          \end{itemize}
-        \end{column}
-        \begin{column}{0.45\textwidth}
-\begin{minted}{c}
-for (j = 0; j < n; j++)
-  #pragma omp simd
-  for (i = 0; i < n; i++)
-    b[j] += a[j*n + i];
-\end{minted}
-        \end{column}
-      \end{columns}
-    \end{challenge}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Overriding the compiler cost model}
-  \begin{itemize}
-  \item Compilers decide to do things based on some cost model
-  \item[$\Rightarrow$] if the cost model is wrong, they may take
-    ``bad'' decisions
-  \item For vectorisation purposes we usually need to say ``please
-    vectorise this loop'' or ``please unroll this loop''.
-  \end{itemize}
-  \begin{exampleblock}{Example}
-    \vspace{0.5\baselineskip}
-    \begin{columns}[t]
-      \begin{column}{0.45\textwidth}
-        Vectorisation
-\begin{minted}{c}
-#pragma omp simd
-\end{minted}
-      \end{column}
-      \begin{column}{0.45\textwidth}
-        Unrolling
-\begin{minted}{c}
-// Intel
-#pragma unroll
-#pragma unroll(n)
-// GCC
-#pragma GCC unroll(n)
-\end{minted}
-      \end{column}
-    \end{columns}
-  \end{exampleblock}
+  \end{onlyenv}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Exercise}
+  \frametitle{Number of slow memory references}
+  \begin{align*}
+    m &= \mathsf{n^3} &\text{each column of $B$ is read $n$ times}\\
+      &+ \mathsf{n^2} &\text{each row of $A$ is read once}\\
+      &+ \mathsf{2n^2} & \text{each entry of $C$ is read once and
+                         written once}\\
+      &= \mathsf{(n^3 + 3n^2)}
+  \end{align*}
+  Hence
+  \begin{equation*}
+    \mathsf{\lim_{n\to \infty} \textcolor{MidnightBlue}{q}
+      = \frac{\textcolor{MidnightBlue}{f}}{\textcolor{MidnightBlue}{m}}
+      = \frac{2n^3}{(n^3 + 3n^2)}
+      = 2}
+  \end{equation*}
+\end{frame}
+
+\thebigslide{1}{1}
+
+\begin{frame}
+  \frametitle{From model to prediction}
   \begin{itemize}
-  \item What do you need to do to convince Intel compiler to vectorise the
-    GEMM micro kernel?
-  \item[$\Rightarrow$] Exercise 9.
+  \item For three nested loops, predicted \emph{typical} time to solution is:
+    \begin{equation*}
+      T =
+      \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
+      \left(
+        \mathsf{1} +
+        \frac{\textcolor{BrickRed}{t_m}}
+        {\mathsf{\textcolor{MidnightBlue}{2}}\;\textcolor{BrickRed}{t_f}}
+      \right)
+      \end{equation*}
+
+    \item<2-> Memory \emph{latency} of about 200 cycles per cache line (8 doubles)
+      \pause
+    \item<3-> Approximating $\mathsf{\textcolor{BrickRed}{t_m} \approx 200 / 8 = 25}$, and say $\mathsf{\textcolor{BrickRed}{t_f} = 1}$:
+      \begin{equation*}
+        \mathsf{T =
+          \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
+          \left(1 + \frac{25}{2}\right) =
+          13.5 \; \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}}
+      \end{equation*}
+    \item<3-> \structure{Estimate:} Maximum 7\% flop peak.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Measurement}
+  \begin{itemize}
+  \item Single core Intel i5-8259U.
+  \item 2 4-wide FMAs per cycle $\Rightarrow$ 16 DP Flops/cycle.
+  \item[$\Rightarrow$] Peak is $3.6 \cdot 16 = 57.6$ GFlops/s, model
+    predicts $4.03$GFlops/s.
+  \end{itemize}
+  \begin{center}
+    \begin{tikzpicture}
+      \pgfplotstableset{create on use/flops/.style={
+          create col/expr={1e-9*\thisrow{FLOP}/\thisrow{TIME}}}};
+      \begin{axis}[height=0.7\textheight,
+        xlabel near ticks,
+        xlabel={Matrix size},
+        ylabel near ticks,
+        ylabel={GFlop/s},
+        legend style={fill=bgcolor}]
+        \addplot+ table[x=N, y=flops] {../figures/gemm-basic.dat};
+        \addlegendentry{Triple loop};
+        \addplot+ [domain=0:3072, mark=none, line width=2] {4.03};
+        \addlegendentry{Model};
+      \end{axis}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+  % \begin{itemize}
+  % \item Problem is that we move rows and columns into fast memory, and
+  %   then evict them
+  % \item Need way of keeping the loaded data in fast memory as long as
+  %   possible.
+  % \item[$\Rightarrow$] tile iterations
+  % \end{itemize}
+
+\begin{frame}[fragile]
+  \frametitle{How to improve reuse?}
+  \begin{onlyenv}<1>
+\begin{minted}[fontsize=\small, mathescape=true]{c}
+// Treat $A, B, C \in \left(\mathbb{R}^{b \times b}\right)^{N \times N}$
+// $N \times N$ matrices where each entry is a $b \times b$ matrix.
+for (int i = 0; i < N; i++)
+  for (int j = 0; j < N; j++)
+    // Read block $C_{ij}$ into fast memory
+    for (int k = 0; k < n; k++)
+      // Read block $A_{ik}$ into fast memory
+      // Read block $B_{kj}$ into fast memory
+      // Do matrix multiply on the blocks
+      C[i*N + j] = C[i*N + j] + A[i*N + k] * B[k*N + j];
+      // Write block $C_{ij}$ back to slow memory
+
+
+\end{minted}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+\begin{minted}[fontsize=\small, mathescape=true]{c}
+// Treat $A, B, C \in \left(\mathbb{R}^{b \times b}\right)^{N \times N}$
+// $N \times N$ matrices where each entry is a $b \times b$ matrix.
+for (int ii = 0; ii < N; ii++)
+  for (int jj = 0; jj < N; jj++)
+    for (int kk = 0; kk < N; kk++)
+      for (int i_ = 0; i_ < b; i_++)
+        for (int j_ = 0; j_ < b; j_++)
+          for (int k_ = 0; k_ < b; k_++) {
+             const int i = ii*b + i_;
+             const int j = jj*b + j_;
+             const int k = kk*b + k_;
+             C[i*n + j] = C[i*n + j] + A[i*n + k] * B[k*n + j];
+          }
+\end{minted}
+  \end{onlyenv}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What did that do to the data movement?}
+  \vskip -15pt
+  \begin{align*}%
+    m &= N n^\mathsf{2} &\text{each block of $B$ is read $N^\mathsf{3}$ times%
+      % $\Rightarrow N^\mathsf{3} b^\mathsf{2} = N^\mathsf{3} (n/N)^\mathsf{2} = N n^\mathsf{2}$
+        }\\
+      &+ N n^\mathsf{2} &\text{each block of $A$ is read $N^\mathsf{3}$ times}\\
+      &+ \mathsf{2} n^\mathsf{2} &\text{each block of $C$ is read once and written
+        once}\\
+      &= \mathsf{2 n^2(N+1)}
+  \end{align*}
+  Hence
+  \begin{equation*}
+    \lim_{n\to\infty} \textcolor{MidnightBlue}{q} =
+    \frac{\textcolor{MidnightBlue}{f}}{\textcolor{MidnightBlue}{m}} =
+    \frac{\mathsf{2} n^\mathsf{3}}{\mathsf{2}n^\mathsf{2}\mathsf{(N + 1)}} \approx
+    \frac{n}{N} = b \gg \mathsf{2}
+  \end{equation*}
+
+  \pause
+
+  \structure{Limit on $b$}: still must still fit in fast memory.
+
+
+% \midrule
+
+% \small Lam, Rothberg, and Wolf.
+% \emph{The Cache Performance and Optimization of Blocked Algorithms} (1991)
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{From model to prediction}
+  \begin{itemize}
+  \item For three nested loops, predicted \emph{typical} time to solution is:
+    \begin{equation*}
+      T =
+      \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
+      \left(
+        \mathsf{1} +
+        \frac{\textcolor{BrickRed}{t_m}}
+        {\mathsf{\textcolor{MidnightBlue}{2}}\;\textcolor{BrickRed}{t_f}}
+      \right)
+      \end{equation*}
+
+    \item Memory \emph{latency} of about 200 cycles per cache line (8 doubles)
+      \pause
+    \item Approximating $\mathsf{t_m \approx 200 / 8 = 25}$, and say $\mathsf{t_f = 1}$:
+      \begin{equation*}
+        \mathsf{T =
+          \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
+          \left(1 + \frac{25}{2}\right) =
+          13.5 \; \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}}
+      \end{equation*}
+    \item \structure{Estimate:} Maximum 7\% flop peak.
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{From model to machine characteristics}
+  \begin{itemize}
+  \item If algorithm is ``fast'' when $T \ge 50\%$ peak, then
+    \begin{equation*}
+      \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
+      \left(
+        \mathsf{1} +
+        \frac{\textcolor{BrickRed}{t_m}}
+        {\mathsf{\textcolor{MidnightBlue}\;\textcolor{BrickRed}{t_f}}}
+        \frac{\mathsf{1}}{\textcolor{MidnightBlue}{q}}
+      \right)
+      \le \mathsf 2\;
+      \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
+      \Leftrightarrow
+      \frac{\textcolor{BrickRed}{t_m}}
+      {\mathsf{\textcolor{MidnightBlue}\;\textcolor{BrickRed}{t_f}}}
+      \frac{\mathsf{1}}{\textcolor{MidnightBlue}{q}}
+      \le \mathsf{1}
+      \Leftrightarrow \textcolor{MidnightBlue}{q} \ge
+      \frac{\textcolor{BrickRed}{t_m}}
+      {\mathsf{\textcolor{MidnightBlue}\;\textcolor{BrickRed}{t_f}}}
+    \end{equation*}
+  \item For $\textcolor{BrickRed}{t_m} = 25$, $\textcolor{BrickRed}{t_f} = 1$
+    \Rightarrow $b \approx q \ge 25$.
+  \item To hold all three $b \times b$ matrices in cache we need
+
+    \begin{equation*}
+      \mathsf{3 b^2 = 3 \cdot 25^2 = 1875} \text{ doubles }
+      \approx 14.6\text{KB of fast memeory}
+    \end{equation*}
+  \item This is smaller than L1, but too large for registers.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Is this the best we can do?}
+  \begin{block}{Hong and Kung (1981)}
+    Any reorganization of this algorithm using only \emph{associativity} has
+    \vskip -10pt
+    \begin{equation*}
+      q = \mathcal{O}(\sqrt{M_\text{fast}})
+    \end{equation*}
+    \vskip -2pt
+    and the number of data elements moved (slow $\Leftrightarrow$ fast) is
+    \vskip -10pt
+    \begin{equation*}
+      \Omega\left(\frac{n^\mathsf{3}}{\sqrt{M_\text{fast}}}\right)
+    \end{equation*}
+    \vskip -2pt
+  \end{block}
+  \begin{itemize}
+  \item Exact values for the bounds are not known
+  \item Best bounds by Smith and van de Geijn (2017) %arXiv: 1702.02017
+  \item GotoBLAS/OpenBLAS approach approaches these bounds
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Exercise 8: tiled matrix--matrix multiplication}
+  \begin{enumerate}[itemsep=8pt]
+  \item Split into small groups
+  \item Download the code (three versions, one source)
+  \item Measure Flop rate as matrix size changes
+  \item Try different tile sizes
+  \item Ask questions!
+  \end{enumerate}
+\end{frame}
+
+\end{document}
+
+\begin{frame}
+  \frametitle{Is this the best we can do?}
+  \begin{center}
+    \begin{tikzpicture}
+      \pgfplotstableset{create on use/flops/.style={
+          create col/expr={1e-9*\thisrow{FLOP}/\thisrow{TIME}}}};
+      \begin{axis}[height=0.7\textheight,
+        xlabel near ticks,
+        xlabel={Matrix size},
+        ylabel near ticks,
+        ylabel={GFlop/s},
+        legend pos=outer north east,
+        legend style={fill=bgcolor}]
+        \addplot+ table[x=N, y=flops] {../figures/gemm-basic.dat};
+        \addlegendentry{Triple loop};
+        \addplot+ table[x=N, y=flops] {../figures/gemm-tiled.dat};
+        \addlegendentry{Tiled};
+        \addplot+ table[x=N, y=flops] {../figures/gemm-tiled-packed.dat};
+        \addlegendentry{Tiled packed};
+        \addplot+ [domain=0:3072, mark=none, line width=2] {57.6/2};
+        \addlegendentry{Model};
+      \end{axis}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Is this the best we can do?}
+  \begin{center}
+    \begin{tikzpicture}
+      \pgfplotstableset{create on use/flops/.style={
+          create col/expr={1e-9*\thisrow{FLOP}/\thisrow{TIME}}}};
+      \begin{axis}[height=0.7\textheight,
+        xlabel near ticks,
+        xlabel={Matrix size},
+        ylabel near ticks,
+        ylabel={GFlop/s},
+        legend pos=outer north east,
+        legend style={fill=bgcolor}]
+        \addplot+ table[x=N, y=flops] {../figures/gemm-basic.dat};
+        \addlegendentry{Triple loop};
+        \addplot+ table[x=N, y=flops] {../figures/gemm-tiled.dat};
+        \addlegendentry{Tiled};
+        \addplot+ table[x=N, y=flops] {../figures/gemm-tiled-packed.dat};
+        \addlegendentry{Tiled packed};
+        \addplot+ [domain=0:3072, mark=none, line width=2] {57.6/2};
+        \addlegendentry{Model};
+
+        \addplot+ table[x=N, y=flops] {../figures/gemm-openblas.dat};
+        \addlegendentry{OpenBLAS};
+
+        \addplot+ [domain=0:3072, mark=none, line width=2] {57.6};
+        \addlegendentry{Machine peak};
+      \end{axis}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What accounts for this difference?}
+  \begin{itemize}
+  \item Managed to get big matrices to behave like small ones with
+    naive code.
+  \item[$\Rightarrow$] reaching in-cache performance of the starting
+    point.
+  \item For better results, need to
+    \begin{enumerate}
+    \item Block for registers and all levels of cache
+    \item Perform data-layout transformation to promote (better) vectorisation
+    \end{enumerate}
+  \item Will look more at data layout transforms next time.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize}
+  \item Loop tiling can \emph{significantly} improve performance of
+    nested loops.
+  \item Particularly important to exploit data reuse.
+  \item For the ``last mile'' we have to do more. Mostly the same
+    idea, but thinking hard about data layout and explicit
+    vectorisation.
+  \item Simple models can be used to motivate whether things are worth trying.
+  \end{itemize}
+\end{frame}
+\end{document}
+
+
+\begin{frame}
+  \frametitle{From model to machine characteristics}
+  \begin{itemize}
+  \item If algorithm is ``fast'' when $T \ge 50\%$ peak, then
+    \begin{equation*}
+      f t_f \left(1 + \frac{t_m}{t_f}\frac{1}{q}\right) \le 2 t_f f \Leftrightarrow \frac{t_m}{t_f}\frac{1}{q} \le 1
+      \Leftrightarrow q \ge \frac{t_m}{t_f}
+    \end{equation*}
+  \item Again, approximate $t_m = 25$, $t_f = 1$
+  \item[$\Rightarrow$] $b \approx q \ge 25$.
+  \item Need to hold all three $b \times b$ matrices in cache
+
+  \item[$\Rightarrow$] Need space for $3 b^2 = 3 \cdot 25^2 = 1875$
+    matrix \emph{entries}, approximately $14.6$KB of fast memory $M_\text{fast}$.
+  \item This is smaller than L1, but larger than fits in registers.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Is this the best we can do?}
+  \begin{theorem}{Hong and Kung (1981)}
+    Any reorganization of this algorithm that only exploits
+    \emph{associativity} has
+    \begin{equation*}
+      q = \mathcal{O}(\sqrt{M_\text{fast}})
+    \end{equation*}
+    and the number of data elements moved between slow and fast memory
+    is
+    \begin{equation*}
+      \Omega\left(\frac{n^3}{\sqrt{M_\text{fast}}}\right)
+    \end{equation*}
+  \end{theorem}
+
+  \begin{itemize}
+  \item Exact values for the bounds are not known, the best bounds are
+    provided by Smith and van de Geijn (2017) \texttt{arXiv:
+      1702.02017 [cs.CC]}
+  \item The GotoBLAS/OpenBLAS approach approaches these bounds.
+  \end{itemize}
+\end{frame}
+\begin{frame}
+  \frametitle{What did that do to the data movement?}
+  \begin{align*}
+    m &= N n^2 \quad \text{each block of $B$ is read $N^3$ times
+        $\Rightarrow N^3 b^2 = N^3 (n/N)^2 = N n^2$}\\
+      &+ N n^2 \quad \text{each block of $A$ is read $N^3$ times}\\
+      &+ 2 n^2 \quad \text{each block of $C$ is read once and written
+        once}\\
+      &= 2n^2(N+1)
+  \end{align*}
+  Hence
+  \begin{equation*}
+    \lim_{n\to\infty} q = \frac{f}{m} = \frac{2 n^3}{2n^2(N + 1)} =
+    \frac{n}{N} = b
+  \end{equation*}
+
+
+  \begin{itemize}
+  \item $b \gg 2$ so much better than previously. Can improve
+    performance by increasing $b$ \emph{as long as blocks still fit in
+      fast memory!}
+  \item Detailed analysis of blocked algorithms in Lam, Rothberg, and
+    Wolf \emph{The Cache Performance and Optimization of Blocked
+      Algorithms} (1991)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Exercise 8: tiled matrix--matrix multiplication}
+  \begin{itemize}
+  \item I provide some sample code that implements this scheme
+  \item[$\Rightarrow$] Exercise 8.
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Is this the best we can do?}
+  \begin{center}
+    \begin{tikzpicture}
+      \pgfplotstableset{create on use/flops/.style={
+          create col/expr={1e-9*\thisrow{FLOP}/\thisrow{TIME}}}};
+      \begin{axis}[height=0.7\textheight,
+        xlabel near ticks,
+        xlabel={Matrix size},
+        ylabel near ticks,
+        ylabel={GFlop/s},
+        legend pos=outer north east,
+        legend style={fill=bgcolor}]
+        \addplot+ table[x=N, y=flops] {../figures/gemm-basic.dat};
+        \addlegendentry{Triple loop};
+        \addplot+ table[x=N, y=flops] {../figures/gemm-tiled.dat};
+        \addlegendentry{Tiled};
+        \addplot+ table[x=N, y=flops] {../figures/gemm-tiled-packed.dat};
+        \addlegendentry{Tiled packed};
+        \addplot+ [domain=0:3072, mark=none, line width=2] {57.6/2};
+        \addlegendentry{Model};
+      \end{axis}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Is this the best we can do?}
+  \begin{center}
+    \begin{tikzpicture}
+      \pgfplotstableset{create on use/flops/.style={
+          create col/expr={1e-9*\thisrow{FLOP}/\thisrow{TIME}}}};
+      \begin{axis}[height=0.7\textheight,
+        xlabel near ticks,
+        xlabel={Matrix size},
+        ylabel near ticks,
+        ylabel={GFlop/s},
+        legend pos=outer north east,
+        legend style={fill=bgcolor}]
+        \addplot+ table[x=N, y=flops] {../figures/gemm-basic.dat};
+        \addlegendentry{Triple loop};
+        \addplot+ table[x=N, y=flops] {../figures/gemm-tiled.dat};
+        \addlegendentry{Tiled};
+        \addplot+ table[x=N, y=flops] {../figures/gemm-tiled-packed.dat};
+        \addlegendentry{Tiled packed};
+        \addplot+ [domain=0:3072, mark=none, line width=2] {57.6/2};
+        \addlegendentry{Model};
+
+        \addplot+ table[x=N, y=flops] {../figures/gemm-openblas.dat};
+        \addlegendentry{OpenBLAS};
+
+        \addplot+ [domain=0:3072, mark=none, line width=2] {57.6};
+        \addlegendentry{Machine peak};
+      \end{axis}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What accounts for this difference?}
+  \begin{itemize}
+  \item Managed to get big matrices to behave like small ones with
+    naive code.
+  \item[$\Rightarrow$] reaching in-cache performance of the starting
+    point.
+  \item For better results, need to
+    \begin{enumerate}
+    \item Block for registers and all levels of cache
+    \item Perform data-layout transformation to promote (better) vectorisation
+    \end{enumerate}
+  \item Will look more at data layout transforms next time.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize}
+  \item Loop tiling can \emph{significantly} improve performance of
+    nested loops.
+  \item Particularly important to exploit data reuse.
+  \item For the ``last mile'' we have to do more. Mostly the same
+    idea, but thinking hard about data layout and explicit
+    vectorisation.
+  \item Simple models can be used to motivate whether things are worth trying.
   \end{itemize}
 \end{frame}
 \end{document}
