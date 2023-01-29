@@ -166,3 +166,8 @@ touch]((mailto:massimiliano.fasi@durham.ac.uk)).
   to transpose large matrices whose size is a power of 2 (in our
   examples, this behaviour was clearly visible for matrices of size 4096
   $\times$ 4096 and multiples thereof.)
+
+- **Session 7**:
+[Slides]({{< static-ref "lecture-slides/07.pdf" >}}) –
+[Notes]({{< ref "notes/tiling.md" >}}) –
+[Exercise 8]({{< ref "exercises/exercise08.md" >}}) –

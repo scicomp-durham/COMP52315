@@ -8,10 +8,10 @@ bookHidden: true
 # The effect of loop tiling on matrix transposition
 
 In lectures, we saw a model for throughput of a matrix transpose
-operation. Here we're going to look at the effect on throughput of
-loop tiling. I provide an implementation of matrix transpose
-[with]({{< code-ref 7 "transpose-blocked.c" >}}) and [without]({{<
-code-ref 7 "transpose.c" >}}) one level of loop tiling.
+operation. Here we're going to look at the effect on throughput of loop
+tiling. You can find an implementation of naive transposition
+[here]({{< code-ref 7 "transpose.c" >}}) and one with one level of loop
+tiling [here]({{< code-ref 7 "transpose-blocked.c" >}}).
 
 ## Compile the code
 
