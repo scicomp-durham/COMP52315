@@ -32,27 +32,16 @@ documentation](https://linux.die.net/man/5/ssh_config).
 {{< /tabs >}}
 
 We will add some configuration block to make it simpler to access
-Hamilton. For Hamilton 7, you should add the block
-
+Hamilton. For Hamilton 8, you should add the block
 ```config
 Host hamilton
-  HostName hamilton.dur.ac.uk
-  User <username>
-```
-
-while for Hamilton 8 you should use
-
-```config
-Host hamilton8
   HostName hamilton8.dur.ac.uk
   User <username>
 ```
-
-`<username>` is a placeholder for your CIS username (four
+where `<username>` is a placeholder for your CIS username (four
 characters followed by two digits).
 
-Having done so, you can now write `ssh hamilton` and `ssh hamilton8`
-instead of `ssh <username>@hamilton.dur.ac.uk` and `ssh
+Having done so, you can now write `ssh hamilton` instead of and `ssh
 <username>@hamilton8.dur.ac.uk`, respectively.
 
 ### Passwordless login with ssh keys
@@ -77,8 +66,7 @@ you!
 
 Next, you must copy the _public_ key to the server you wish to log in
 to. You can do this (assuming you set up your ssh config as above) with
-`ssh-copy-id hamilton` (for Hamilton 7) or `ssh-copy-id hamilton8` (for
-Hamilton 8).
+`ssh-copy-id hamilton`.
 
 Now, when you log in, you will be prompted for the passphrase of the
 private key before being asked for your password. This may not seem like
