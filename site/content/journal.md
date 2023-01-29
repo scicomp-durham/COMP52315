@@ -143,3 +143,26 @@ touch]((mailto:massimiliano.fasi@durham.ac.uk)).
 [Notes]({{< ref "notes/tiling.md" >}}) –
 [Exercise 7]({{< ref "exercises/exercise07.md" >}}) –
 [Recording](https://durham.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=8b58f649-6a44-4b56-a979-af9000968342)
+
+  In this session, we looked at cache effects in matrix transposition.
+  We began by developing a simple performance model for this operation,
+  which requires memory accesses but no computation, and we saw that the
+  performance of a naive implementation is much worse than our model
+  would predict. We argued that this is due to a poor usage of the
+  cache, as the algorithm implemented in a naive way cannot exploit
+  cache locality when the matrices are large.
+
+  We then discussed how cache utilization can be improved by combining
+  *strip mining*, which splits large loops into several small chunks of
+  fixed size, and *loop reordering*. We argued that this technique is
+  most useful to address the poor performance of nested loops, and we
+  used our model to make sense of it.
+
+  In [Exercise 7]({{< ref "exercises/exercise07.md" >}}), we compared
+  the performance of two implementation of matrix transposition, a naive
+  one based on nested loops and a more advanced one supporting tiling,
+  and our experiments mostly confirmed our expectations. We also
+  stumbled over a well-known but quite surprising phenomenon when trying
+  to transpose large matrices whose size is a power of 2 (in our
+  examples, this behaviour was clearly visible for matrices of size 4096
+  $\times$ 4096 and multiples thereof.)
