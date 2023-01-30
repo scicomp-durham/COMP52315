@@ -15,7 +15,7 @@ login.
 ### The `ssh-config` configuration file
 
 {{< tabs >}}
-{{< tab "Mac/Linux" >}}
+{{< tab "GNU/Linux and MacOS" >}}
 When you run it, `ssh` reads a configuration file at
 `$HOME/.ssh/config`. This file
 contains configuration commands that the ssh client applies. For full
@@ -73,9 +73,27 @@ private key before being asked for your password. This may not seem like
 an advantage, but you can set up an ssh-agent that saves the passphrases
 on your machine for the duration of a login session.
 
-Getting the agent setup continues to be complicated, although possibly
-your system just does it by magic. GitHub have a [useful
-guide](https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent)
-(ignore the github-specific bits). On Mac, [this stackexchange
+### Setting up the SSH-Agent
+Getting the agent setup continues to be complicated, although some recent
+GNU/Linux systems just does it by magic.
+
+{{< tabs >}}
+{{< tab "GNU/Linux" >}}
+The first two steps of this [GitHub guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent?platform=linux#adding-your-ssh-key-to-the-ssh-agent)
+should be enough on most GNU/Linux systems.
+{{< /tab >}}
+{{< tab "MacOS" >}}
+The first three steps of this [GitHub guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent?platform=mac#adding-your-ssh-key-to-the-ssh-agent)
+are a good starting point. This [StackExchange
 question](https://apple.stackexchange.com/questions/48502/how-can-i-permanently-add-my-ssh-private-key-to-keychain-so-it-is-automatically)
-has some tips.
+has some additional tips.
+{{< /tab >}}
+{{< tab "Windows" >}}
+You can follow this [answer](https://stackoverflow.com/a/40720527) to a Stack
+Overflow [question](https://stackoverflow.com/q/18683092), The solution was
+found and tested by [Jiaming Zhang](mailto:jiaming.zhang@durham.ac.uk)
+(MiSCaDA class of 2023), who recommends using `Automatic` rather
+than `Automatic (Delayed Start)` so that the password is not needed after
+rebooting the machine.
+{{< /tab >}}
+{{< /tabs >}}
