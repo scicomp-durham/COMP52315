@@ -236,23 +236,28 @@ for (int i = 0; i < n; i++)
 
 \begin{frame}
   \frametitle{Measurement}
-  \begin{itemize}
-  \item Single core Intel i5-8259U.
-  \item 2 4-wide FMAs per cycle $\Rightarrow$ 16 DP Flops/cycle.
-  \item[$\Rightarrow$] Peak is $3.6 \cdot 16 = 57.6$ GFlops/s, model
-    predicts $4.03$GFlops/s.
+  \begin{itemize}[itemsep=8pt]
+    \small
+    % \item Single core Intel i5-8259U.
+  \item 2 4-wide FMAs per cycle $\Rightarrow$ 16 DP Flops/cycle
+  \item Peak is $\mathsf{3.6 \cdot 16 = 57.6}$ GFlops/s $\Rightarrow$
+    model predicts 4.03 GFlops/s
   \end{itemize}
+  \vskip 15pt
+  \pause
   \begin{center}
     \begin{tikzpicture}
       \pgfplotstableset{create on use/flops/.style={
           create col/expr={1e-9*\thisrow{FLOP}/\thisrow{TIME}}}};
-      \begin{axis}[height=0.7\textheight,
+      \begin{axis}[
+        height=6cm,
+        width = 14cm,
         xlabel near ticks,
-        xlabel={Matrix size},
+        xlabel={\small Matrix size},
         ylabel near ticks,
-        ylabel={GFlop/s},
-        legend style={fill=bgcolor}]
-        \addplot+ table[x=N, y=flops] {../figures/gemm-basic.dat};
+        ylabel={\small GFlop/s},
+        legend style={fill=bgcolor, font={\small}}]
+        \addplot+ [mark repeat=5] table[x=N, y=flops] {../figures/gemm-basic.dat};
         \addlegendentry{Triple loop};
         \addplot+ [domain=0:3072, mark=none, line width=2] {4.03};
         \addlegendentry{Model};
@@ -340,37 +345,9 @@ for (int ii = 0; ii < N; ii++)
 \end{frame}
 
 \begin{frame}
-  \frametitle{From model to prediction}
-  \begin{itemize}
-  \item For three nested loops, predicted \emph{typical} time to solution is:
-    \begin{equation*}
-      T =
-      \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
-      \left(
-        \mathsf{1} +
-        \frac{\textcolor{BrickRed}{t_m}}
-        {\mathsf{\textcolor{MidnightBlue}{2}}\;\textcolor{BrickRed}{t_f}}
-      \right)
-      \end{equation*}
-
-    \item Memory \emph{latency} of about 200 cycles per cache line (8 doubles)
-      \pause
-    \item Approximating $\mathsf{t_m \approx 200 / 8 = 25}$, and say $\mathsf{t_f = 1}$:
-      \begin{equation*}
-        \mathsf{T =
-          \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
-          \left(1 + \frac{25}{2}\right) =
-          13.5 \; \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}}
-      \end{equation*}
-    \item \structure{Estimate:} Maximum 7\% flop peak.
-  \end{itemize}
-\end{frame}
-
-
-\begin{frame}
   \frametitle{From model to machine characteristics}
   \begin{itemize}
-  \item If algorithm is ``fast'' when $T \ge 50\%$ peak, then
+  \item If algorithm is ``fast'' when $T \ge \mathsf{50}\%$ peak, then
     \begin{equation*}
       \textcolor{MidnightBlue}{f}\; \textcolor{BrickRed}{t_f}
       \left(
@@ -390,13 +367,13 @@ for (int ii = 0; ii < N; ii++)
       \frac{\textcolor{BrickRed}{t_m}}
       {\mathsf{\textcolor{MidnightBlue}\;\textcolor{BrickRed}{t_f}}}
     \end{equation*}
-  \item For $\textcolor{BrickRed}{t_m} = 25$, $\textcolor{BrickRed}{t_f} = 1$
-    \Rightarrow $b \approx q \ge 25$.
+  \item For $\textcolor{BrickRed}{t_m} = \mathsf{25}$,
+    $\textcolor{BrickRed}{t_f} = \mathsf{1}$
+    \Rightarrow $b \approx q \ge \mathsf{25}$.
   \item To hold all three $b \times b$ matrices in cache we need
-
     \begin{equation*}
-      \mathsf{3 b^2 = 3 \cdot 25^2 = 1875} \text{ doubles }
-      \approx 14.6\text{KB of fast memeory}
+      \mathsf{3 b^2 = 3 \cdot \mathsf{25}^2 = 1875} \text{ doubles }
+      \approx \mathsf{14.6}\text{KB of fast memory}
     \end{equation*}
   \item This is smaller than L1, but too large for registers.
   \end{itemize}
@@ -530,17 +507,17 @@ for (int ii = 0; ii < N; ii++)
 \begin{frame}
   \frametitle{From model to machine characteristics}
   \begin{itemize}
-  \item If algorithm is ``fast'' when $T \ge 50\%$ peak, then
+  \item If algorithm is ``fast'' when $T \ge \mathsf{50}\%$ peak, then
     \begin{equation*}
       f t_f \left(1 + \frac{t_m}{t_f}\frac{1}{q}\right) \le 2 t_f f \Leftrightarrow \frac{t_m}{t_f}\frac{1}{q} \le 1
       \Leftrightarrow q \ge \frac{t_m}{t_f}
     \end{equation*}
-  \item Again, approximate $t_m = 25$, $t_f = 1$
-  \item[$\Rightarrow$] $b \approx q \ge 25$.
+  \item Again, approximate $t_m = \mathsf{25}$, $t_f = $1
+  \item[$\Rightarrow$] $b \approx q \ge \mathsf{25}$.
   \item Need to hold all three $b \times b$ matrices in cache
-
-  \item[$\Rightarrow$] Need space for $3 b^2 = 3 \cdot 25^2 = 1875$
-    matrix \emph{entries}, approximately $14.6$KB of fast memory $M_\text{fast}$.
+  \item Need space for $3 b^2 = 3 \cdot \mathsf{25^2} = 1875$
+    matrix \emph{entries}, approximately $\mathsf{14.6}$KB of fast memory
+    $M_\text{fast}$.
   \item This is smaller than L1, but larger than fits in registers.
   \end{itemize}
 \end{frame}
