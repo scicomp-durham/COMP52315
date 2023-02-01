@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Run the sum_sp and sum_sp_avx benchmarks on a single core of a
-# shared node for vectors of size between 1kB and 1GB.
+# reserved node for vectors of size between 1kB and 1GB.
 
-#SBATCH -n 1
+#SBATCH -N 1
 #SBATCH --job-name="collect-sum-bm"
 #SBATCH -o collect-sum-bm.%J.out
 #SBATCH -e collect-sum-bm.%J.err

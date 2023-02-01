@@ -1,14 +1,15 @@
 #!/bin/bash
 
-# Run the clload on an increasing number of cores of a reserved node for
-# vectors of size between 1kB and 1GB.
+# Run the clload on an increasing number of cores of a reserved node.
+# The vectors are of increasing size and are chosen so to fill the
+# three levels of cache and then spill to main memory.
 
 #SBATCH -N 1
 #SBATCH --job-name="collect-bw-bm"
 #SBATCH -o collect-bw-bm.%J.out
 #SBATCH -e collect-bw-bm.%J.err
-#SBATCH -t 01:00:00
-#SBATCH -p test
+#SBATCH -t 03:00:00
+#SBATCH -p multi
 
 source /etc/profile.d/modules.sh
 
@@ -39,23 +40,21 @@ echo n_cores \
 max_cores_per_socket=64
 for n_cores in $(seq 1 64)
 do
-    # Compute number of sockets needed, and number of cores per socket.
-
     # Compute size of vector to be allocated to each socket.
     # number of cores * size of cache (in kB) * fraction we want to fill
-    L1_size=$((n_cores * 32 / 2))                 # half the cache
-    L2_size=$((n_cores * 512 / 2))                # half the cache
-    L3_size=$((n_cores * (16 * 1024) * 2 / 3))    # two thirds of the cache
+    L1_size=$((n_cores * 32 / 2))                # half cache
+    L2_size=$((n_cores * 512 / 2))               # half cache
+    L3_size=$((n_cores * (4 * 1024) * 2 / 3))    # two thirds of cache
 
     RAM_size=$((2 * 1024 * 1024))
 
     #Print number of cores.
-    # echo -n "$n_cores "
+    echo -n "$n_cores "
 
     # Print bandwidth for L1, L2, and L3 cache and for RAM.
-    for size in $RAM_size # $L1_size $L2_size $L3_size $RAM_size
+    for size in $L1_size $L2_size $L3_size $RAM_size
     do
-	mem_bandwidth_single=$(likwid-bench -t clload \
+        mem_bandwidth_single=$(likwid-bench -t clload \
                                             -w S0:${size}kB:${n_cores} \
                                             2> /dev/null \
                                    | grep MByte/s | cut -f 3)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Run the clcopy, clload, and clstore on a single core of a shared node for
-# vectors of size between 1kB and 1GB.
+# Run the clcopy, clload, and clstore benchmarks on a single core of a
+# reserved node for vectors of size between 1kB and 1GB.
 
 #SBATCH -n 1
 #SBATCH --job-name="collect-mem-bm"
