@@ -34,7 +34,9 @@ optimised-gemm.o: optimised-gemm.c micro-kernel.c parameters.h cflags.mk
 check: gemm
 	./gemm 10 15 21 CHECK
 
+# Usage:
+# make bench BENCH_MIN=100 BENCH_STEP=100 BENCH_MAX=2000
 bench: gemm
-	for n in $$(seq $(BENCH_MIN) $(BENCH_STEP) $(BENCH_MAX)); do \
-          ./gemm $$n $$n $$n BENCH; \
-        done > $(BENCH_OUTPUT)
+	@for n in $$(seq $(BENCH_MIN) $(BENCH_STEP) $(BENCH_MAX)); do \
+		./gemm $$n $$n $$n BENCH; \
+	done

@@ -58,9 +58,8 @@ touch](mailto:lawrence@wence.uk).
 
   We did a walkthrough of doing a roofline analysis. I got a bit
   confused with the data in the plots from the slides, so we did it
-  live with the BLIS GEMM implementation (see [exercise 9]({{< ref
-  "exercise09.md" >}})). Those are the drawn-in points in the
-  annotated slides.
+  live with the BLIS GEMM implementation. Those are the drawn-in points
+  in the annotated slides.
 
   I then looked at application of some of the ideas in the course to
   the [Firedrake](https://www.firedrakeproject.org/) finite element

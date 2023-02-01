@@ -26,3 +26,5 @@ Contains solution
 1. [The effect of loop tiling on matrix transposition]({{< ref "exercise07.md" >}})
 
 1. [Loop tiling for matrix–matrix multiplication]({{< ref "exercise08.md" >}})
+
+1. [Compiler feedback and the BLIS DGEMM]({{< ref "exercise09.md" >}})
