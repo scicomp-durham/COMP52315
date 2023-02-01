@@ -857,10 +857,12 @@ for (int i = 0; i < 100; i++)
         height=0.5\textheight,
         % ytick align=outside,
         % xtick align=outside,
+        % ymin=0,
+        % ymax=4e5,
         enlarge x limits=false,
         every axis plot/.append style={
-          mark repeat = 8,
-          mark phase = 7,
+          mark repeat = 7,
+          mark phase = 0,
           very thick}]
         \pgfplotstableread{multicore_bandwidth.dat}\mydata
 
@@ -869,18 +871,18 @@ for (int i = 0; i < 100; i++)
         legend style={font=\scriptsize, fill=bgcolor},
         ylabel={MB/s}, legend pos={south east}]
         \addplot[Blue, dashed, mark=o, mark options=solid] table[x=n_cores, y=L1_BW_s] \mydata;
-        \addlegendentry{L1 (1 socket)}
-        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*2, y=L1_BW_d] \mydata;
-        \addlegendentry{L1 (2 sockets)}
+        \addlegendentry{L1 (1 mem. domain)}
+        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*8, y=L1_BW_d] \mydata;
+        \addlegendentry{L1 (8 mem. domains)}
 
         \nextgroupplot[ticklabel style={font=\tiny},
         label style={font=\scriptsize},
         legend style={font=\scriptsize, fill=bgcolor},
         legend pos={south east}]
         \addplot[Blue, dashed, mark=o, mark options=solid] table[x=n_cores, y=L2_BW_s] \mydata;
-        \addlegendentry{L2 (1 socket)}
-        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*2, y=L2_BW_d] \mydata;
-        \addlegendentry{L2 (2 sockets)}
+        \addlegendentry{L2 (1 mem. domain)}
+        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*8, y=L2_BW_d] \mydata;
+        \addlegendentry{L2 (8 mem. domains)}
 
         \nextgroupplot[ticklabel style={font=\tiny},
         label style={font=\scriptsize},
@@ -888,9 +890,9 @@ for (int i = 0; i < 100; i++)
         legend style={font=\scriptsize, fill=bgcolor},
         ylabel={MB/s}, xlabel={Cores}, legend pos={south east}]
         \addplot[Blue, dashed, mark=o, mark options=solid] table[x=n_cores, y=L3_BW_s] \mydata;
-        \addlegendentry{L3 (1 socket)}
-        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*2, y=L3_BW_d] \mydata;
-        \addlegendentry{L3 (2 sockets)}
+        \addlegendentry{L3 (1 mem. domain)}
+        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*8, y=L3_BW_d] \mydata;
+        \addlegendentry{L3 (8 mem. domains)}
 
         \nextgroupplot[ticklabel style={font=\tiny},
         label style={font=\scriptsize},
@@ -898,83 +900,14 @@ for (int i = 0; i < 100; i++)
         xlabel style={yshift=1ex},
         xlabel={Cores}, legend pos={south east}]
         \addplot[Blue, dashed, mark=o, mark options=solid] table[x=n_cores, y=RAM_BW_s] {\mydata};
-        \addlegendentry{RAM (1 socket)}
-        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*2, y=RAM_BW_d] {\mydata};
-        \addlegendentry{RAM (2 sockets)}
+        \addlegendentry{RAM (1 mem. domain)}
+        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*8, y=RAM_BW_d] {\mydata};
+        \addlegendentry{RAM (8 mem. domains)}
       \end{groupplot}
     \end{tikzpicture}
   \end{center}
 \end{frame}
 
-
-
-
-\begin{frame}
-  \frametitle{Exercise 3: results (updated)}
-  \begin{center}
-    \begin{tikzpicture}
-      \begin{groupplot}[
-        group style={
-          group size=2 by 2,
-          ylabels at=edge left,
-          vertical sep=30,
-        },
-        width=0.5\textwidth,
-        height=0.5\textheight,
-        ymin=0,
-        ymax=4e5,
-        legend style={font=\tiny},
-        % ytick align=outside,
-        % xtick align=outside,
-        enlarge x limits=false,
-        every axis plot/.append style={
-          mark repeat = 8,
-          mark phase = 7,
-          very thick}]
-        \pgfplotstableread{multicore_bandwidth.dat}\mydata
-        \pgfplotstableread{new_data.dat}\mynewdata
-
-        \nextgroupplot[ticklabel style={font=\tiny},
-        label style={font=\scriptsize},
-        legend style={font=\scriptsize, fill=bgcolor},
-        ylabel={MB/s}, legend pos={north west}]
-        \addplot[Blue, dashed, mark=o, mark options=solid] table[x=n_cores, y=L3_BW_s] \mydata;
-        \addlegendentry{L3 (1 socket)}
-        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*2, y=L3_BW_d] \mydata;
-        \addlegendentry{L3 (2 sockets)}
-
-        \nextgroupplot[ticklabel style={font=\tiny},
-        label style={font=\scriptsize},
-        legend style={font=\scriptsize, fill=bgcolor},
-        legend pos={north west}]
-        \addplot[Blue, dashed, mark=o, mark options=solid] table[x=n_cores, y=2GB_s] \mynewdata;
-        \addlegendentry{2GiB (1 socket)}
-        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*2, y=2GB_d] \mynewdata;
-        \addlegendentry{2GiB (2 sockets)}
-
-        \nextgroupplot[ticklabel style={font=\tiny},
-        label style={font=\scriptsize},
-        xlabel style={yshift=1ex},
-        legend style={font=\scriptsize, fill=bgcolor},
-        ylabel={MB/s}, xlabel={Cores}, legend pos={north west}]
-        \addplot[Blue, dashed, mark=o, mark options=solid] table[x=n_cores, y=4GB_s] \mynewdata;
-        \addlegendentry{4GB (1 socket)}
-        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*2, y=4GB_d] \mynewdata;
-        \addlegendentry{4GB (2 sockets)}
-
-        \nextgroupplot[ticklabel style={font=\tiny},
-        label style={font=\scriptsize},
-        legend style={font=\scriptsize, fill=bgcolor},
-        xlabel style={yshift=1ex},
-        xlabel={Cores}, legend pos={north west}]
-        \addplot[Blue, dashed, mark=o, mark options=solid] table[x=n_cores, y=8GB_s] {\mynewdata};
-        \addlegendentry{8GB (1 socket)}
-        \addplot[Red, mark=square,] table[x expr=\thisrowno{0}*2, y=8GB_d] {\mynewdata};
-        \addlegendentry{8GB (2 sockets)}
-      \end{groupplot}
-    \end{tikzpicture}
-  \end{center}
-\end{frame}
 
 
 
