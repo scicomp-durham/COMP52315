@@ -142,7 +142,7 @@ touch]((mailto:massimiliano.fasi@durham.ac.uk)).
 [Slides]({{< static-ref "lecture-slides/06.pdf" >}}) –
 [Notes]({{< ref "notes/tiling.md" >}}) –
 [Exercise 7]({{< ref "exercises/exercise07.md" >}}) –
-[Recording](https://durham.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=8b58f649-6a44-4b56-a979-af9000968342)
+[Recording](https://durham.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=7a952d80-e5f4-485f-b348-af9500954751)
 
   In this session, we looked at cache effects in matrix transposition.
   We began by developing a simple performance model for this operation,
@@ -171,3 +171,27 @@ touch]((mailto:massimiliano.fasi@durham.ac.uk)).
 [Slides]({{< static-ref "lecture-slides/07.pdf" >}}) –
 [Notes]({{< ref "notes/tiling.md" >}}) –
 [Exercise 8]({{< ref "exercises/exercise08.md" >}}) –
+[Recording](https://durham.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=f94eec2d-42ca-4981-be8e-af900095a536)
+
+  In this session, we kept discussing the use of cache memory for matrix
+  operations, focusing on matrix–matrix multiplication. This operation
+  is more complicated than matrix transposition because it involves
+  three matrices, all of which have to be stored in cache to guarantee
+  reuse.
+
+  In [Exercise 8]({{< ref "exercises/exercise08.md" >}}), we tried to
+  compare three different algorithms for matrix—matrix multiplication: a
+  naive variant, one that uses tiles, and one that combines tiling and
+  packing. There were some issues with the compilation command, which
+  have hopefully been fixed in the updated version of the exercise.
+    + I had been testing the code with a different version of the Intel
+      compiler (`icc` rather than `icx`), which was much less aggressive
+      in its use of vectorisation. This is not the default compiler for
+      the `intel/2022.2` module that is the latest on Hamilton.
+    + Some of the flags (`-xHOST` in particular), which were accented by
+      `icc`, are not accepted by `icx` and cannot be used any longer.
+
+- **Session 8**:
+[Slides]({{< static-ref "lecture-slides/08.pdf" >}}) –
+[Notes]({{< ref "notes/tiling.md" >}}) –
+[Exercise 9]({{< ref "exercises/exercise09.md" >}})
