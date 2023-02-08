@@ -188,10 +188,24 @@ touch]((mailto:massimiliano.fasi@durham.ac.uk)).
       compiler (`icc` rather than `icx`), which was much less aggressive
       in its use of vectorisation. This is not the default compiler for
       the `intel/2022.2` module that is the latest on Hamilton.
-    + Some of the flags (`-xHOST` in particular), which were accented by
+    + Some of the flags (`-xHOST` in particular), which were accepted by
       `icc`, are not accepted by `icx` and cannot be used any longer.
 
 - **Session 8**:
 [Slides]({{< static-ref "lecture-slides/08.pdf" >}}) –
 [Notes]({{< ref "notes/tiling.md" >}}) –
-[Exercise 9]({{< ref "exercises/exercise09.md" >}})
+[Exercise 9]({{< ref "exercises/exercise09.md" >}}) –
+[Recording](https://durham.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=979428a6-2dba-43cb-9dc4-af9c0094e16f)
+
+  We started the session with an update on the results of [Exercise 3]({{< ref
+  "exercises/exercise03.md" >}}). We looked at the correct setup for the
+  exercise and we tried to make sense of the results.
+
+  We then moved on to vectorisation, which was the main topic for this final
+  session of the submodule. After a general introduction on the data parallelism
+  paradigm, we focused on the practical use of vectorisation in C and C++,
+  looking at code the compiler can vectorise automatically and at ways we can
+  help it with compiler- and OpenMP-specific `#pragma` directives.
+
+  In [Exercise 9]({{< ref "exercises/exercise09.md" >}}), we tried to vectorise
+  the BLIS DGEMM micro-kernel using only compiler flags.
