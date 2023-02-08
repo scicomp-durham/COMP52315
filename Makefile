@@ -13,22 +13,31 @@ pypdf = $(patsubst %.py,%.pdf,$(pyfigures))
 html: allcode pysvg
 	(cd site; hugo --minify --cleanDestinationDir)
 
-allslides: allfigures
+allslides: slidesfigures
+	cd slides; latexmk -pdflatex='pdflatex -interaction=nonstopmode -shell-escape -file-line-error -synctex=1' -pdf 0*.tex
+
+slidesfigures: allpng allpdf
+	mkdir slides/figures/
+	mv figures/*.png figures/*.pdf slides/figures/
 
 site/static/images:
 	mkdir -p $@
 
 pypng: site/static/images $(pypng)
-	rsync --delete -rupm figures/ site/static/images/auto/ --filter '+ */' --filter '+ *.png' --filter '- *'
+	rsync --delete -rupm figures/ site/static/images/auto/ \
+		--filter '+ */' --filter '+ *.png' --filter '- *'
 
 drawiopng: site/static/images $(drawiopng)
-	rsync --delete -rupm figures/ site/static/images/manual/ --filter '+ */' --filter '+ *.png' --filter '- *'
+	rsync --delete -rupm figures/ site/static/images/manual/ \
+		--filter '+ */' --filter '+ *.png' --filter '- *'
 
 pysvg: site/static/images $(pysvg)
-	rsync --delete -rupm figures/ site/static/images/auto/ --filter '+ */' --filter '+ *.svg' --filter '- *'
+	rsync --delete -rupm figures/ site/static/images/auto/ \
+		--filter '+ */' --filter '+ *.svg' --filter '- *'
 
 drawiosvg: site/static/images $(drawiosvg)
-	rsync --delete -rupm figures/ site/static/images/manual/ --filter '+ */' --filter '+ *.svg' --filter '- *'
+	rsync --delete -rupm figures/ site/static/images/manual/ \
+		--filter '+ */' --filter '+ *.svg' --filter '- *'
 
 allpdf: $(drawiopdf) $(pypdf)
 
@@ -57,3 +66,6 @@ allcode:
 		--filter '+ */' --filter '+ *.c' --filter '+ *.h' \
 		--filter '+ *.sh' --filter '+ *.tar.bz2' \
 		--filter '- *'
+
+clean:
+	rm -rf  figures/*.png figures/*.svg figures/*.pdf
