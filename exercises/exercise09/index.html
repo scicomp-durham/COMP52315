@@ -1,0 +1,76 @@
+<!doctype html><html lang=en dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Compiler feedback and the BLIS DGEMM #  We&rsquo;re going to look at how to interact with the compiler to obtain the so that it vectorise a loop the way we want it to.
+As our starting point we will use a C version of the GEMM micro-kernel used in the BLIS framework.
+We will only look at the optimization report (and at the assembly code) produced by the compiler, but we will not run the produced binary."><meta name=theme-color content="#FFFFFF"><meta property="og:title" content="Compiler feedback and the BLIS DGEMM"><meta property="og:description" content="Compiler feedback and the BLIS DGEMM #  We&rsquo;re going to look at how to interact with the compiler to obtain the so that it vectorise a loop the way we want it to.
+As our starting point we will use a C version of the GEMM micro-kernel used in the BLIS framework.
+We will only look at the optimization report (and at the assembly code) produced by the compiler, but we will not run the produced binary."><meta property="og:type" content="article"><meta property="og:url" content="https://scicomp-durham.github.io/COMP52315/exercises/exercise09/"><meta property="article:modified_time" content="2023-02-08T02:19:00+00:00"><title>Compiler feedback and the BLIS DGEMM | COMP52315 – Performance Engineering, Vectorisation and GPU Programming</title><link rel=icon href=/COMP52315/favicon.svg type=image/x-icon><link rel=stylesheet href=/COMP52315/book.min.0cb0b7d6a1ed5d0e95321cc15edca4d6e9cc406149d1f4a3f25fd532f6a3bb38.css integrity="sha256-DLC31qHtXQ6VMhzBXtyk1unMQGFJ0fSj8l/VMvajuzg="></head><body dir=ltr><input type=checkbox class="hidden toggle" id=menu-control>
+<input type=checkbox class="hidden toggle" id=toc-control><main class="container flex"><aside class=book-menu><nav><div class=book-brand><img class=book-center src=/COMP52315/logo.svg alt=Logo><h2><a href=/COMP52315>COMP52315 – Performance Engineering, Vectorisation and GPU Programming</a></h2></div><ul><li><span>Course resources</span><ul><li><a href=/COMP52315/setup/contact/>Contact details</a></li><li><a href=/COMP52315/setup/hamilton/>Hamilton accounts</a></li><li><a href=/COMP52315/setup/configuration/>ssh configuration</a></li><li><a href=/COMP52315/setup/unix/>Unix resources</a></li></ul></li><li><a href=/COMP52315/journal/>Journal</a></li><li><a href=/COMP52315/exercises/>Exercises</a><ul></ul></li><li><a href=/COMP52315/notes/>Notes</a><ul></ul></li><li><a href=/COMP52315/resources/>Further resources</a></li><li><a href=/COMP52315/acknowledgements/>Acknowledgements</a></li><li><a href=/COMP52315/past-editions/>Past editions</a><ul><li><a href=/COMP52315/past-editions/2020-21/>Edition 2020/2021</a><ul></ul></li><li><a href=/COMP52315/past-editions/2021-22/>Edition 2021/2022</a><ul></ul></li></ul></li></ul></nav><script>(function(){var menu=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(event){localStorage.setItem("menu.scrollTop",menu.scrollTop);});menu.scrollTop=localStorage.getItem("menu.scrollTop");})();</script></aside><div class=book-page><header class=book-header><div class="flex align-center justify-between"><label for=menu-control><img src=/COMP52315/svg/menu.svg class=book-icon alt=Menu></label>
+<strong>Compiler feedback and the BLIS DGEMM</strong>
+<label for=toc-control><img src=/COMP52315/svg/toc.svg class=book-icon alt="Table of Contents"></label></div><aside class="hidden clearfix"><nav id=TableOfContents><ul><li><a href=#compiler-feedback-and-the-blis-dgemm>Compiler feedback and the BLIS DGEMM</a><ul><li><a href=#does-vectorisation-occur>Does vectorisation occur?</a></li><li><a href=#vectorising-the-correct-loops>Vectorising the correct loops</a></li><li><a href=#providing-more-detailed-information>Providing more detailed information</a></li><li><a href=#putting-it-together>Putting it together</a></li></ul></li></ul></nav></aside></header><article class=markdown><h1 id=compiler-feedback-and-the-blis-dgemm>Compiler feedback and the BLIS DGEMM
+<a class=anchor href=#compiler-feedback-and-the-blis-dgemm>#</a></h1><p>We&rsquo;re going to look at how to interact with the compiler to obtain the
+so that it vectorise a loop the way we want it to.</p><p>As our starting point we will use a C version of the <a href=https://scicomp-durham.github.io/COMP52315/code/exercise09/micro-kernel.c>GEMM
+micro-kernel</a> used in the <a href=https://github.com/flame/blis/>BLIS
+framework</a>.</p><p>We will only look at the optimization report (and at the assembly code)
+produced by the compiler, but we will not run the produced binary. For
+ease of configuration, we will then use the <a href=https://gcc.godbolt.org>Compiler
+explorer</a>, which is an online frontend to
+multiple versions of all major compilers.</p><p>You will find a session of Compiler Explorer targeting the BLIS GEMM
+micro-kernel if you follow <a href=https://gcc.godbolt.org/z/Y4rYq4jnz>this
+link</a>. The view is split in three
+panes:</p><ul><li>on the left, you have a minimal editor with syntax highlighting that
+contains the C code, which you can modify;</li><li>in the middle, you have a dropdown menu to select the compiler you
+want to use, a text box to pass compilation options to your chosen
+compiler, and a view with the generated assembly code; and</li><li>on the right, you have the output of the compiler.</li></ul><p>The compiler is invoked (and the two rightmost views are update) every
+time changes are made to either the code or the compilation flags.
+Currently, the code is being compiler with the latest version of the
+Intel compiler, and the only compilation options are requesting the
+compiler to show us the optimization report.</p><h2 id=does-vectorisation-occur>Does vectorisation occur?
+<a class=anchor href=#does-vectorisation-occur>#</a></h2><p>Currently, the optimisation report should only contain</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-shell data-lang=shell>Compiler returned: <span style=color:#ae81ff>0</span>
+</code></pre></div><p>which means that no optimisation (and in particular, no vectorisation,
+has taken place). You can confirm this by looking at the produced
+assembly code and checking that no vector operations are being used.</p><blockquote class=exercise><h3>Exercise</h3><span>We can try to add some optimization flags to convince the compiler to
+vectorise. In order to use some large vector register, we can use the
+<code>-march=common-avx512</code> flag, which will give us access to vector
+register that are 512 bit wide and can hold up to eight values of type
+<code>double</code>. As the default optimisation level is <code>-O0</code>, this will not be
+enough to convince the compiler to vectorise, but you can try to
+increase the level to allow vectorisation to kick in.</span></blockquote><blockquote class=question><h3>Question</h3><span>What does the vectorisation report say? Which loop was vectorised?</span></blockquote><h2 id=vectorising-the-correct-loops>Vectorising the correct loops
+<a class=anchor href=#vectorising-the-correct-loops>#</a></h2><p>Since the <code>i</code> loop is stride-1, it really makes sense to vectorise the
+innermost loop. Try and convince the compiler to do so.</p><blockquote class=exercise><h3>Exercise</h3><span>The default blocking factors (<code>MR</code> and <code>NR</code>) are both 1. Given that
+AVX512 registers can hold eight matrix elements, it makes sense to use
+larger blocks. Try with some larger blocks.</span></blockquote><blockquote class=question><h3>Question</h3><span>Which loop, if any, was vectorised this time?</span></blockquote><p>The optimization report should contain an estimated (potential) speedup
+at the line that starts with:</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>estimated potential speedup:
+</code></pre></div><blockquote class=question><h3>Question</h3><span><p>Compare the estimated speedup the compiler reports for the original
+loop vectorisation choice and the new one.</p><p>What do you observe? Is this value in line with your expectations?</p></span></blockquote><h2 id=providing-more-detailed-information>Providing more detailed information
+<a class=anchor href=#providing-more-detailed-information>#</a></h2><p>Part of the problem is that the compiler assumes that the array accesses
+are not aligned to cache line boundaries (or vector registers). The
+compiler&rsquo;s cost model is aware that memory accesses are more expensive
+if the data are not aligned, but this drives some bad decisions. We can
+help the compiler by letting it know the byte alignment of the arrays.</p><blockquote class=exercise><h3>Exercise</h3><span><p>We can do this by using the built-in function <code>__builtin_assume_aligned</code>
+(you can find the manual for the corresponding GCC built-in function
+<a href=https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html>here</a>) to
+tell the compiler that the given pointer is 64-byte aligned.</p><p>For example, to allow the compiler to assume that <code>A</code> is <code>64</code>-bit
+aligned you can use</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-C data-lang=C><span style=color:#111>__builtin_assume_aligned</span><span style=color:#111>(</span><span style=color:#111>A</span><span style=color:#111>,</span> <span style=color:#ae81ff>64</span><span style=color:#111>);</span>
+</code></pre></div><p>or</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-C data-lang=C><span style=color:#00a8c8>double</span> <span style=color:#f92672>*</span><span style=color:#111>A_aligned</span> <span style=color:#f92672>=</span> <span style=color:#111>(</span><span style=color:#00a8c8>double</span> <span style=color:#f92672>*</span><span style=color:#111>)</span><span style=color:#111>__builtin_assume_aligned</span><span style=color:#111>(</span><span style=color:#111>A</span><span style=color:#111>,</span> <span style=color:#ae81ff>64</span><span style=color:#111>);</span>
+</code></pre></div><p>to avoid the compilation warning.</p></span></blockquote><blockquote class=question><h3>Question</h3><span><p>Try adding alignment assumptions before the start of the loop nest.</p><p>What happens to the estimated speedup?</p></span></blockquote><h2 id=putting-it-together>Putting it together
+<a class=anchor href=#putting-it-together>#</a></h2><p>The subdirectory <code>code/exercise09/blis-gemm/</code> (which you can download as
+a <code>.tar.bz2</code> archive from
+<a href=https://scicomp-durham.github.io/COMP52315/code/exercise09/blis-gemm.tar.bz2>here</a>) contains a complete
+implementation of this scheme, which you can run on Hamilton. You can
+edit the <code>parameters.h</code> file to set the blocking parameters <code>MR</code> and
+<code>NR</code>, and you can also modify the source file <code>micro-kernel.c</code> to make
+the changes you found beneficial using Compiler Explorer.</p><blockquote class=exercise><h3>Exercise</h3><span><p>To start with, all five blocking parameters in <code>parameters.h</code> are set to</p><ol><li>Compile the code. Run for a range of matrix sizes between 100 and
+2000 (check the <code>bench target</code> in the <code>Makefile</code> to streamline this).
+What performance do you observe?</li></ol></span></blockquote><blockquote class=exercise><h3>Exercise</h3><span>Now try changing setting <code>MC</code> to 128, <code>KC</code> to 256, and <code>NC</code> to 1024, and
+using your good parameters for <code>MR</code> and <code>NR</code>. Recompile and rerun the
+benchmarking. What performance do you observe now?</span></blockquote><blockquote class=exercise><h3>Exercise</h3><span><p>In addition to having good parameters, try aligning the memory of the
+pointers or adding any pragmas you found helpful in the Compiler
+Explorer part of the exercise to the micro kernel in <code>micro-kernel.c</code>.
+Rerun the same experiments again. What performance do you observe now?</p><p>You <em>might</em> needed to stop the <code>micro_kernel</code> from being inlined by the
+Intel compiler for really good performance. In order to do that, you
+need to change the signature to</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-c data-lang=c><span style=color:#111>__attribute__</span><span style=color:#111>((</span><span style=color:#111>noinline</span><span style=color:#111>))</span>
+<span style=color:#00a8c8>static</span> <span style=color:#00a8c8>void</span> <span style=color:#111>micro_kernel</span><span style=color:#111>(...)</span>
+</code></pre></div><p>Rerun again, do you observe any further differences?</p><p>How close to peak performance does the code get?</p></span></blockquote></article><footer class=book-footer><div class="flex flex-wrap justify-between"><div><a class="flex align-center" href=https://github.com/scicomp-durham/COMP52315/commit/5e994206d6719c797436471e6da757e835e3610b title="Last modified by Massimiliano Fasi | February 8, 2023" target=_blank rel=noopener><img src=/COMP52315/svg/calendar.svg class=book-icon alt=Calendar>
+<span>February 8, 2023</span></a></div><div><a class="flex align-center" href=https://github.com/scicomp-durham/COMP52315/edit/main/site/content//exercises/exercise09.md target=_blank rel=noopener><img src=/COMP52315/svg/edit.svg class=book-icon alt=Edit>
+<span>Edit this page</span></a></div></div><div class="flex flex-wrap align-right"><p>© 2020&ndash;2023 <a href=mailto:lawrence@wence.uk>Lawrence Mitchell</a>, <a href=mailto:massimiliano.fasi@durham.ac.uk>Massimiliano Fasi</a>, and <a href=https://www.dur.ac.uk/>Durham University</a>.</p><p><a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/><img alt="Creative Commons License" style=border-width:0 src=/COMP52315/cc-by-sa.svg></a>
+This work is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative
+Commons Attribution-ShareAlike 4.0 International License</a>.</p></div></footer><label for=menu-control class="hidden book-menu-overlay"></label></div><aside class=book-toc><nav id=TableOfContents><ul><li><a href=#compiler-feedback-and-the-blis-dgemm>Compiler feedback and the BLIS DGEMM</a><ul><li><a href=#does-vectorisation-occur>Does vectorisation occur?</a></li><li><a href=#vectorising-the-correct-loops>Vectorising the correct loops</a></li><li><a href=#providing-more-detailed-information>Providing more detailed information</a></li><li><a href=#putting-it-together>Putting it together</a></li></ul></li></ul></nav></aside></main></body></html>

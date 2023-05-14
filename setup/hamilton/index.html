@@ -1,0 +1,102 @@
+<!doctype html><html lang=en dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Access to Hamilton #  For many of the exercises in the course, we will be using the Hamilton supercomputer. If you do not have an account on the machine, please apply for one by completing the registration form on the Self Service Portal. More information on access requests is available here.
+We&rsquo;ll be logging in a lot—please follow the tips on how to configure ssh for swifter login.
+Hamilton quick start guide #  This quick start guide is intended to get you up and running on the Hamilton 8 supercomputer, but it should not be considered a replacement for the official documentation—please refer to it for anything that you cannot find here."><meta name=theme-color content="#FFFFFF"><meta property="og:title" content="Hamilton accounts"><meta property="og:description" content="Access to Hamilton #  For many of the exercises in the course, we will be using the Hamilton supercomputer. If you do not have an account on the machine, please apply for one by completing the registration form on the Self Service Portal. More information on access requests is available here.
+We&rsquo;ll be logging in a lot—please follow the tips on how to configure ssh for swifter login.
+Hamilton quick start guide #  This quick start guide is intended to get you up and running on the Hamilton 8 supercomputer, but it should not be considered a replacement for the official documentation—please refer to it for anything that you cannot find here."><meta property="og:type" content="article"><meta property="og:url" content="https://scicomp-durham.github.io/COMP52315/setup/hamilton/"><meta property="article:modified_time" content="2023-02-08T02:19:00+00:00"><title>Hamilton accounts | COMP52315 – Performance Engineering, Vectorisation and GPU Programming</title><link rel=icon href=/COMP52315/favicon.svg type=image/x-icon><link rel=stylesheet href=/COMP52315/book.min.0cb0b7d6a1ed5d0e95321cc15edca4d6e9cc406149d1f4a3f25fd532f6a3bb38.css integrity="sha256-DLC31qHtXQ6VMhzBXtyk1unMQGFJ0fSj8l/VMvajuzg="></head><body dir=ltr><input type=checkbox class="hidden toggle" id=menu-control>
+<input type=checkbox class="hidden toggle" id=toc-control><main class="container flex"><aside class=book-menu><nav><div class=book-brand><img class=book-center src=/COMP52315/logo.svg alt=Logo><h2><a href=/COMP52315>COMP52315 – Performance Engineering, Vectorisation and GPU Programming</a></h2></div><ul><li><span>Course resources</span><ul><li><a href=/COMP52315/setup/contact/>Contact details</a></li><li><a href=/COMP52315/setup/hamilton/ class=active>Hamilton accounts</a></li><li><a href=/COMP52315/setup/configuration/>ssh configuration</a></li><li><a href=/COMP52315/setup/unix/>Unix resources</a></li></ul></li><li><a href=/COMP52315/journal/>Journal</a></li><li><a href=/COMP52315/exercises/>Exercises</a><ul></ul></li><li><a href=/COMP52315/notes/>Notes</a><ul></ul></li><li><a href=/COMP52315/resources/>Further resources</a></li><li><a href=/COMP52315/acknowledgements/>Acknowledgements</a></li><li><a href=/COMP52315/past-editions/>Past editions</a><ul><li><a href=/COMP52315/past-editions/2020-21/>Edition 2020/2021</a><ul></ul></li><li><a href=/COMP52315/past-editions/2021-22/>Edition 2021/2022</a><ul></ul></li></ul></li></ul></nav><script>(function(){var menu=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(event){localStorage.setItem("menu.scrollTop",menu.scrollTop);});menu.scrollTop=localStorage.getItem("menu.scrollTop");})();</script></aside><div class=book-page><header class=book-header><div class="flex align-center justify-between"><label for=menu-control><img src=/COMP52315/svg/menu.svg class=book-icon alt=Menu></label>
+<strong>Hamilton accounts</strong>
+<label for=toc-control><img src=/COMP52315/svg/toc.svg class=book-icon alt="Table of Contents"></label></div><aside class="hidden clearfix"><nav id=TableOfContents><ul><li><a href=#access-to-hamilton>Access to Hamilton</a></li><li><a href=#hamilton-quick-start-guide>Hamilton quick start guide</a><ul><li><a href=#logging-in-and-transferring-code>Logging in and transferring code</a></li><li><a href=#compilation-environment>Compilation environment</a></li><li><a href=#running-code>Running code</a></li></ul></li></ul></nav></aside></header><article class=markdown><h1 id=access-to-hamilton>Access to Hamilton
+<a class=anchor href=#access-to-hamilton>#</a></h1><p>For many of the exercises in the course, we will be using the
+<a href=https://www.dur.ac.uk/arc/hamilton/>Hamilton</a> supercomputer. If you do
+not have an account on the machine, please apply for one by completing
+the <a href="https://dur.unidesk.ac.uk/tas/public/ssp/content/detail/service?unid=420662860dae4dceb78e69c685621050">registration
+form</a>
+on the Self Service Portal. More information on access requests is
+available
+<a href="https://durhamuniversity.sharepoint.com/Sites/MyDigitalDurham/SitePages/ServicePage.aspx?Service=%22Hamilton%20-%20High%20Performance%20Computing%20%28HPC%29%22">here</a>.</p><p>We&rsquo;ll be logging in a lot—please follow the <a href=https://scicomp-durham.github.io/COMP52315/setup/configuration/>tips</a> on how to configure <code>ssh</code> for swifter login.</p><h1 id=hamilton-quick-start-guide>Hamilton quick start guide
+<a class=anchor href=#hamilton-quick-start-guide>#</a></h1><p>This quick start guide is intended to get you up and running on the Hamilton 8
+supercomputer, but it should not be considered a replacement for the
+<a href=https://www.dur.ac.uk/arc/hamilton/>official documentation</a>—please refer to it
+for anything that you cannot find here.</p><h2 id=logging-in-and-transferring-code>Logging in and transferring code
+<a class=anchor href=#logging-in-and-transferring-code>#</a></h2><blockquote class="book-hint info"><span>The dollar sign <code>$</code> represents the prompt and indicates that the
+commands should be executed in the shell. You should not type this
+character.</span></blockquote><p>You can access Hamilton via <code>ssh</code>, with the command</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>$ ssh &lt;username&gt;@hamilton8.dur.ac.uk
+</code></pre></div><p>where <code>&lt;username></code> is a placeholder for your CIS username (four
+characters followed by two digits).</p><p>Once again, check out the <a href=https://scicomp-durham.github.io/COMP52315/setup/configuration/>tips</a> on how to configure <code>ssh</code> for swifter logins.</p><blockquote class="book-hint warning"><span>If you are unable to log in to Hamilton, you should contact the <a href=mailto:arc-rcp@durham.ac.uk>ARC
+Platform Team</a>, as they are the best placed
+to sort things out.</span></blockquote><p>Hamilton does not mount any of the Durham shared drives, and you have to
+transfer any files you want to have on the machine manually. You can do
+this in a number of way, but the use of the command line tool
+<a href=https://linux.die.net/man/1/scp><code>scp</code></a> is recommended. For example, if
+you are on your local machine then the command</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>$ scp somefile.c USERNAME@hamilton8.dur.ac.uk:~
+</code></pre></div><p>copies <code>somefile.c</code> from your local folder on your local machine to your
+home directory <code>~</code> on Hamilton. The other option is to directly
+download files when you are logged in. Some of the exercises in the
+course will provide more details on how to do this.</p><h2 id=compilation-environment>Compilation environment
+<a class=anchor href=#compilation-environment>#</a></h2><p>As is common with supercomputers, there are many different compiler
+versions available on Hamilton. These are managed with <a href=https://modules.readthedocs.io/en/latest/>environment
+modules</a> so that different
+Hamilton users can control which compilers and tools they get.</p><p>In this course, we will use the GNU Compiler Collection (GCC). You will
+have access to different versions depending on the version of Hamilton
+you are using. The exercises will typically list what are modules you
+need, if any. You can get access to the compiler by running</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>$ module load gcc/12.2
+</code></pre></div><p>After that, you should get</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>$ gcc --version
+gcc <span style=color:#f92672>(</span>GCC<span style=color:#f92672>)</span> 12.2.0
+Copyright <span style=color:#f92672>(</span>C<span style=color:#f92672>)</span> <span style=color:#ae81ff>2019</span> Free Software Foundation, Inc.
+This is free software<span style=color:#111>;</span> see the <span style=color:#111>source</span> <span style=color:#00a8c8>for</span> copying conditions.  There is NO
+warranty<span style=color:#111>;</span> not even <span style=color:#00a8c8>for</span> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+</code></pre></div><h2 id=running-code>Running code
+<a class=anchor href=#running-code>#</a></h2><p>When you log in to the Hamilton system, you are on a &ldquo;login&rdquo; node. You
+can use this to compile code and run some profile analysis programs, but
+you <strong>must not</strong> use it for running your simulations. As with most
+supercomputers, Hamilton consists of two parts.</p><ol><li>login nodes (this is where we&rsquo;ve been so far); and</li><li>compute nodes (this is where you want to run your code).</li></ol><figure style=width:70%><img class=scaled src=https://scicomp-durham.github.io/COMP52315/images/manual/hamilton-nodes.svg alt="Schematic of Hamilton login and compute nodes"><figcaption><p>Schematic of Hamilton login and compute nodes</p></figcaption></figure><p>To run code on the compute nodes you need to submit a job to the
+scheduler. This program takes care of allocating our work to the compute
+nodes to maximise throughput for all users of the system. Hamilton uses
+the
+<a href=https://slurm.schedmd.com/documentation.html>Slurm</a> scheduler.</p><p>To use the scheduler, you need to create a job script, which is a recipe
+for Hamilton to run our code. A job script is a shell script containing
+some magic comments that describe the environment you want to use to run
+our code. The individual exercises contain some examples, as does the
+<a href=https://www.dur.ac.uk/arc/hamilton/usage/jobs/>Hamilton
+documentation</a>.</p><p>Here is a simple example for a serial job.</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-bash data-lang=bash><span style=color:#75715e>#!/bin/bash
+</span><span style=color:#75715e></span><span style=color:#75715e>#SBATCH --job-name=&#34;myjob&#34;</span>
+<span style=color:#75715e>#SBATCH -o myjob.%A.out</span>
+<span style=color:#75715e>#SBATCH -e myjob.%A.err</span>
+<span style=color:#75715e>#SBATCH -p test</span>
+<span style=color:#75715e>#SBATCH -t 00:05:00</span>
+<span style=color:#75715e>#SBATCH --nodes=1</span>
+<span style=color:#75715e>#SBATCH --cpus-per-task=128</span>
+<span style=color:#75715e>#SBATCH --mail-type=ALL</span>
+<span style=color:#75715e>#SBATCH --mail-user=&lt;YOUREMAIL&gt;@durham.ac.uk</span>
+
+<span style=color:#111>source</span> /etc/profile.d/modules.sh
+
+module load gcc/12.2.0
+
+./myexecutable
+</code></pre></div><p>Some things to note. This is a shell script executed with bash (as
+indicated by the shebang-line). Lines beginning with <code>#SBATCH</code> are
+parsed by the job submission command <code>sbatch</code> and are used to provide
+options to it. Here we selected a particular queue <code>test</code> and said
+the job will run for a maximum of five minutes (<code>-t 00:05:00</code>). The
+other options control the size of the job and where output is sent.
+Run <code>man sbatch</code> on the Hamilton login node to see details of these
+flags.</p><blockquote class="book-hint info"><span><p>A typical reason your job might fail is because you did not load the
+necessary modules, so don&rsquo;t forget to do so!</p><p>This is also useful for reproducibility, since it helps you record
+exactly the software you used to produce the results.</p></span></blockquote><p>The comments are followed by the commands that will be run <em>on the
+compute node</em>. If you want to load any modules, you should first source
+the script <code>/etc/profile.d/modules.sh</code> to make the <code>module</code> command
+available. You should then load the modules you used to compile the
+executable that will be run (<code>./myexecutable</code> in the example job script
+above). You can load additional modules, for example, those that will
+give you access to profiling commands. The last line of the script
+should be the sequence of commands to run our code (here
+just the one command <code>myexecutable</code>).</p><p>Having saved this job script, as <code>myjob.slurm</code> say, you submit it with
+<code>sbatch</code></p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>$ sbatch myjob.slurm
+</code></pre></div><p>This job is now submitted to the queue and will run when a slot is
+available.</p><p>You can see what jobs you currently have in the queue with</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>$ squeue -u <span style=color:#111>$USER</span>
+</code></pre></div></article><footer class=book-footer><div class="flex flex-wrap justify-between"><div><a class="flex align-center" href=https://github.com/scicomp-durham/COMP52315/commit/5e994206d6719c797436471e6da757e835e3610b title="Last modified by Massimiliano Fasi | February 8, 2023" target=_blank rel=noopener><img src=/COMP52315/svg/calendar.svg class=book-icon alt=Calendar>
+<span>February 8, 2023</span></a></div><div><a class="flex align-center" href=https://github.com/scicomp-durham/COMP52315/edit/main/site/content//setup/hamilton.md target=_blank rel=noopener><img src=/COMP52315/svg/edit.svg class=book-icon alt=Edit>
+<span>Edit this page</span></a></div></div><div class="flex flex-wrap align-right"><p>© 2020&ndash;2023 <a href=mailto:lawrence@wence.uk>Lawrence Mitchell</a>, <a href=mailto:massimiliano.fasi@durham.ac.uk>Massimiliano Fasi</a>, and <a href=https://www.dur.ac.uk/>Durham University</a>.</p><p><a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/><img alt="Creative Commons License" style=border-width:0 src=/COMP52315/cc-by-sa.svg></a>
+This work is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative
+Commons Attribution-ShareAlike 4.0 International License</a>.</p></div></footer><label for=menu-control class="hidden book-menu-overlay"></label></div><aside class=book-toc><nav id=TableOfContents><ul><li><a href=#access-to-hamilton>Access to Hamilton</a></li><li><a href=#hamilton-quick-start-guide>Hamilton quick start guide</a><ul><li><a href=#logging-in-and-transferring-code>Logging in and transferring code</a></li><li><a href=#compilation-environment>Compilation environment</a></li><li><a href=#running-code>Running code</a></li></ul></li></ul></nav></aside></main></body></html>

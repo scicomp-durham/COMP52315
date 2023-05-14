@@ -1,0 +1,93 @@
+<!doctype html><html lang=en dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Multi-core memory bandwidth #  The goal of this exercise is to measure the memory bandwidth for various vector sizes as a function of the number of cores used to process the vector.
+Again, we will do this with likwid-bench. This time, we will use the clload benchmark.
+Topology of a compute node #  Exercise  The first thing we need to do is figure out what the topology of the node we&rsquo;re running on is."><meta name=theme-color content="#FFFFFF"><meta property="og:title" content="Multi-core memory bandwidth"><meta property="og:description" content="Multi-core memory bandwidth #  The goal of this exercise is to measure the memory bandwidth for various vector sizes as a function of the number of cores used to process the vector.
+Again, we will do this with likwid-bench. This time, we will use the clload benchmark.
+Topology of a compute node #  Exercise  The first thing we need to do is figure out what the topology of the node we&rsquo;re running on is."><meta property="og:type" content="article"><meta property="og:url" content="https://scicomp-durham.github.io/COMP52315/exercises/exercise03/"><meta property="article:modified_time" content="2023-02-08T02:19:00+00:00"><title>Multi-core memory bandwidth | COMP52315 – Performance Engineering, Vectorisation and GPU Programming</title><link rel=icon href=/COMP52315/favicon.svg type=image/x-icon><link rel=stylesheet href=/COMP52315/book.min.0cb0b7d6a1ed5d0e95321cc15edca4d6e9cc406149d1f4a3f25fd532f6a3bb38.css integrity="sha256-DLC31qHtXQ6VMhzBXtyk1unMQGFJ0fSj8l/VMvajuzg="><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css integrity=sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js integrity=sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4 crossorigin=anonymous></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js integrity=sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa crossorigin=anonymous></script><script>document.addEventListener("DOMContentLoaded",function(){renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false},{left:"\\(",right:"\\)",display:false},{left:"\\[",right:"\\]",display:true}]})});</script></head><body dir=ltr><input type=checkbox class="hidden toggle" id=menu-control>
+<input type=checkbox class="hidden toggle" id=toc-control><main class="container flex"><aside class=book-menu><nav><div class=book-brand><img class=book-center src=/COMP52315/logo.svg alt=Logo><h2><a href=/COMP52315>COMP52315 – Performance Engineering, Vectorisation and GPU Programming</a></h2></div><ul><li><span>Course resources</span><ul><li><a href=/COMP52315/setup/contact/>Contact details</a></li><li><a href=/COMP52315/setup/hamilton/>Hamilton accounts</a></li><li><a href=/COMP52315/setup/configuration/>ssh configuration</a></li><li><a href=/COMP52315/setup/unix/>Unix resources</a></li></ul></li><li><a href=/COMP52315/journal/>Journal</a></li><li><a href=/COMP52315/exercises/>Exercises</a><ul></ul></li><li><a href=/COMP52315/notes/>Notes</a><ul></ul></li><li><a href=/COMP52315/resources/>Further resources</a></li><li><a href=/COMP52315/acknowledgements/>Acknowledgements</a></li><li><a href=/COMP52315/past-editions/>Past editions</a><ul><li><a href=/COMP52315/past-editions/2020-21/>Edition 2020/2021</a><ul></ul></li><li><a href=/COMP52315/past-editions/2021-22/>Edition 2021/2022</a><ul></ul></li></ul></li></ul></nav><script>(function(){var menu=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(event){localStorage.setItem("menu.scrollTop",menu.scrollTop);});menu.scrollTop=localStorage.getItem("menu.scrollTop");})();</script></aside><div class=book-page><header class=book-header><div class="flex align-center justify-between"><label for=menu-control><img src=/COMP52315/svg/menu.svg class=book-icon alt=Menu></label>
+<strong>Multi-core memory bandwidth</strong>
+<label for=toc-control><img src=/COMP52315/svg/toc.svg class=book-icon alt="Table of Contents"></label></div><aside class="hidden clearfix"><nav id=TableOfContents><ul><li><a href=#multi-core-memory-bandwidth>Multi-core memory bandwidth</a><ul><li><a href=#topology-of-a-compute-node>Topology of a compute node</a></li><li><a href=#the-likwid-bench-workgroups>The <code>likwid-bench</code> workgroups</a><ul><li><a href=#selecting-the-number-of-cores-to-use>Selecting the number of cores to use</a></li><li><a href=#benchmarking-on-multi-socket-systems>Benchmarking on multi-socket systems</a></li></ul></li><li><a href=#measuring-the-memory-bandwidth>Measuring the memory bandwidth</a></li></ul></li></ul></nav></aside></header><article class=markdown><h1 id=multi-core-memory-bandwidth>Multi-core memory bandwidth
+<a class=anchor href=#multi-core-memory-bandwidth>#</a></h1><p>The goal of this exercise is to measure the memory bandwidth for
+various vector sizes as a function of the number of cores used to
+process the vector.</p><p>Again, we will do this with <code>likwid-bench</code>. This time, we will use the
+<code>clload</code> benchmark.</p><h2 id=topology-of-a-compute-node>Topology of a compute node
+<a class=anchor href=#topology-of-a-compute-node>#</a></h2><blockquote class=exercise><h3>Exercise</h3><span>The first thing we need to do is figure out what the <em>topology</em> of the
+node we&rsquo;re running on is. We can do that by running <code>likwid-topology -g</code>. We can use this to guide appropriate choices of vectors.</span></blockquote><blockquote class=question><h3>Question</h3><span><p>The output of <code>likwid-topology</code> should help you answer these three
+questions:</p><ul><li>How many sockets does a compute node have?</li><li>How many cores does each socket have?</li><li>How large are the L1, L2, and L3 caches?</li><li>Which cache levels are private?</li><li>How many cores share the shared cache?</li></ul></span></blockquote><p>Having answered these questions, you should be able to pick appropriate
+vector sizes to test the parallel memory bandwidth of both cache and
+main memory.</p><h2 id=the-likwid-bench-workgroups>The <code>likwid-bench</code> workgroups
+<a class=anchor href=#the-likwid-bench-workgroups>#</a></h2><h3 id=selecting-the-number-of-cores-to-use>Selecting the number of cores to use
+<a class=anchor href=#selecting-the-number-of-cores-to-use>#</a></h3><p>You should have found that a compute node of Hamilton 8 has two sockets, each
+socket has 64 cores, and each core has one thread. You should also have
+determined that the sizes of the L1, L2, and L3 caches are 32kB, 512kB, and
+16MB, respectively, and the first two levels are core-private whereas the last
+level is shared by a group of four cores. Now we want to run some memory
+benchmarks on multiple cores with <code>likwid-bench</code>.</p><p>In order to select the number of cores to allocate to the benchmark, we have to
+adapt the workgroup string (the string following the <code>-w</code> flag). Previously, we
+just used <code>-w N:size:1</code>; the components of this string are:</p><ul><li><p><code>N</code>
+: The affinity domain on which to <em>allocate</em> the vector. We do not specify any
+affinity domain with <code>N</code>, but we can use <code>S0</code> or <code>S1</code> to choose one of the two
+sockets.</p></li><li><p><code>size</code>
+: The size of the vector.</p></li><li><p><code>1</code>
+: The <em>number</em> of cores to use.</p></li></ul><p>To change the number of cores, we replace <code>1</code> by our choice (say <code>2</code>).
+The vector size is the global vector size, so if we run with a vector
+size $S$ on $N$ cores, then each core gets $\frac{S}{N}$ elements.</p><p>For example, to run with 4 cores on the same socket so that each core
+handles 4kB of data, we run <code>likwid-bench -t clload -w S0:16kB:4</code>, which
+should produce output like the below</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-txt data-lang=txt>Warning: Sanitizing vector length to a multiple of the loop stride 32 and thread count 4 from 2000 elements (16000 bytes) to 1920 elements (15360 bytes)
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 1920/15360 Offset 0 Alignment 512
+Initialization: First thread in domain initializes the whole stream
+--------------------------------------------------------------------------------
+LIKWID MICRO BENCHMARK
+Test: clload
+--------------------------------------------------------------------------------
+Using 1 work groups
+Using 4 threads
+--------------------------------------------------------------------------------
+Running without Marker API. Activate Marker API with -m on commandline.
+--------------------------------------------------------------------------------
+Group: 0 Thread 1 Global Thread 1 running on hwthread 1 - Vector length 480 Offset 480
+Group: 0 Thread 3 Global Thread 3 running on hwthread 3 - Vector length 480 Offset 1440
+Group: 0 Thread 2 Global Thread 2 running on hwthread 2 - Vector length 480 Offset 960
+Group: 0 Thread 0 Global Thread 0 running on hwthread 0 - Vector length 480 Offset 0
+--------------------------------------------------------------------------------
+Cycles:                 3763788760
+CPU Clock:              1996231214
+Cycle Clock:            1996231214
+Time:                   1.885447e+00 sec
+Iterations:             536870912
+Iterations per thread:  134217728
+Inner loop executions:  15
+Size (Byte):            15360
+Size per thread:        3840
+Number of Flops:        0
+MFlops/s:               0.00
+Data volume (Byte):     2061584302080
+<span style=display:block;width:100%;background-color:#e1e1e1>MByte/s:                1093419.21
+</span>Cycles per update:      0.014605
+Cycles per cacheline:   0.116843
+Loads per update:       1
+Stores per update:      0
+Load bytes per element: 8
+Store bytes per elem.:  0
+Instructions:           56371445776
+UOPs:                   48318382080
+--------------------------------------------------------------------------------
+</code></pre></div><p>At the top, <code>likwid-bench</code> reports which cores were used. The rest of
+the output is the same as for the previous exercises. Again, we are
+interested in the highlighted memory bandwidth line.</p><h3 id=benchmarking-on-multi-socket-systems>Benchmarking on multi-socket systems
+<a class=anchor href=#benchmarking-on-multi-socket-systems>#</a></h3><p>If the node has more than one socket, we need to make sure that we
+allocate the vector on the correct socket. For example, if we have two
+64-core sockets and want to benchmark the main memory bandwidth on all 128
+cores, we should write</p><pre><code>likwid-bench -t clload -w S0:1GB:64 -w S1:1GB:64
+</code></pre><p>This tells <code>likwid-bench</code> to allocate two vectors each of 1GB, one on
+each socket, and to use 64 cores on each socket.</p><h2 id=measuring-the-memory-bandwidth>Measuring the memory bandwidth
+<a class=anchor href=#measuring-the-memory-bandwidth>#</a></h2><blockquote class=exercise><h3>Exercise</h3><span><p>You should now produce plots of memory bandwidth as a function of the
+number of cores for data at different levels in the memory hierarchy.</p><p>For the private caches (L1, L2), pick a vector size such that the
+vector fills about half the cache on each core.</p><p>For the L3 cache, pick a vector size to fill around two-thirds of the
+cache.</p><p>For the main memory, pick a vector size of around 1GB/socket.</p><p>You should produce plots of the memory bandwidth as a function of the
+number of cores for each of these different vector sizes.</p></span></blockquote><blockquote class=question><h3>Question</h3><span><p>Do you observe any difference in the <em>scalability</em> of the memory
+bandwidth when you change the size of the vectors?</p><p>Can you explain what you see based on the notion of shared and
+scalable resources?</p></span></blockquote></article><footer class=book-footer><div class="flex flex-wrap justify-between"><div><a class="flex align-center" href=https://github.com/scicomp-durham/COMP52315/commit/5e994206d6719c797436471e6da757e835e3610b title="Last modified by Massimiliano Fasi | February 8, 2023" target=_blank rel=noopener><img src=/COMP52315/svg/calendar.svg class=book-icon alt=Calendar>
+<span>February 8, 2023</span></a></div><div><a class="flex align-center" href=https://github.com/scicomp-durham/COMP52315/edit/main/site/content//exercises/exercise03.md target=_blank rel=noopener><img src=/COMP52315/svg/edit.svg class=book-icon alt=Edit>
+<span>Edit this page</span></a></div></div><div class="flex flex-wrap align-right"><p>© 2020&ndash;2023 <a href=mailto:lawrence@wence.uk>Lawrence Mitchell</a>, <a href=mailto:massimiliano.fasi@durham.ac.uk>Massimiliano Fasi</a>, and <a href=https://www.dur.ac.uk/>Durham University</a>.</p><p><a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/><img alt="Creative Commons License" style=border-width:0 src=/COMP52315/cc-by-sa.svg></a>
+This work is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative
+Commons Attribution-ShareAlike 4.0 International License</a>.</p></div></footer><label for=menu-control class="hidden book-menu-overlay"></label></div><aside class=book-toc><nav id=TableOfContents><ul><li><a href=#multi-core-memory-bandwidth>Multi-core memory bandwidth</a><ul><li><a href=#topology-of-a-compute-node>Topology of a compute node</a></li><li><a href=#the-likwid-bench-workgroups>The <code>likwid-bench</code> workgroups</a><ul><li><a href=#selecting-the-number-of-cores-to-use>Selecting the number of cores to use</a></li><li><a href=#benchmarking-on-multi-socket-systems>Benchmarking on multi-socket systems</a></li></ul></li><li><a href=#measuring-the-memory-bandwidth>Measuring the memory bandwidth</a></li></ul></li></ul></nav></aside></main></body></html>

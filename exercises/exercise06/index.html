@@ -1,0 +1,211 @@
+<!doctype html><html lang=en dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Finding a hotspot and determining the execution limits #  The goal of this exercise is to model the performance of existing code using the tools we have seen so far: the GNU profiler to profile our code and likwid-perfctr to look at performance counters. We will have to instrument the code using the Marker API macros. This is a rather hand-on exercise, in which you will get to modify existing code before running it."><meta name=theme-color content="#FFFFFF"><meta property="og:title" content="Finding a hotspot and determining the execution limits"><meta property="og:description" content="Finding a hotspot and determining the execution limits #  The goal of this exercise is to model the performance of existing code using the tools we have seen so far: the GNU profiler to profile our code and likwid-perfctr to look at performance counters. We will have to instrument the code using the Marker API macros. This is a rather hand-on exercise, in which you will get to modify existing code before running it."><meta property="og:type" content="article"><meta property="og:url" content="https://scicomp-durham.github.io/COMP52315/exercises/exercise06/"><meta property="article:modified_time" content="2023-02-08T02:19:00+00:00"><title>Finding a hotspot and determining the execution limits | COMP52315 – Performance Engineering, Vectorisation and GPU Programming</title><link rel=icon href=/COMP52315/favicon.svg type=image/x-icon><link rel=stylesheet href=/COMP52315/book.min.0cb0b7d6a1ed5d0e95321cc15edca4d6e9cc406149d1f4a3f25fd532f6a3bb38.css integrity="sha256-DLC31qHtXQ6VMhzBXtyk1unMQGFJ0fSj8l/VMvajuzg="></head><body dir=ltr><input type=checkbox class="hidden toggle" id=menu-control>
+<input type=checkbox class="hidden toggle" id=toc-control><main class="container flex"><aside class=book-menu><nav><div class=book-brand><img class=book-center src=/COMP52315/logo.svg alt=Logo><h2><a href=/COMP52315>COMP52315 – Performance Engineering, Vectorisation and GPU Programming</a></h2></div><ul><li><span>Course resources</span><ul><li><a href=/COMP52315/setup/contact/>Contact details</a></li><li><a href=/COMP52315/setup/hamilton/>Hamilton accounts</a></li><li><a href=/COMP52315/setup/configuration/>ssh configuration</a></li><li><a href=/COMP52315/setup/unix/>Unix resources</a></li></ul></li><li><a href=/COMP52315/journal/>Journal</a></li><li><a href=/COMP52315/exercises/>Exercises</a><ul></ul></li><li><a href=/COMP52315/notes/>Notes</a><ul></ul></li><li><a href=/COMP52315/resources/>Further resources</a></li><li><a href=/COMP52315/acknowledgements/>Acknowledgements</a></li><li><a href=/COMP52315/past-editions/>Past editions</a><ul><li><a href=/COMP52315/past-editions/2020-21/>Edition 2020/2021</a><ul></ul></li><li><a href=/COMP52315/past-editions/2021-22/>Edition 2021/2022</a><ul></ul></li></ul></li></ul></nav><script>(function(){var menu=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(event){localStorage.setItem("menu.scrollTop",menu.scrollTop);});menu.scrollTop=localStorage.getItem("menu.scrollTop");})();</script></aside><div class=book-page><header class=book-header><div class="flex align-center justify-between"><label for=menu-control><img src=/COMP52315/svg/menu.svg class=book-icon alt=Menu></label>
+<strong>Finding a hotspot and determining the execution limits</strong>
+<label for=toc-control><img src=/COMP52315/svg/toc.svg class=book-icon alt="Table of Contents"></label></div><aside class="hidden clearfix"><nav id=TableOfContents><ul><li><a href=#finding-a-hotspot-and-determining-the-execution-limits>Finding a hotspot and determining the execution limits</a><ul><li><a href=#profiling-and-instrumenting-a-simple-c-code>Profiling and instrumenting a simple C code</a><ul><li><a href=#background>Background</a></li><li><a href=#profiling-the-code>Profiling the code</a></li><li><a href=#instrumenting-the-code-with-the-marker-api>Instrumenting the code with the Marker API</a><ul><li><a href=#including-the-header-file>Including the header file</a></li><li><a href=#marking-named-regions>Marking named regions</a></li><li><a href=#initialising-and-finalising-the-marker-api>Initialising and finalising the Marker API</a></li><li><a href=#compiling-and-running-the-code>Compiling and running the code</a></li><li><a href=#installing-missing-performance-groups>Installing missing performance groups</a></li></ul></li></ul></li><li><a href=#profiling-and-instrumenting-a-mini-app>Profiling and instrumenting a mini-app</a><ul><li><a href=#downloading-and-compiling-the-software>Downloading and compiling the software</a></li><li><a href=#compiling-and-running-with-profiling-enabled>Compiling and running with profiling enabled</a></li><li><a href=#generating-graphical-call-graphs-from-gprof-output>Generating graphical call graphs from gprof output</a></li><li><a href=#instrumenting-hotspot-functions-with-likwid>Instrumenting hotspot functions with likwid</a></li></ul></li></ul></li></ul></nav></aside></header><article class=markdown><h1 id=finding-a-hotspot-and-determining-the-execution-limits>Finding a hotspot and determining the execution limits
+<a class=anchor href=#finding-a-hotspot-and-determining-the-execution-limits>#</a></h1><p>The goal of this exercise is to model the performance of existing code
+using the tools we have seen so far: the <a href=https://ftp.gnu.org/old-gnu/Manuals/gprof-2.9.1/html_mono/gprof.html>GNU
+profiler</a>
+to profile our code and
+<a href=https://github.com/RRZE-HPC/likwid/wiki/likwid-perfctr><code>likwid-perfctr</code></a>
+to look at performance counters. We will have to instrument the code
+using the <a href=%28https://github.com/RRZE-HPC/likwid/wiki/likwid-perfctr#using-the-marker-api%29>Marker API</a> macros. This is a rather hand-on exercise, in which
+you will get to modify existing code before running it.</p><p>We will be looking at two codes:</p><ol><li><p>a <a href=#profiling-and-instrumenting-a-simple-C-code>simple C code</a>.</p></li><li><p>a <a href=#profiling-and-instrumenting-a-mini-app>mini-app</a>.</p></li></ol><h2 id=profiling-and-instrumenting-a-simple-c-code>Profiling and instrumenting a simple C code
+<a class=anchor href=#profiling-and-instrumenting-a-simple-c-code>#</a></h2><p>In the first half of this exercise, we will be working with the
+<code>code/exercise06/simple_code.c</code>, which you can download from <a href=https://scicomp-durham.github.io/COMP52315/code/exercise06/simple_code.c>this
+website</a>. The file defines two
+functions, <code>perform_computation_one</code> and <code>perform_computation_two</code>,
+which take as input two arrays of <code>double</code>s and operate on them, and a
+<code>main</code>, which allocates and initialises two arrays of length <code>N</code> and
+then calls the two functions on them. The program takes one optional
+command line argument, which represents the size of the two arrays.</p><h3 id=background>Background
+<a class=anchor href=#background>#</a></h3><p>We will be using GCC to compile the code and <code>likwid-perfctr</code> to collect
+performance measurements, and we will need to load the two modules with</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>module load gcc/12.2 likwid/5.2.0
+</code></pre></div><p>To test that the setup is correct, you can try to compile the code
+without optimizations and run it. The following two commands</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>gcc simple_code.c -o simple_code
+<span style=color:#111>time</span> ./simple_code
+</code></pre></div><p>should produce an output along the lines of</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>Using <span style=color:#111>N</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>1000</span>
+First result is 8.0930e+00
+Second result is 3.3102e+03
+
+real	0m0.004s
+user	0m0.003s
+sys	0m0.000s
+</code></pre></div><p>The code accepts one (optional) command line argument, and we can use it
+to specify the vector size <code>N</code>, which is set to <code>1000</code> by default.
+Additional command line arguments are ignored, and a message is printed
+when that happens.</p><h3 id=profiling-the-code>Profiling the code
+<a class=anchor href=#profiling-the-code>#</a></h3><p>First, we will use <code>gprof</code> to find out what function is the hotspot.
+Setting <code>N = 100000</code> via the command line argument should be a good
+choice for this exercise. Do not forget to pass the <code>-pg</code> option to GCC
+when compiling your code. You should also use the <code>-march=native</code> option
+(or the <code>-mavx2 -mfma</code> string) to ensure that the compiler makes use of
+vector registers, if possible.</p><blockquote class="book-hint info"><span>For more information on gprof, the HPC centre at Lawrence Livermore
+have a <a href=https://hpc.llnl.gov/software/development-environment-software/gprof#documentation>useful introductory
+tutorial</a>.</span></blockquote><blockquote class=exercise><h3>Exercise</h3><span><ol><li><p>Compile the code with the lowest optimization level (you can use the
+optimization flag <code>-O0</code>, which is the default), and time one run for
+<code>N = 100000</code>.</p></li><li><p>Increase the optimization level by using the optimization flag <code>-O3</code>.
+Time the code and compare the timing with that of the unoptimized
+run.</p></li><li><p>Now use <code>gprof</code> to read the content of <code>gmon.out</code> for the code
+produced with <code>-O0</code> and <code>-O3</code>.</p></li></ol></span></blockquote><blockquote class="book-hint warning"><span>A program instrumented with gprof will always write its output to
+<code>gmon.out</code> (overwriting any previous information). So you should make
+sure to move the <code>gmon.out</code> from each run to a unique name (perhaps
+describing briefly what you did) before running the next benchmark.</span></blockquote><blockquote class=question><h3>Question</h3><span><ol><li><p>Do the results for <code>-O0</code> and <code>-O3</code> match your expectations? What
+difference do you see, beyond timings?</p></li><li><p>What do you think the explanation for the poor results is?</p></li></ol></span></blockquote><blockquote class=exercise><h3>Exercise</h3><span>Now try to profile the compiled with the <code>-fno-inline</code> and
+<code>-fno-reorder-functions</code> for the optimization level <code>-O3</code>. Does this
+help you figure out what is happening?</span></blockquote><h3 id=instrumenting-the-code-with-the-marker-api>Instrumenting the code with the Marker API
+<a class=anchor href=#instrumenting-the-code-with-the-marker-api>#</a></h3><p>Now we will instrument the code so that we can get the performance
+counters for the two functions individually. We will see how to
+instrument the code, how to compile it, and how to perform the
+measurements. Make sure to check out the <a href=https://github.com/RRZE-HPC/likwid/wiki/likwid-perfctr#using-the-marker-api>section in the
+<code>likwid-perfctr</code> wiki
+page</a>
+to understand what the code is doing, and how to make changes.</p><h4 id=including-the-header-file>Including the header file
+<a class=anchor href=#including-the-header-file>#</a></h4><p>First of all, we need to add, before the beginning of the first
+measurement region, the code snippet</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-c data-lang=c><span style=color:#75715e>#ifdef LIKWID_PERFMON
+</span><span style=color:#75715e>#include</span> <span style=color:#75715e>&lt;likwid-marker.h&gt;</span><span style=color:#75715e>
+</span><span style=color:#75715e>#else
+</span><span style=color:#75715e>#define LIKWID_MARKER_INIT
+</span><span style=color:#75715e>#define LIKWID_MARKER_THREADINIT
+</span><span style=color:#75715e>#define LIKWID_MARKER_SWITCH
+</span><span style=color:#75715e>#define LIKWID_MARKER_REGISTER(regionTag)
+</span><span style=color:#75715e>#define LIKWID_MARKER_START(regionTag)
+</span><span style=color:#75715e>#define LIKWID_MARKER_STOP(regionTag)
+</span><span style=color:#75715e>#define LIKWID_MARKER_CLOSE
+</span><span style=color:#75715e>#define LIKWID_MARKER_GET(regionTag, nevents, events, time, count)
+</span><span style=color:#75715e>#endif
+</span></code></pre></div><p>which will allow us to compile the code with and without the <code>likwid</code>
+header in place. You can download the short header file <a href=https://scicomp-durham.github.io/COMP52315/code/snippets/likwidinc.h><code>likwidinc.h</code></a> and include it in <code>simple_code.c</code> with</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-c data-lang=c><span style=color:#75715e>#include</span> <span style=color:#75715e>&#34;likwidinc.h&#34;</span><span style=color:#75715e>
+</span></code></pre></div><h4 id=marking-named-regions>Marking named regions
+<a class=anchor href=#marking-named-regions>#</a></h4><p>Next, we need to enclose the portions of code we want to measure in a
+named region. We can do that easily with the two macros</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-C data-lang=C><span style=color:#111>LIKWID_MARKER_START</span><span style=color:#111>(</span><span style=color:#d88200>&#34;&lt;region_name&gt;&#34;</span><span style=color:#111>);</span>
+
+<span style=color:#111>LIKWID_MARKER_STOP</span><span style=color:#111>(</span><span style=color:#d88200>&#34;&lt;region_name&gt;&#34;</span><span style=color:#111>);</span>
+</code></pre></div><p>where <code>&lt;region_name></code> is a string that will be used to identify the
+portion of code in the output of <code>likwid-perfctr</code>. Try to create two
+regions, one for each function.</p><h4 id=initialising-and-finalising-the-marker-api>Initialising and finalising the Marker API
+<a class=anchor href=#initialising-and-finalising-the-marker-api>#</a></h4><p>Finally, we need to modify the <code>main</code> function by adding</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-c data-lang=c><span style=color:#111>LIKWID_MARKER_INIT</span><span style=color:#111>;</span>
+<span style=color:#111>LIKWID_MARKER_THREADINIT</span><span style=color:#111>;</span>
+</code></pre></div><p>before the first call to a <code>LIKWID_MARKER_START</code> and</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-c data-lang=c><span style=color:#111>LIKWID_MARKER_CLOSE</span><span style=color:#111>;</span>
+</code></pre></div><p>after the last call to a <code>LIKWID_MARKER_STOP</code>.</p><blockquote class="book-hint warning"><span>Make sure that all macros are reachable. For example, they should not be
+in a branch of an <code>if</code> statement or after a <code>return</code> instructions.</span></blockquote><p>You can look at the <a href=https://scicomp-durham.github.io/COMP52315/code/exercise05/stream.c>C source code</a> we
+used in <a href=https://scicomp-durham.github.io/COMP52315/exercises/exercise05/>Exercise 5</a> to see an example C
+code that uses the Marker API.</p><h4 id=compiling-and-running-the-code>Compiling and running the code
+<a class=anchor href=#compiling-and-running-the-code>#</a></h4><p>Next, we need to compile and run the code, which we can do with the same
+commands as in <a href=https://scicomp-durham.github.io/COMP52315/exercises/exercise05/>Exercise 5</a>. Assuming that
+your annotated code is in the file <code>simple_code.c</code>, you can compile it
+with</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>gcc -std<span style=color:#f92672>=</span>c99 -mfma -O1 -DLIKWID_PERFMON -fno-inline -march<span style=color:#f92672>=</span>native <span style=color:#8045ff>\
+</span><span style=color:#8045ff></span>    -o simple_code simple_code.c -llikwid
+</code></pre></div><p>and you can measure the performance of the executable for <code>N = 100000</code>
+with</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>likwid-perfctr -m -g <span style=color:#d88200>&#34;&lt;group_string&gt;&#34;</span> -C <span style=color:#ae81ff>0</span> ./simple_codef <span style=color:#ae81ff>100000</span>
+</code></pre></div><p>Here, <code>&lt;group_string></code> can be either:</p><ol><li>a <a href=https://github.com/RRZE-HPC/likwid/wiki/likwid-perfctr#using-custom-event-sets>custom even
+set</a>
+of the form <code>&lt;counter>:&lt;register></code>, where <code>&lt;counter></code> is the
+performance counter we want to use (for example <code>LS_DISPATCH_LOADS</code>)
+and <code>&lt;register></code> is the register in which we want to save it; or</li><li>a suitable <a href=https://github.com/RRZE-HPC/likwid/wiki/likwid-perfctr#performance-groups>performance
+group</a>,
+such as <code>BRANCH</code>, <code>DATA</code>, <code>FLOPS_DP</code>, or <code>TLB</code>, for example. You can
+see the complete list of performance group supported on the <a href=https://github.com/RRZE-HPC/likwid/tree/master/groups/zen2>GitHub
+folder for the AMD Zen2
+microarchitecture</a>.
+Each <code>.txt</code> file is a performance group, and you can what kind of
+event sets and metrics it will produce by looking at the individual
+files.</li></ol><h4 id=installing-missing-performance-groups>Installing missing performance groups
+<a class=anchor href=#installing-missing-performance-groups>#</a></h4><p>Not all performance groups are installed on Hamilton. In fact, we will
+be interested in the <a href=https://github.com/RRZE-HPC/likwid/blob/master/groups/zen2/MEM_DP.txt><code>MEM_DP group</code></a>,
+which reports the operational intensity. This group is not available by
+default, but you can download by issuing from a login node the command</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>mkdir -p ~/.likwid/groups/zen2/
+wget https://raw.githubusercontent.com/RRZE-HPC/likwid/master/groups/zen2/MEM_DP.txt -P ~/.likwid/groups/zen2/
+</code></pre></div><p>If the command executed successfully, the <code>MEM_DP</code> group should now be
+available in <code>likwid-perfctr</code>. You can check this with <code>likwid-perfctr -a</code>, which should produce a list of groups whose last item is</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-text data-lang=text>  MEM_DP	Main memory bandwidth in MBytes/s (experimental)
+</code></pre></div><blockquote class=exercise><h3>Exercise</h3><span><ol><li><p>Annotate the code in <code>simple_code.c</code> so that all the computation in
+<code>perform_computation_one</code> and <code>perform_computation_two</code> is in two
+named regions.</p></li><li><p>Measure the operational intensity of your code using the <code>MEM_DP</code>
+performance group.</p></li></ol></span></blockquote><h2 id=profiling-and-instrumenting-a-mini-app>Profiling and instrumenting a mini-app
+<a class=anchor href=#profiling-and-instrumenting-a-mini-app>#</a></h2><p>So far, we&rsquo;ve only run very simple benchmarks. Now we&rsquo;re going to try
+and find some information in a larger code. We will look at the
+<a href=https://github.com/Mantevo/miniMD><code>miniMD</code></a> application which has
+been developed as part of the <a href=https://mantevo.github.io>Mantevo</a>
+project. This is a molecular dynamics code that implements algorithms
+and data structures from a large research code, but in a small package
+that is amenable to benchmarking and trying out different
+optimisations.</p><p>The aim is to run and profile the code to determine where it spends
+all its time, and then dig a little deeper using likwid markers and
+the performance counters API.</p><h3 id=downloading-and-compiling-the-software>Downloading and compiling the software
+<a class=anchor href=#downloading-and-compiling-the-software>#</a></h3><p><code>miniMD</code> is maintained on
+<a href=https://github.com/Mantevo/miniMD/>GitHub</a>, so after logging in to
+Hamilton, you can get the source code with</p><pre><code>git clone https://github.com/Mantevo/miniMD.git
+</code></pre><p>The code is parallelised with MPI, so we need to load some modules to
+make the right compilers available.</p><pre><code>module load intel/2022.2
+module load intelmpi/2021.6
+</code></pre><p>We will compile the &ldquo;reference&rdquo; implementation which is the in <code>ref</code>
+subdirectory. The build system uses
+<a href=https://www.gnu.org/software/make/><code>make</code></a>, so first we&rsquo;ll just
+compile and check things work. Run <code>make intel</code>. You should see some
+output, which ends with</p><pre><code>size ../miniMD_intel
+   text    data     bss     dec     hex filename
+ 219867   20880    2304  243051   3b56b ../miniMD_intel
+make[1]: Leaving directory `.../miniMD/ref/Obj_intel'
+</code></pre><p>You can check the compilation was successful with <code>make test</code></p><h3 id=compiling-and-running-with-profiling-enabled>Compiling and running with profiling enabled
+<a class=anchor href=#compiling-and-running-with-profiling-enabled>#</a></h3><p>Having verified the code runs correctly, we will now recompile with
+profiling enabled. First run <code>make clean</code> to delete the
+executable. You will need to edit the <code>Makefile.intel</code> file
+to add <code>-pg</code> to the compile and link flags (do this by
+modifying the <code>CCFLAGS</code> and <code>LINKFLAGS</code>
+variables). Now run <code>make intel</code> again.</p><blockquote class=exercise><h3>Exercise</h3><span><ol><li>Profile the default run on a compute node. This should
+produce a <code>gmon.out</code> file.</li><li>Produce the gprofile output with <code>gprof ./miniMD_Intel gmon.out</code>
+(if it scrolls off the screen, you can redirect the output to a
+text file by appending <code>> SOMETEXTFILE.txt</code> to the
+command and then look at it in an editor)</li></ol></span></blockquote><blockquote class=question><h3>Question</h3><span>Where does the code spend most of its time?</span></blockquote><blockquote class=exercise><h3>Exercise</h3><span><p><code>miniMD</code> implements a few different algorithms
+which can be selected with command line options and choosing
+the right input file. Run profiling for the following sets of options.</p><ol><li><code>./miniMD_intel -i in.lj.miniMD --half_neigh 0</code></li><li><code>./miniMD_intel -i in.lj.miniMD --half_neigh 1</code></li><li><code>./miniMD_intel -i in.eam.miniMD --half_neigh 0</code></li><li><code>./miniMD_intel -i in.eam.miniMD --half_neigh 1</code></li></ol></span></blockquote><blockquote class=question><h3>Question</h3><span>Do you always see the same functions at the top of
+the profile?</span></blockquote><h3 id=generating-graphical-call-graphs-from-gprof-output>Generating graphical call graphs from gprof output
+<a class=anchor href=#generating-graphical-call-graphs-from-gprof-output>#</a></h3><p>Inspecting the gprof output just as a text file can be slightly hard
+to understand. A clearly overview can often be obtained by creating a
+visualisation of the call graph. We can do this with
+<a href=https://github.com/jrfonseca/gprof2dot><code>gprof2dot</code></a> which is a
+Python package that turns gprof (and other profiling output) into the
+<a href=https://graphviz.gitlab.io/documentation/>dot</a> graph format. This
+can then be converted to PDF, PNG, or other graphical formats (see the
+<a href=https://graphviz.gitlab.io/documentation/>graphviz documentation</a>
+for more details).</p><p>Minimally, having installed <code>gprof2dot</code> and graphviz, you can generate
+a call graph. First, you need to convert the <code>gmon.out</code> to the textual
+format, with <code>gprof ./miniMD_intel gmon.out > gmon-output.txt</code>. Then
+run <code>gprof2dot gmon-output.txt -o gmon-output.dot</code>. Finally, use <code>dot -Tpdf gmon-output.dot -o callgraph.pdf</code> to generate a PDF.</p><h3 id=instrumenting-hotspot-functions-with-likwid>Instrumenting hotspot functions with likwid
+<a class=anchor href=#instrumenting-hotspot-functions-with-likwid>#</a></h3><p>Having determined which functions are the hotspots, we&rsquo;ll try to get
+some more information about their performance. As above, we will use
+<code>likwid-perfctr</code> and its <a href=https://github.com/RRZE-HPC/likwid/wiki/likwid-perfctr#using-the-marker-api>marker
+API</a>.</p><p>In order to instrument a function, we need to find its location in the
+source code. We can achieve this by using <code>grep</code>: running</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>grep -n &lt;NAME_OF_FUNCTION&gt; *.cpp
+</code></pre></div><p>will search for the string <code>&lt;NAME_OF_FUNCTION></code> in all the <code>.cpp</code> files
+in the current folder and will print matches, along with line numbers.</p><p>For instrumentation with the Marker API, we need to follow the steps in
+we took <a href=#instrumenting-the-code-with-the-marker-api>for the simpler
+code</a>, but we will have to
+operate on different files. The <a href=#including-the-header-file>header
+file</a> should be included in <code>ljs.h</code>, and the
+<a href=#initialising-and-finalising-the-marker-api>initialisation and finalisation of the
+API</a> should be placed in
+the <code>main</code> function, which is located in <code>ljs.cpp</code>.</p><p>The flags we used <a href=#compiling-and-running-the-code>compile the code</a>
+will have to be added to the appropriate <code>Makefile</code>. As we are using
+<code>make intel</code> to compile, we should once again edit <code>Makefile.intel</code>by</p><ol><li>removing the <code>-pg</code> flag from both <code>CCFLAGS</code> and <code>LINKFLAGS</code>; and</li><li>adding <code>-DLIKWID_PERFMON</code> to <code>CCFLAGS</code> and <code>-DLIKWID_PERFMON -llikwid</code> to <code>LINKFLAGS</code>.</li></ol><p>Finally, we&rsquo;re ready to rebuild everything, so run <code>make intel</code>.</p><p>If you run <code>./miniMD_intel</code> on its own, everything should work, but
+you should see</p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>Running without Marker API. Activate Marker API with -m on commandline.
+</code></pre></div><p>being printed (this indicates that we managed to successfully add all
+the performance monitoring, but are not yet using <code>likwid-perfctr</code>).</p><blockquote class=exercise><h3>Exercise</h3><span><p>Run a profile of the memory and floating point performance. You can use
+the <code>MEM_DP</code> group, which can be installed <a href=#installing-missing-performance-groups>as explained
+above</a></p><div class=highlight><pre style=color:#272822;background-color:#fafafa><code class=language-sh data-lang=sh>likwid-perfctr -C <span style=color:#ae81ff>0</span> -g MEM_DP -m ./miniMD_intel -i in.lj.miniMD --half_neigh <span style=color:#ae81ff>1</span>
+</code></pre></div><p>If you want to take the harder route, you can take the measurements
+detailed in the
+<a href=https://github.com/RRZE-HPC/likwid/blob/master/groups/zen2/MEM_DP.txt><code>MEM_DP.txt</code></a>
+file by hand, and then compute the <code>Operational intensity</code> metric as
+defined there. If some of the event sets do not work as you expect when
+you use them directly, you can try to use other performance groups, such
+as
+<a href=https://github.com/RRZE-HPC/likwid/blob/master/groups/zen2/FLOPS_DP.txt><code>FLOPS_DP</code></a>
+for instructions and
+<a href=https://github.com/RRZE-HPC/likwid/blob/master/groups/zen2/MEM.txt><code>MEM</code></a>
+for memory. .</p></span></blockquote><blockquote class=question><h3>Question</h3><span>What operational intensity do you observe? For this operational
+intensity, is the code at the roofline limit?</span></blockquote><blockquote class=exercise><h3>Exercise</h3><span>Try the same profiling, but this time with with <code>--half_neigh 0</code> and
+the <code>in.eam.miniMD</code> input file.</span></blockquote><blockquote class=question><h3>Question</h3><span>Do you notice any differences in the profiles?</span></blockquote><blockquote class=question><h3>Question</h3><span>Can you suggest some next steps to try and improve performance?</span></blockquote></article><footer class=book-footer><div class="flex flex-wrap justify-between"><div><a class="flex align-center" href=https://github.com/scicomp-durham/COMP52315/commit/5e994206d6719c797436471e6da757e835e3610b title="Last modified by Massimiliano Fasi | February 8, 2023" target=_blank rel=noopener><img src=/COMP52315/svg/calendar.svg class=book-icon alt=Calendar>
+<span>February 8, 2023</span></a></div><div><a class="flex align-center" href=https://github.com/scicomp-durham/COMP52315/edit/main/site/content//exercises/exercise06.md target=_blank rel=noopener><img src=/COMP52315/svg/edit.svg class=book-icon alt=Edit>
+<span>Edit this page</span></a></div></div><div class="flex flex-wrap align-right"><p>© 2020&ndash;2023 <a href=mailto:lawrence@wence.uk>Lawrence Mitchell</a>, <a href=mailto:massimiliano.fasi@durham.ac.uk>Massimiliano Fasi</a>, and <a href=https://www.dur.ac.uk/>Durham University</a>.</p><p><a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/><img alt="Creative Commons License" style=border-width:0 src=/COMP52315/cc-by-sa.svg></a>
+This work is licensed under a <a rel=license href=http://creativecommons.org/licenses/by-sa/4.0/>Creative
+Commons Attribution-ShareAlike 4.0 International License</a>.</p></div></footer><label for=menu-control class="hidden book-menu-overlay"></label></div><aside class=book-toc><nav id=TableOfContents><ul><li><a href=#finding-a-hotspot-and-determining-the-execution-limits>Finding a hotspot and determining the execution limits</a><ul><li><a href=#profiling-and-instrumenting-a-simple-c-code>Profiling and instrumenting a simple C code</a><ul><li><a href=#background>Background</a></li><li><a href=#profiling-the-code>Profiling the code</a></li><li><a href=#instrumenting-the-code-with-the-marker-api>Instrumenting the code with the Marker API</a><ul><li><a href=#including-the-header-file>Including the header file</a></li><li><a href=#marking-named-regions>Marking named regions</a></li><li><a href=#initialising-and-finalising-the-marker-api>Initialising and finalising the Marker API</a></li><li><a href=#compiling-and-running-the-code>Compiling and running the code</a></li><li><a href=#installing-missing-performance-groups>Installing missing performance groups</a></li></ul></li></ul></li><li><a href=#profiling-and-instrumenting-a-mini-app>Profiling and instrumenting a mini-app</a><ul><li><a href=#downloading-and-compiling-the-software>Downloading and compiling the software</a></li><li><a href=#compiling-and-running-with-profiling-enabled>Compiling and running with profiling enabled</a></li><li><a href=#generating-graphical-call-graphs-from-gprof-output>Generating graphical call graphs from gprof output</a></li><li><a href=#instrumenting-hotspot-functions-with-likwid>Instrumenting hotspot functions with likwid</a></li></ul></li></ul></li></ul></nav></aside></main></body></html>
